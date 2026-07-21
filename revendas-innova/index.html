@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INNA - Central de Conversas</title>
+  
+  <!-- Fontes Premium -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Estilos Globais e do App -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Biblioteca Supabase JS (V2) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Ícones Lucide -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- ================= TELA DE LOGIN ================= -->
+  <div id="login-screen" class="login-wrapper">
+    <button class="btn-theme-toggle-floating" id="btn-login-theme-toggle" title="Alternar tema">
+      <i data-lucide="moon"></i>
+    </button>
+    <div class="login-card">
+      <div class="login-header">
+        <div class="inna-logo-container">
+          <img src="logo-light.png" alt="INNA" class="inna-logo-img logo-light-only">
+          <img src="logo-dark.png" alt="INNA" class="inna-logo-img logo-dark-only">
+        </div>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label for="login-email">E-mail</label>
+          <div class="input-icon-wrapper">
+            <i data-lucide="mail"></i>
+            <input type="email" id="login-email" placeholder="nome@empresa.com" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Senha</label>
+          <div class="input-icon-wrapper">
+            <i data-lucide="lock"></i>
+            <input type="password" id="login-password" placeholder="Digite sua senha" required>
+          </div>
+        </div>
+
+        <div id="login-error" class="login-error-msg hidden">
+          <i data-lucide="alert-circle"></i>
+          <span id="login-error-text">Credenciais inválidas</span>
+        </div>
+
+        <button type="submit" class="btn-primary" id="btn-login-submit">
+          <span>Entrar no Sistema</span>
+          <i data-lucide="arrow-right"></i>
+        </button>
+      </form>
+
+      <!-- Configurações do Supabase (Opcional/Avançado) -->
+      <div class="advanced-settings-accordion">
+        <button type="button" class="accordion-toggle" id="btn-toggle-advanced">
+          <i data-lucide="settings"></i>
+          <span>Configurações do Banco (Supabase)</span>
+          <i data-lucide="chevron-down" class="chevron-icon"></i>
+        </button>
+        
+        <div class="accordion-content hidden" id="advanced-settings-content">
+          <p class="settings-help-text">
+            Insira suas credenciais do Supabase para conectar com suas tabelas reais. 
+            Estes dados são salvos localmente no seu navegador.
+          </p>
+          <div class="form-group">
+            <label for="config-sb-url">Supabase URL</label>
+            <input type="text" id="config-sb-url" placeholder="https://exemplo.supabase.co">
+          </div>
+          <div class="form-group">
+            <label for="config-sb-key">Supabase Anon Key</label>
+            <input type="password" id="config-sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+          </div>
+          <button type="button" class="btn-secondary btn-sm" id="btn-save-config">
+            Salvar Configurações
+          </button>
+        </div>
+      </div>
+
+      <div class="login-footer">
+        <span class="divider-text">ou</span>
+        <button type="button" class="btn-demo" id="btn-demo-mode">
+          <i data-lucide="play-circle"></i>
+          <span>Entrar em Modo de Demonstração</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= WORKSPACE CENTRAL (APP) ================= -->
+  <div id="app-screen" class="app-container hidden">
+    
+    <!-- COLUNA 1 (ESQUERDA): LISTA DE CONVERSAS -->
+    <aside class="sidebar" id="column-inbox">
+      <div class="sidebar-header">
+        <div class="sidebar-user-profile">
+          <div class="user-avatar">
+            <i data-lucide="user"></i>
+          </div>
+          <div class="user-info">
+            <span class="user-name">Consultor INNA</span>
+            <span class="user-role">Leitura</span>
+          </div>
+        </div>
+        <div class="sidebar-header-actions">
+          <button class="btn-theme-toggle" id="btn-theme-toggle" title="Alternar tema">
+            <i data-lucide="moon"></i>
+          </button>
+          <button class="btn-logout-icon" id="btn-logout" title="Sair do sistema">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Pesquisa -->
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="search-input" placeholder="Pesquisar por nome, tel ou empreendimento...">
+          <button id="btn-clear-search" class="clear-search-btn hidden">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de Conversas -->
+      <div class="conversation-list-container">
+        <div id="conversation-list" class="conversation-list">
+          <!-- Injetado dinamicamente via JS -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- COLUNA 2 (CENTRAL): TIMELINE DO CHAT -->
+    <main class="chat-area hidden-mobile" id="column-chat">
+      <!-- Cabeçalho do Chat -->
+      <header class="chat-header" id="chat-header-container">
+        <!-- Injetado dinamicamente via JS -->
+      </header>
+
+      <!-- Histórico de Mensagens -->
+      <div class="message-viewport" id="message-viewport">
+        <!-- Injetado dinamicamente via JS -->
+      </div>
+
+      <!-- Barra de Envio (Somente Leitura - Preparado para o Futuro) -->
+      <div class="chat-input-area disabled-mode">
+        <div class="future-feature-banner">
+          <i data-lucide="eye"></i>
+          <span>Modo Somente Leitura. Envio de mensagens desabilitado nesta versão.</span>
+        </div>
+        <div class="input-actions-wrapper">
+          <button class="btn-action-disabled" title="Adicionar anexo (Indisponível)" disabled>
+            <i data-lucide="paperclip"></i>
+          </button>
+          <button class="btn-action-disabled" title="Emoji (Indisponível)" disabled>
+            <i data-lucide="smile"></i>
+          </button>
+          
+          <div class="textarea-placeholder">
+            Responda ao cliente... (Indisponível)
+          </div>
+
+          <button class="btn-send-disabled" disabled>
+            <i data-lucide="send"></i>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- COLUNA 3 (DIREITA): DETALHES DO CONTATO & IA -->
+    <aside class="info-sidebar hidden-tablet hidden-mobile" id="column-details">
+      <!-- Cabeçalho Detalhes -->
+      <div class="info-header">
+        <h3>Informações do Contato</h3>
+        <button class="btn-close-details" id="btn-close-details" title="Fechar Detalhes">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="info-sidebar-content">
+        <!-- Painel de Detalhes do Contato -->
+        <div class="info-section">
+          <div id="contact-panel-container">
+            <!-- Injetado dinamicamente via JS -->
+          </div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Painel de Resumo da IA -->
+        <div class="info-section ai-summary-wrapper">
+          <div class="section-title-with-badge">
+            <h4>Resumo da IA</h4>
+            <span class="badge-ai-section">Beta</span>
+          </div>
+          <div id="ai-summary-container">
+            <!-- Injetado dinamicamente via JS -->
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Script de Configuração Inicial -->
+  <script src="config.js"></script>
+  <!-- Script Principal da Aplicação -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

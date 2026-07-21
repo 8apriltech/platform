@@ -1,0 +1,2727 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding • Morada Imobiliária</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Supabase JS SDK v2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style type="text/tailwindcss">
+        @theme {
+            --color-primary: #22c55e;
+            --color-secondary: #22d3ee;
+            --color-brand-bg: #020617;
+            --color-brand-card: rgba(13, 20, 38, 0.45);
+            --color-brand-border: rgba(255, 255, 255, 0.06);
+            --color-brand-text: #f8fafc;
+            --color-brand-muted: #94a3b8;
+            
+            --animate-fade-in: fade-in 0.25s ease-out;
+            --animate-slide-up: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slide-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        body {
+            background-color: var(--color-brand-bg);
+            background-image: 
+                radial-gradient(circle at 10% 15%, rgba(34, 197, 94, 0.07), transparent 350px),
+                radial-gradient(circle at 90% 85%, rgba(34, 211, 238, 0.05), transparent 400px);
+            background-attachment: fixed;
+            color: var(--color-brand-text);
+        }
+        
+        .glass-panel {
+            background: rgba(13, 20, 38, 0.55);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        
+        .glass-panel:hover {
+            border-color: rgba(34, 197, 94, 0.15);
+            box-shadow: 
+                0 0 40px rgba(34, 197, 94, 0.02),
+                0 0 50px rgba(34, 211, 238, 0.02);
+        }
+        
+        .active-sidebar-item {
+            background: rgba(34, 197, 94, 0.08);
+            border-color: rgba(34, 197, 94, 0.25);
+            color: #ffffff;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased relative min-h-screen">
+
+    <!-- App Shell Layout -->
+    <div class="flex min-h-screen">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-76 border-r border-brand-border bg-brand-bg/80 backdrop-blur-xl flex flex-col fixed inset-y-0 left-0 z-20 transition-all duration-300">
+            <!-- Header Logo -->
+            <div class="p-6 border-b border-brand-border flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="https://i.ibb.co/jZZTJq8c/092ff974-9b64-49b8-a40c-7d0a266c95bf.png" alt="Morada Imobiliária Logo" class="w-9 h-9 object-contain">
+                    <div>
+                        <h1 class="text-sm font-bold tracking-tight text-white">Morada Imobiliária</h1>
+                        <span class="text-[10px] font-medium text-brand-muted uppercase tracking-wider">Onboarding System</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Global Telemetry Progress -->
+            <div class="p-5 border-b border-brand-border bg-slate-950/20">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs text-brand-muted font-medium">Progresso Geral</span>
+                    <span id="sidebarProgressText" class="text-xs font-bold text-primary">0%</span>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                    <div id="sidebarProgressBar" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- Nav Links -->
+            <nav class="flex-1 overflow-y-auto p-4 space-y-1.5">
+                <button onclick="switchStep('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-brand-muted hover:text-white hover:bg-white/5 transition-all text-left">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Dashboard Geral</span>
+                </button>
+                
+                <div class="pt-4 pb-2 px-3 text-[10px] font-bold text-brand-muted uppercase tracking-wider">Etapas do Processo</div>
+                
+                <!-- 10 Steps list -->
+                <button onclick="switchStep(1)" id="nav-step-1" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">1</span>
+                        <span class="truncate">Dados da Empresa</span>
+                    </div>
+                    <span id="badge-nav-1" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(2)" id="nav-step-2" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">2</span>
+                        <span class="truncate">Equipe & Corretores</span>
+                    </div>
+                    <span id="badge-nav-2" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(3)" id="nav-step-3" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">3</span>
+                        <span class="truncate">Cadastro de Imóveis</span>
+                    </div>
+                    <span id="badge-nav-3" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(4)" id="nav-step-4" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">4</span>
+                        <span class="truncate">Proprietários</span>
+                    </div>
+                    <span id="badge-nav-4" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(5)" id="nav-step-5" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">5</span>
+                        <span class="truncate">Documentos & Arquivos</span>
+                    </div>
+                    <span id="badge-nav-5" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(6)" id="nav-step-6" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">6</span>
+                        <span class="truncate">Processo Financeiro</span>
+                    </div>
+                    <span id="badge-nav-6" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(7)" id="nav-step-7" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">7</span>
+                        <span class="truncate">Categorias Financeiras</span>
+                    </div>
+                    <span id="badge-nav-7" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(8)" id="nav-step-8" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">8</span>
+                        <span class="truncate">Fluxo Operacional</span>
+                    </div>
+                    <span id="badge-nav-8" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(9)" id="nav-step-9" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">9</span>
+                        <span class="truncate">Permissões de Acesso</span>
+                    </div>
+                    <span id="badge-nav-9" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+
+                <button onclick="switchStep(10)" id="nav-step-10" class="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-sm text-brand-muted hover:text-white hover:bg-white/5 border border-transparent transition-all text-left">
+                    <div class="flex items-center gap-3">
+                        <span class="text-[10px] w-4.5 h-4.5 rounded-md bg-slate-900 border border-brand-border flex items-center justify-center font-bold font-mono">10</span>
+                        <span class="truncate">Identidade Visual</span>
+                    </div>
+                    <span id="badge-nav-10" class="hidden text-primary"><i data-lucide="check-circle-2" class="w-4 h-4"></i></span>
+                </button>
+            </nav>
+            
+            <!-- Sidebar Footer Support -->
+            <div class="p-4 border-t border-brand-border bg-slate-950/30 flex flex-col gap-3">
+                <div class="flex justify-between items-center text-[10px] text-brand-muted">
+                    <span>Database Engine:</span>
+                    <span id="serverStatus" class="font-mono text-amber-500 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Local
+                    </span>
+                </div>
+                <button onclick="resetAllOnboarding()" class="w-full py-1.5 bg-slate-900 hover:bg-red-950/20 hover:border-red-900/30 border border-brand-border rounded-lg text-[10px] font-semibold text-brand-muted hover:text-red-400 transition-all flex items-center justify-center gap-1.5">
+                    <i data-lucide="refresh-cw" class="w-3 h-3"></i> Reiniciar Onboarding
+                </button>
+                
+                <!-- Credit Developer -->
+                <div class="pt-2.5 border-t border-brand-border/40 flex items-center justify-center gap-2">
+                    <img src="https://i.ibb.co/twv6Dfmt/Chat-GPT-Image-14-de-mai-de-2026-08-39-00.png" alt="Logo 8April" class="w-5 h-5 object-contain opacity-80 hover:opacity-100 transition-opacity">
+                    <span class="text-[9px] font-medium text-brand-muted">Desenvolvido por <span class="text-white font-semibold">8April Tech</span></span>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Workspace -->
+        <div class="flex-1 pl-76 flex flex-col min-h-screen">
+            
+            <!-- Top Navigation / Controls Bar -->
+            <header class="h-16 border-b border-brand-border px-8 bg-brand-bg/40 backdrop-blur-md flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center gap-3 text-xs">
+                    <span class="text-brand-muted font-medium">Morada Imobiliária</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-brand-border"></i>
+                    <span id="headerCrumbActive" class="text-white font-bold">Carregando...</span>
+                </div>
+                
+                <!-- Autosave State Indicator -->
+                <div class="flex items-center gap-4">
+                    <div id="saveStatusIndicator" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/50 border border-brand-border text-[11px] font-medium text-brand-muted">
+                        <span id="saveStatusDot" class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        <span id="saveStatusText">Modo Local (Autosave)</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Pane Containers -->
+            <main class="flex-1 p-8 max-w-6xl w-full mx-auto relative">
+                
+                <!-- Loading Skeleton Frame (shows when changing views or initialization) -->
+                <div id="loadingSkeleton" class="space-y-6 animate-pulse hidden">
+                    <div class="h-8 bg-slate-800 rounded-lg w-1/3"></div>
+                    <div class="h-4 bg-slate-800 rounded-lg w-2/3"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="h-44 bg-slate-800 rounded-2xl"></div>
+                        <div class="h-44 bg-slate-800 rounded-2xl"></div>
+                    </div>
+                    <div class="h-32 bg-slate-800 rounded-2xl"></div>
+                </div>
+                
+                <div id="workspacePane" class="animate-slide-up">
+                    
+                    <!-- PANE: DASHBOARD -->
+                    <div id="pane-dashboard" class="space-y-8 dynamic-pane">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <h2 class="text-2xl font-bold tracking-tight text-white font-outfit">Painel de Onboarding Interno</h2>
+                                <p class="text-sm text-brand-muted mt-1">Bem-vindo, preencha os formulários das 10 etapas para gerar a base de implantação.</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="switchStep(1)" class="px-5 py-2.5 bg-primary hover:bg-emerald-600 rounded-xl font-bold text-xs text-slate-950 transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(34,197,94,0.25)] flex items-center gap-1.5">
+                                    Começar Onboarding <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Telemetry Grid Dashboard Overview -->
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            
+                            <!-- Overall progress visual gauge -->
+                            <div class="lg:col-span-4 glass-panel rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden">
+                                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl"></div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-wider text-brand-muted">Status de Implantação</h3>
+                                    <p class="text-xs text-brand-muted mt-0.5">Completude do banco de dados</p>
+                                </div>
+                                <div class="my-6 flex flex-col items-center justify-center relative">
+                                    <!-- Progress Circle Mock -->
+                                    <div class="relative w-36 h-36 flex items-center justify-center">
+                                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.03)" stroke-width="8" fill="transparent" />
+                                            <circle id="dashCircleProgress" cx="50" cy="50" r="40" stroke="url(#gradientPrimary)" stroke-width="8" fill="transparent" 
+                                                    stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                                            <defs>
+                                                <linearGradient id="gradientPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stop-color="#22c55e" />
+                                                    <stop offset="100%" stop-color="#22d3ee" />
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                        <div class="absolute text-center">
+                                            <span id="dashCirclePercent" class="text-3xl font-extrabold text-white">0%</span>
+                                            <span class="block text-[9px] uppercase tracking-widest text-brand-muted mt-0.5" id="completedStepsCount">0/10 Etapas</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between items-center text-xs border-t border-brand-border pt-4 mt-2">
+                                    <span class="text-brand-muted flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-primary/20 border border-primary animate-ping"></span> Status do Engine</span>
+                                    <span class="font-bold text-secondary" id="dashGlobalStatus">Aguardando Início</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Grid listing the 10 steps and status cards -->
+                            <div class="lg:col-span-8 space-y-4">
+                                <h3 class="text-xs font-bold text-brand-muted uppercase tracking-wider px-1">Resumo das Etapas</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="dashboardStepsGrid">
+                                    <!-- Dynamic cards injected via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PANE: STEP 1 - DADOS DA EMPRESA -->
+                    <div id="pane-step-1" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 1 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Dados da Empresa</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-1" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="building-2" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+                        
+                        <form id="formEmpresa" oninput="triggerAutosave('empresa')" onsubmit="saveSectionForm(1, event)" class="space-y-6">
+                            <div class="glass-panel rounded-2xl p-6 space-y-5">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">Nome da Imobiliária</label>
+                                        <input type="text" name="name" required placeholder="Ex: Morada Imobiliária" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">Razão Social</label>
+                                        <input type="text" name="legalName" required placeholder="Ex: Morada Empreendimentos Imobiliários LTDA" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">CNPJ</label>
+                                        <input type="text" name="cnpj" id="inputCNPJ" required placeholder="00.000.000/0000-00" oninput="maskCNPJ(this)" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm font-mono text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">Inscrição Estadual (IE)</label>
+                                        <input type="text" name="stateRegistration" placeholder="Isento ou Nº" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    <div class="flex flex-col gap-1.5 md:col-span-2">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">Endereço Principal</label>
+                                        <input type="text" name="address" required placeholder="Av. Paulista, 1000 - Cj 52" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">Cidade</label>
+                                        <input type="text" name="city" required placeholder="São Paulo" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">Estado (UF)</label>
+                                        <select name="state" required class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                            <option value="">Selecione...</option>
+                                            <option value="SP">São Paulo</option>
+                                            <option value="RJ">Rio de Janeiro</option>
+                                            <option value="MG">Minas Gerais</option>
+                                            <option value="PR">Paraná</option>
+                                            <option value="SC">Santa Catarina</option>
+                                            <option value="RS">Rio Grande do Sul</option>
+                                            <option value="DF">Distrito Federal</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">Telefone Comercial</label>
+                                        <input type="text" name="phone" required placeholder="(11) 4002-8922" oninput="maskPhone(this)" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[11px] font-bold text-brand-muted uppercase tracking-wider">E-mail Comercial</label>
+                                        <input type="email" name="email" required placeholder="contato@moradaimobiliaria.com" class="w-full px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm text-white">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Logo Upload Subcard -->
+                            <div class="glass-panel rounded-2xl p-6">
+                                <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-3">Logotipo Corporativo</h4>
+                                <div class="flex flex-col sm:flex-row items-center gap-6">
+                                    <div class="w-24 h-24 rounded-xl border border-brand-border bg-slate-950 flex items-center justify-center overflow-hidden" id="logoPreviewContainer">
+                                        <i data-lucide="image" class="w-8 h-8 text-brand-muted"></i>
+                                    </div>
+                                    <div class="flex-1 w-full">
+                                        <label class="block w-full sm:w-auto px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-brand-border rounded-xl text-center text-xs font-bold cursor-pointer transition-all">
+                                            Selecionar Logotipo
+                                            <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="uploadFileAction('company_logo', this, handleLogoUploadCallback)">
+                                        </label>
+                                        <input type="hidden" name="logoUrl" id="logoUrlField">
+                                        <p class="text-[10px] text-brand-muted mt-2">Formatos suportados: PNG, SVG ou JPEG de alta resolução. Máx: 5MB.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Navigation Panel Buttons -->
+                            <div class="flex justify-between items-center pt-4">
+                                <button type="button" onclick="switchStep('dashboard')" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar ao Painel
+                                </button>
+                                <button type="submit" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                    Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- PANE: STEP 2 - EQUIPE -->
+                    <div id="pane-step-2" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 2 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Gerenciamento de Equipe</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-2" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="users" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <!-- Team creation inline form -->
+                        <div class="glass-panel rounded-2xl p-6">
+                            <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Adicionar Novo Membro</h3>
+                            <form id="formAddTeamMember" onsubmit="addTeamMemberAction(event)" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-brand-muted uppercase">Nome Completo</label>
+                                    <input type="text" id="teamMemberName" required placeholder="Rudge Medeiros" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-brand-muted uppercase">E-mail</label>
+                                    <input type="email" id="teamMemberEmail" required placeholder="rudge@morada.com" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-brand-muted uppercase">Telefone</label>
+                                    <input type="text" id="teamMemberPhone" required placeholder="(11) 99999-9999" oninput="maskPhone(this)" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-brand-muted uppercase">Cargo / Função</label>
+                                    <input type="text" id="teamMemberRole" required placeholder="Corretor de Vendas" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-brand-muted uppercase">Comissão (%)</label>
+                                    <input type="number" step="0.1" min="0" max="100" id="teamMemberCommission" required placeholder="3.5" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-brand-muted uppercase">Nível de Permissão</label>
+                                    <select id="teamMemberPermission" required class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950 focus:border-primary outline-none text-xs text-white">
+                                        <option value="Broker">Corretor</option>
+                                        <option value="Manager">Gerente</option>
+                                        <option value="Assistant">Assistente</option>
+                                        <option value="Administrator">Administrador</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-2 pt-5">
+                                    <input type="checkbox" id="teamMemberIsAdmin" class="w-4 h-4 rounded border-brand-border text-primary focus:ring-0 outline-none bg-slate-950">
+                                    <label for="teamMemberIsAdmin" class="text-xs font-bold text-brand-muted uppercase">Administrador?</label>
+                                </div>
+                                <div class="flex items-end justify-end">
+                                    <button type="submit" class="w-full py-2.5 bg-primary hover:bg-emerald-600 rounded-lg text-slate-950 text-xs font-bold transition-all flex items-center justify-center gap-1">
+                                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar Membro
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Team Members Table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="px-6 py-4 border-b border-brand-border flex justify-between items-center bg-slate-950/30">
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Membros Cadastrados</h3>
+                                <span id="teamCountBadge" class="px-2 py-0.5 rounded-full bg-slate-900 border border-brand-border text-[10px] text-brand-muted font-bold">0 Membros</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-950/45 border-b border-brand-border">
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Nome / Cargo</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">E-mail / Telefone</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-center">Comissão</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-center">Permissão</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-center">Admin</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-right">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="teamTableBody">
+                                        <!-- Injected dynamically, empty state fallback inside JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Save & Nav panel -->
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" onclick="switchStep(1)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                            </button>
+                            <button type="button" onclick="saveSectionDirect('equipe', true, 3)" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: STEP 3 - IMÓVEIS -->
+                    <div id="pane-step-3" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 3 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Imóveis de Exemplo</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-3" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="key" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <!-- Add Property inline Form -->
+                        <div class="glass-panel rounded-2xl p-6">
+                            <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Adicionar Imóvel de Exemplo</h3>
+                            <form id="formAddProperty" onsubmit="addPropertyAction(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Código do Imóvel</label>
+                                        <input type="text" id="propCode" required placeholder="AP0001" class="px-3.5 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white font-mono">
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Tipo de Imóvel</label>
+                                        <select id="propType" required class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950 focus:border-primary outline-none text-xs text-white">
+                                            <option value="Apartamento">Apartamento</option>
+                                            <option value="Casa Residencial">Casa Residencial</option>
+                                            <option value="Casa em Condomínio">Casa em Condomínio</option>
+                                            <option value="Terreno / Lote">Terreno / Lote</option>
+                                            <option value="Cobertura">Cobertura</option>
+                                            <option value="Sala Comercial">Sala Comercial</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Transação (Venda/Locação)</label>
+                                        <select id="propDeal" required class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950 focus:border-primary outline-none text-xs text-white">
+                                            <option value="Venda">Venda</option>
+                                            <option value="Aluguel">Aluguel</option>
+                                            <option value="Venda/Aluguel">Ambos (Venda/Aluguel)</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Proprietário (Contato)</label>
+                                        <input type="text" id="propOwner" required placeholder="Ex: Roberto da Silva" class="px-3.5 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="flex flex-col gap-1 md:col-span-2">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Endereço</label>
+                                        <input type="text" id="propAddress" required placeholder="Rua das Alamandas, 142" class="px-3.5 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Bairro</label>
+                                        <input type="text" id="propNeighborhood" required placeholder="Jardins" class="px-3.5 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Cidade</label>
+                                        <input type="text" id="propCity" required placeholder="São Paulo" class="px-3.5 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Preço (R$)</label>
+                                        <input type="number" min="0" id="propPrice" required placeholder="850000" class="px-3.5 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Status Operacional</label>
+                                        <select id="propStatus" required class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950 focus:border-primary outline-none text-xs text-white">
+                                            <option value="Ativo">Ativo / Publicado</option>
+                                            <option value="Inativo">Inativo / Oculto</option>
+                                            <option value="Sob Consulta">Sob Consulta</option>
+                                            <option value="Vendido">Vendido / Reservado</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1 md:col-span-2">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Foto / Imagem do Imóvel</label>
+                                        <div class="flex items-center gap-3">
+                                            <label class="block px-3 py-2 bg-slate-900 border border-brand-border rounded-lg text-[10px] font-bold cursor-pointer text-center whitespace-nowrap">
+                                                Escolher Foto
+                                                <input type="file" id="propImageInput" accept="image/*" class="hidden" onchange="uploadFileAction('imovel_imagem', this, handlePropImageUploadCallback)">
+                                            </label>
+                                            <span id="propImageLabel" class="text-[10px] text-brand-muted truncate">Nenhum arquivo enviado</span>
+                                            <input type="hidden" id="propImageUrl">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end pt-2">
+                                    <button type="submit" class="px-5 py-2 bg-primary hover:bg-emerald-600 rounded-lg text-slate-950 text-xs font-bold transition-all flex items-center gap-1">
+                                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar Imóvel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Properties table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="px-6 py-4 border-b border-brand-border flex justify-between items-center bg-slate-950/30">
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Imóveis Cadastrados</h3>
+                                <span id="propCountBadge" class="px-2 py-0.5 rounded-full bg-slate-900 border border-brand-border text-[10px] text-brand-muted font-bold">0 Imóveis</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-950/45 border-b border-brand-border">
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Foto</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Código / Tipo</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Operação</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Proprietário</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Localidade</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Preço</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Status</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-right">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="propertiesTableBody">
+                                        <!-- Injected dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" onclick="switchStep(2)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                            </button>
+                            <button type="button" onclick="saveSectionDirect('imoveis', true, 4)" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: STEP 4 - PROPRIETÁRIOS -->
+                    <div id="pane-step-4" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 4 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Proprietários parceiros</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-4" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="users-2" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <!-- Add Owner form -->
+                        <div class="glass-panel rounded-2xl p-6">
+                            <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-4">Cadastrar Proprietário</h3>
+                            <form id="formAddOwner" onsubmit="addOwnerAction(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="flex flex-col gap-1 md:col-span-2">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Nome do Proprietário</label>
+                                        <input type="text" id="ownerName" required placeholder="Roberto da Silva Santos" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">CPF / CNPJ</label>
+                                        <input type="text" id="ownerDoc" required placeholder="000.000.000-00" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Telefone / Celular</label>
+                                        <input type="text" id="ownerPhone" required placeholder="(11) 98888-8888" oninput="maskPhone(this)" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">E-mail</label>
+                                        <input type="email" id="ownerEmail" required placeholder="roberto@silva.com" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                    <div class="flex flex-col gap-1 md:col-span-3">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Endereço Residencial</label>
+                                        <input type="text" id="ownerAddress" required placeholder="Alameda Lorena, 1500 - Ap 42 - Cerqueira César, São Paulo - SP" class="px-3.5 py-2.5 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end">
+                                    <button type="submit" class="px-5 py-2 bg-primary hover:bg-emerald-600 rounded-lg text-slate-950 text-xs font-bold transition-all flex items-center gap-1">
+                                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Cadastrar Proprietário
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Owners Table -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="px-6 py-4 border-b border-brand-border flex justify-between items-center bg-slate-950/30">
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Proprietários Parceiros</h3>
+                                <span id="ownerCountBadge" class="px-2 py-0.5 rounded-full bg-slate-900 border border-brand-border text-[10px] text-brand-muted font-bold">0 Proprietários</span>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-950/45 border-b border-brand-border">
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Nome</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">CPF / CNPJ</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Telefone</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">E-mail</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Endereço</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-right">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ownersTableBody">
+                                        <!-- Injected dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Navigation panel -->
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" onclick="switchStep(3)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                            </button>
+                            <button type="button" onclick="saveSectionDirect('proprietarios', true, 5)" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: STEP 5 - DOCUMENTOS -->
+                    <div id="pane-step-5" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 5 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Modelos de Documentos</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-5" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="files" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-brand-muted leading-relaxed">
+                            Envie modelos dos principais documentos internos da Morada Imobiliária. A equipe técnica utilizará estes modelos para programar a geração de relatórios e contratos automáticos. <strong>Arraste os arquivos para as caixas abaixo</strong>.
+                        </p>
+
+                        <!-- Document grids -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            
+                            <!-- Card 1: Ficha de Captação -->
+                            <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between h-64 border-brand-border transition-all relative"
+                                 ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, 'ficha_captacao')">
+                                <div class="absolute inset-0 bg-primary/5 rounded-2xl opacity-0 transition-opacity pointer-events-none" id="drop-overlay-ficha_captacao"></div>
+                                <div>
+                                    <div class="flex justify-between items-center">
+                                        <div class="p-2 rounded-lg bg-emerald-500/10 text-primary">
+                                            <i data-lucide="file-signature" class="w-5 h-5"></i>
+                                        </div>
+                                        <span id="docStatusBadge-ficha_captacao" class="text-[9px] bg-slate-900 text-brand-muted border border-brand-border font-bold px-2 py-0.5 rounded-full">Pendente</span>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider mt-3">Ficha de Captação de Imóveis</h4>
+                                    <p class="text-[10px] text-brand-muted mt-1 leading-relaxed">Ficha preenchida pelo captador durante a vistoria e avaliação.</p>
+                                </div>
+                                <div class="mt-4 space-y-2">
+                                    <ul id="docFileList-ficha_captacao" class="text-[9px] text-brand-muted max-h-16 overflow-y-auto space-y-1"></ul>
+                                    <label class="block w-full py-2 bg-slate-900 hover:bg-slate-800 border border-brand-border rounded-xl text-center text-[10px] font-bold cursor-pointer transition-all">
+                                        Selecionar Arquivo
+                                        <input type="file" multiple class="hidden" onchange="uploadMultipleAction('ficha_captacao', this)">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Ficha de Visita -->
+                            <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between h-64 border-brand-border transition-all relative"
+                                 ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, 'ficha_visita')">
+                                <div class="absolute inset-0 bg-primary/5 rounded-2xl opacity-0 transition-opacity pointer-events-none" id="drop-overlay-ficha_visita"></div>
+                                <div>
+                                    <div class="flex justify-between items-center">
+                                        <div class="p-2 rounded-lg bg-cyan-500/10 text-secondary">
+                                            <i data-lucide="eye" class="w-5 h-5"></i>
+                                        </div>
+                                        <span id="docStatusBadge-ficha_visita" class="text-[9px] bg-slate-900 text-brand-muted border border-brand-border font-bold px-2 py-0.5 rounded-full">Pendente</span>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider mt-3">Ficha de Visita</h4>
+                                    <p class="text-[10px] text-brand-muted mt-1 leading-relaxed">Controle assinado pelo cliente ao visitar imóveis em carteira.</p>
+                                </div>
+                                <div class="mt-4 space-y-2">
+                                    <ul id="docFileList-ficha_visita" class="text-[9px] text-brand-muted max-h-16 overflow-y-auto space-y-1"></ul>
+                                    <label class="block w-full py-2 bg-slate-900 hover:bg-slate-800 border border-brand-border rounded-xl text-center text-[10px] font-bold cursor-pointer transition-all">
+                                        Selecionar Arquivo
+                                        <input type="file" multiple class="hidden" onchange="uploadMultipleAction('ficha_visita', this)">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Contratos -->
+                            <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between h-64 border-brand-border transition-all relative"
+                                 ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, 'contratos')">
+                                <div class="absolute inset-0 bg-primary/5 rounded-2xl opacity-0 transition-opacity pointer-events-none" id="drop-overlay-contratos"></div>
+                                <div>
+                                    <div class="flex justify-between items-center">
+                                        <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+                                            <i data-lucide="file-check" class="w-5 h-5"></i>
+                                        </div>
+                                        <span id="docStatusBadge-contratos" class="text-[9px] bg-slate-900 text-brand-muted border border-brand-border font-bold px-2 py-0.5 rounded-full">Pendente</span>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider mt-3">Contratos Promessa de Compra e Aluguel</h4>
+                                    <p class="text-[10px] text-brand-muted mt-1 leading-relaxed">Modelos de contrato de intermediação e locação.</p>
+                                </div>
+                                <div class="mt-4 space-y-2">
+                                    <ul id="docFileList-contratos" class="text-[9px] text-brand-muted max-h-16 overflow-y-auto space-y-1"></ul>
+                                    <label class="block w-full py-2 bg-slate-900 hover:bg-slate-800 border border-brand-border rounded-xl text-center text-[10px] font-bold cursor-pointer transition-all">
+                                        Selecionar Arquivo
+                                        <input type="file" multiple class="hidden" onchange="uploadMultipleAction('contratos', this)">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Autorizações -->
+                            <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between h-64 border-brand-border transition-all relative"
+                                 ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, 'autorizacoes')">
+                                <div class="absolute inset-0 bg-primary/5 rounded-2xl opacity-0 transition-opacity pointer-events-none" id="drop-overlay-autorizacoes"></div>
+                                <div>
+                                    <div class="flex justify-between items-center">
+                                        <div class="p-2 rounded-lg bg-purple-500/10 text-purple-400">
+                                            <i data-lucide="key-round" class="w-5 h-5"></i>
+                                        </div>
+                                        <span id="docStatusBadge-autorizacoes" class="text-[9px] bg-slate-900 text-brand-muted border border-brand-border font-bold px-2 py-0.5 rounded-full">Pendente</span>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider mt-3">Autorizações de Divulgação / Exclusividade</h4>
+                                    <p class="text-[10px] text-brand-muted mt-1 leading-relaxed">Autorizações assinadas pelos proprietários para publicidade e anúncio.</p>
+                                </div>
+                                <div class="mt-4 space-y-2">
+                                    <ul id="docFileList-autorizacoes" class="text-[9px] text-brand-muted max-h-16 overflow-y-auto space-y-1"></ul>
+                                    <label class="block w-full py-2 bg-slate-900 hover:bg-slate-800 border border-brand-border rounded-xl text-center text-[10px] font-bold cursor-pointer transition-all">
+                                        Selecionar Arquivo
+                                        <input type="file" multiple class="hidden" onchange="uploadMultipleAction('autorizacoes', this)">
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card 5: Outros Documentos -->
+                            <div class="glass-panel rounded-2xl p-5 flex flex-col justify-between h-64 border-brand-border transition-all relative"
+                                 ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDropFile(event, 'outros')">
+                                <div class="absolute inset-0 bg-primary/5 rounded-2xl opacity-0 transition-opacity pointer-events-none" id="drop-overlay-outros"></div>
+                                <div>
+                                    <div class="flex justify-between items-center">
+                                        <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400">
+                                            <i data-lucide="folder-open" class="w-5 h-5"></i>
+                                        </div>
+                                        <span id="docStatusBadge-outros" class="text-[9px] bg-slate-900 text-brand-muted border border-brand-border font-bold px-2 py-0.5 rounded-full">Opcional</span>
+                                    </div>
+                                    <h4 class="text-xs font-bold text-white uppercase tracking-wider mt-3">Outros Documentos Importantes</h4>
+                                    <p class="text-[10px] text-brand-muted mt-1 leading-relaxed">Quaisquer outros documentos de fluxo interno da imobiliária.</p>
+                                </div>
+                                <div class="mt-4 space-y-2">
+                                    <ul id="docFileList-outros" class="text-[9px] text-brand-muted max-h-16 overflow-y-auto space-y-1"></ul>
+                                    <label class="block w-full py-2 bg-slate-900 hover:bg-slate-800 border border-brand-border rounded-xl text-center text-[10px] font-bold cursor-pointer transition-all">
+                                        Selecionar Arquivo
+                                        <input type="file" multiple class="hidden" onchange="uploadMultipleAction('outros', this)">
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Navigation buttons -->
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" onclick="switchStep(4)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                            </button>
+                            <!-- We require at least 1 file uploaded in a mandatory step to flag step 5 complete -->
+                            <button type="button" onclick="saveSectionDirect('documentos', true, 6)" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: STEP 6 - PROCESSO FINANCEIRO -->
+                    <div id="pane-step-6" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 6 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Mapeamento de Processos Financeiros</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-6" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="dollar-sign" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <form id="formFinanceiroProcesso" oninput="triggerAutosave('financeiro_processo')" onsubmit="saveSectionForm(6, event)" class="space-y-6">
+                            <div class="glass-panel rounded-2xl p-6 space-y-6">
+                                <p class="text-xs text-brand-muted">
+                                    Descreva os fluxos de caixa internos da Morada Imobiliária. Suas respostas subsidiarão a arquitetura do módulo de conciliação financeira do CRM.
+                                </p>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">1. Como vocês gerenciam contas a pagar?</label>
+                                        <textarea name="q_pagar" required placeholder="Descreva os prazos, fluxo de aprovação e agendamento bancário de despesas..." class="w-full h-24 px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-xs text-white resize-none"></textarea>
+                                    </div>
+                                    
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">2. Como vocês gerenciam contas a receber?</label>
+                                        <textarea name="q_receber" required placeholder="Como é controlada a entrada de aluguéis, taxas administrativas e recebíveis gerais..." class="w-full h-24 px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-xs text-white resize-none"></textarea>
+                                    </div>
+
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">3. Como calculam a comissão de corretores e parceiros?</label>
+                                        <textarea name="q_comissao" required placeholder="Quais as porcentagens padrão, regras de comissão sobre captação versus venda..." class="w-full h-24 px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-xs text-white resize-none"></textarea>
+                                    </div>
+
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">4. Como controlam as despesas corporativas e de publicidade?</label>
+                                        <textarea name="q_despesas" required placeholder="Como são aprovados orçamentos para portais, fotos profissionais e tráfego pago..." class="w-full h-24 px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-xs text-white resize-none"></textarea>
+                                    </div>
+
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">5. Como controlam as receitas imobiliárias?</label>
+                                        <textarea name="q_receitas" required placeholder="Faturamento das comissões, faturas de cobrança a locatários..." class="w-full h-24 px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-xs text-white resize-none"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Spreadsheet upload -->
+                            <div class="glass-panel rounded-2xl p-6">
+                                <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-2">Upload de Planilha de Controle Atual (Opcional)</h4>
+                                <p class="text-[10px] text-brand-muted mb-4">Caso possua um fluxo mapeado em Excel/CSV, envie o arquivo para servir de base.</p>
+                                <div class="flex items-center gap-4">
+                                    <label class="block px-4 py-2.5 bg-slate-900 border border-brand-border rounded-xl text-[10px] font-bold cursor-pointer text-center">
+                                        Selecionar Planilha
+                                        <input type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="uploadFileAction('finance_spreadsheet', this, handleFinanceSpreadsheetCallback)">
+                                    </label>
+                                    <div class="flex-1">
+                                        <span id="financeSpreadsheetLabel" class="text-[10px] text-brand-muted font-mono block">Nenhum arquivo enviado</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex justify-between items-center pt-4">
+                                <button type="button" onclick="switchStep(5)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                                </button>
+                                <button type="submit" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                    Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- PANE: STEP 7 - CATEGORIAS FINANCEIRAS -->
+                    <div id="pane-step-7" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 7 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Categorias Financeiras (Plano de Contas)</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-7" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="list-tree" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-brand-muted">
+                            Adicione ou remova categorias do seu Plano de Contas. Isto organizará a classificação de Entradas (Receitas) e Saídas (Despesas) no painel administrativo.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            
+                            <!-- Revenue list -->
+                            <div class="glass-panel rounded-2xl p-6 flex flex-col justify-between min-h-96">
+                                <div>
+                                    <div class="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider mb-4">
+                                        <i data-lucide="arrow-up-circle" class="w-5 h-5"></i>
+                                        <span>Categorias de Receita</span>
+                                    </div>
+                                    <div class="flex gap-2 mb-4">
+                                        <input type="text" id="inputNewRevenue" placeholder="Nova categoria de receita..." class="flex-1 px-3 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                        <button onclick="addFinancialCategory('receitas')" class="p-2 bg-primary hover:bg-emerald-600 rounded-lg text-slate-950 font-bold transition-all"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                    </div>
+                                    <ul id="revenueList" class="space-y-2 max-h-72 overflow-y-auto">
+                                        <!-- Injected via JS -->
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Expense list -->
+                            <div class="glass-panel rounded-2xl p-6 flex flex-col justify-between min-h-96">
+                                <div>
+                                    <div class="flex items-center gap-2 text-red-400 font-bold text-xs uppercase tracking-wider mb-4">
+                                        <i data-lucide="arrow-down-circle" class="w-5 h-5"></i>
+                                        <span>Categorias de Despesa</span>
+                                    </div>
+                                    <div class="flex gap-2 mb-4">
+                                        <input type="text" id="inputNewExpense" placeholder="Nova categoria de despesa..." class="flex-1 px-3 py-2 rounded-lg border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white">
+                                        <button onclick="addFinancialCategory('despesas')" class="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-slate-950 font-bold transition-all"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                    </div>
+                                    <ul id="expenseList" class="space-y-2 max-h-72 overflow-y-auto">
+                                        <!-- Injected via JS -->
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Nav Buttons -->
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" onclick="switchStep(6)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                            </button>
+                            <button type="button" onclick="saveSectionDirect('financeiro_categorias', true, 8)" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: STEP 8 - FLUXO OPERACIONAL -->
+                    <div id="pane-step-8" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 8 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Fluxo Operacional de Negócios</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-8" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="git-fork" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-brand-muted leading-relaxed">
+                            Mapeie a esteira de funil do lead até o recebimento da comissão. Clique em cada etapa da timeline abaixo para adicionar notas e customizações operacionais.
+                        </p>
+
+                        <div class="glass-panel rounded-2xl p-6">
+                            
+                            <!-- Timeline container -->
+                            <div class="relative flex flex-col md:flex-row justify-between items-center gap-4 py-8 px-2 overflow-x-auto min-w-max md:min-w-0" id="flowTimelineContainer">
+                                <!-- Background connecting line -->
+                                <div class="absolute h-0.5 bg-brand-border left-4 right-4 top-1/2 -translate-y-1/2 hidden md:block z-0"></div>
+                                
+                                <!-- Step 1: Lead -->
+                                <div onclick="selectTimelineStep('lead')" id="node-lead" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-lead">1</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Lead / Funil</span>
+                                </div>
+
+                                <!-- Step 2: Captacao -->
+                                <div onclick="selectTimelineStep('captacao')" id="node-captacao" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-captacao">2</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Captação</span>
+                                </div>
+
+                                <!-- Step 3: Cadastro -->
+                                <div onclick="selectTimelineStep('cadastro')" id="node-cadastro" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-cadastro">3</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Cadastro</span>
+                                </div>
+
+                                <!-- Step 4: Marketing -->
+                                <div onclick="selectTimelineStep('marketing')" id="node-marketing" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-marketing">4</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Marketing</span>
+                                </div>
+
+                                <!-- Step 5: Visita -->
+                                <div onclick="selectTimelineStep('visita')" id="node-visita" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-visita">5</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Visita</span>
+                                </div>
+
+                                <!-- Step 6: Proposta -->
+                                <div onclick="selectTimelineStep('proposta')" id="node-proposta" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-proposta">6</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Proposta</span>
+                                </div>
+
+                                <!-- Step 7: Venda -->
+                                <div onclick="selectTimelineStep('venda')" id="node-venda" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-venda">7</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Fechamento</span>
+                                </div>
+
+                                <!-- Step 8: Comissao -->
+                                <div onclick="selectTimelineStep('comissao')" id="node-comissao" class="relative z-10 flex flex-col items-center cursor-pointer group w-24">
+                                    <div class="w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border group-hover:border-primary flex items-center justify-center text-xs font-bold transition-all text-brand-muted" id="icon-node-comissao">8</div>
+                                    <span class="text-[10px] font-bold text-brand-muted mt-2 text-center select-none uppercase tracking-wide">Comissionamento</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeline edit subpane -->
+                        <div class="glass-panel rounded-2xl p-6 border-l-4 border-l-primary" id="timelineStepEditorCard">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider" id="timelineActiveStepTitle">Etapa Selecionada</h3>
+                                <span class="text-[9px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Ativo</span>
+                            </div>
+                            <p class="text-[11px] text-brand-muted mb-3" id="timelineActiveStepDesc">Descrição detalhada do funil.</p>
+                            <div class="flex flex-col gap-2">
+                                <label class="text-[10px] font-bold text-brand-muted uppercase">Notas Operacionais / Regras Especiais</label>
+                                <textarea id="timelineStepNotes" oninput="saveTimelineNotes()" placeholder="Escreva observações específicas da Morada Imobiliária sobre esta etapa do funil..." class="w-full h-24 px-4 py-3 rounded-xl border border-brand-border bg-slate-950/60 focus:border-primary outline-none text-xs text-white resize-none"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Action Nav Buttons -->
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" onclick="switchStep(7)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                            </button>
+                            <button type="button" onclick="saveSectionDirect('fluxo_operacional', true, 9)" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: STEP 9 - PERMISSÕES -->
+                    <div id="pane-step-9" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 9 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Matriz de Permissões de Acesso</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-9" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="lock" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <p class="text-xs text-brand-muted leading-relaxed">
+                            Configure quais cargos administrativos e comerciais possuem acesso aos módulos internos do sistema.
+                        </p>
+
+                        <!-- Matrix card -->
+                        <div class="glass-panel rounded-2xl overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-950/45 border-b border-brand-border">
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase">Módulo / Recurso</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-center">Administrador</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-center">Gerente</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-center">Corretor</th>
+                                            <th class="p-4 text-[10px] font-bold text-brand-muted uppercase text-center">Assistente</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="permissionMatrixBody">
+                                        <!-- Injected via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Navigation panel -->
+                        <div class="flex justify-between items-center pt-4">
+                            <button type="button" onclick="switchStep(8)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                            </button>
+                            <button type="button" onclick="saveSectionDirect('permissoes', true, 10)" class="px-6 py-3 rounded-xl bg-primary hover:bg-emerald-600 font-bold text-xs text-slate-950 transition-all shadow-[0_0_20px_rgba(34,197,94,0.15)] flex items-center gap-1.5">
+                                Avançar Etapa <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PANE: STEP 10 - IDENTIDADE VISUAL -->
+                    <div id="pane-step-10" class="space-y-6 dynamic-pane hidden">
+                        <div class="flex justify-between items-center border-b border-brand-border pb-4 mb-2">
+                            <div>
+                                <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Etapa 10 de 10</span>
+                                <h2 class="text-xl font-bold text-white mt-1">Identidade Visual da Marca</h2>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span id="badge-completed-10" class="hidden px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-bold">Concluído</span>
+                                <i data-lucide="palette" class="w-8 h-8 text-primary opacity-80"></i>
+                            </div>
+                        </div>
+
+                        <form id="formIdentidadeVisual" oninput="triggerAutosave('identidade_visual')" onsubmit="saveSectionForm(10, event)" class="space-y-6">
+                            
+                            <!-- Brand parameters card -->
+                            <div class="glass-panel rounded-2xl p-6 space-y-6">
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Configuração Estética</h3>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Cor Primária</label>
+                                        <div class="flex gap-2">
+                                            <input type="color" name="primaryColor" value="#22c55e" oninput="updateColorPreview('primaryColor', this.value)" class="w-10 h-10 border border-brand-border bg-slate-950 rounded-lg cursor-pointer">
+                                            <input type="text" id="primaryColorText" placeholder="#22c55e" class="flex-1 px-3 py-2 rounded-lg border border-brand-border bg-slate-950/60 outline-none text-xs text-white font-mono uppercase">
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Cor Secundária</label>
+                                        <div class="flex gap-2">
+                                            <input type="color" name="secondaryColor" value="#22d3ee" oninput="updateColorPreview('secondaryColor', this.value)" class="w-10 h-10 border border-brand-border bg-slate-950 rounded-lg cursor-pointer">
+                                            <input type="text" id="secondaryColorText" placeholder="#22d3ee" class="flex-1 px-3 py-2 rounded-lg border border-brand-border bg-slate-950/60 outline-none text-xs text-white font-mono uppercase">
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-bold text-brand-muted uppercase">Tipografia (Fontes Google)</label>
+                                        <select name="font" class="w-full px-4 py-2.5 rounded-lg border border-brand-border bg-slate-950 focus:border-primary outline-none text-xs text-white">
+                                            <option value="Inter">Inter (Padrão SaaS)</option>
+                                            <option value="Outfit">Outfit (Moderna/Circular)</option>
+                                            <option value="Plus Jakarta Sans">Plus Jakarta Sans (Glow)</option>
+                                            <option value="Roboto">Roboto (Clássica)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Manual Upload zone -->
+                            <div class="glass-panel rounded-2xl p-6 space-y-4">
+                                <h3 class="text-xs font-bold text-white uppercase tracking-wider">Manual de Marca & Branding (PDF/ZIP)</h3>
+                                <p class="text-[10px] text-brand-muted">Envie o Brandbook ou Manual de Identidade Visual contendo as aplicações da marca.</p>
+                                <div class="flex items-center gap-4">
+                                    <label class="block px-4 py-2.5 bg-slate-900 border border-brand-border rounded-xl text-[10px] font-bold cursor-pointer text-center whitespace-nowrap">
+                                        Selecionar Manual
+                                        <input type="file" accept=".pdf,.zip,.rar" class="hidden" onchange="uploadFileAction('brand_manual', this, handleBrandManualCallback)">
+                                    </label>
+                                    <div class="flex-1">
+                                        <span id="brandManualLabel" class="text-[10px] text-brand-muted font-mono block">Nenhum arquivo enviado</span>
+                                        <input type="hidden" name="manualUrl" id="manualUrlField">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Final Activation and review notice -->
+                            <div class="glass-panel rounded-2xl p-6 bg-emerald-500/5 border border-primary/10 flex flex-col items-center text-center space-y-4">
+                                <div class="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary animate-bounce">
+                                    <i data-lucide="unlock" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white font-outfit">Tudo Pronto para Finalizar</h4>
+                                    <p class="text-[10px] text-brand-muted max-w-md mt-1 leading-relaxed">Clique em concluir para submeter toda a base de informações. A equipe comercial iniciará o desenvolvimento do CRM personalizado com esses dados.</p>
+                                </div>
+                                <button type="button" id="btnFinishOnboarding" onclick="submitOnboardingComplete()" class="px-8 py-3.5 bg-primary hover:bg-emerald-600 rounded-xl font-bold text-xs text-slate-950 transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(34,197,94,0.35)] flex items-center gap-1.5">
+                                    <i data-lucide="check-check" class="w-4 h-4"></i> Concluir Implantação
+                                </button>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="flex justify-between items-center pt-4">
+                                <button type="button" onclick="switchStep(9)" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all flex items-center gap-2">
+                                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+                                </button>
+                                <button type="submit" class="px-5 py-3 rounded-xl bg-slate-900 border border-brand-border font-bold text-xs hover:bg-slate-800 transition-all">
+                                    Salvar Progresso
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- SUCCESS FULL SCREEN MODAL -->
+    <div id="modalSuccess" class="fixed inset-0 bg-brand-bg/95 backdrop-blur-xl hidden items-center justify-center z-50 p-4 transition-all duration-300">
+        <div class="glass-panel max-w-lg w-full rounded-3xl p-8 text-center relative overflow-hidden flex flex-col items-center shadow-[0_0_60px_rgba(34,197,94,0.15)]">
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-secondary/10 rounded-full blur-3xl"></div>
+            
+            <div class="w-20 h-20 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-primary mb-6 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                <i data-lucide="check-check" class="w-10 h-10"></i>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-white mb-2 font-outfit">Onboarding Concluído!</h2>
+            <p class="text-sm text-secondary font-semibold mb-4">Morada Imobiliária • Base Pronta para Implantação</p>
+            
+            <p class="text-xs text-brand-muted leading-relaxed mb-8 max-w-sm">
+                As configurações e mapeamento de processos foram registrados com sucesso no servidor VPS da Hostinger. Nossos analistas de sistema foram notificados para iniciar a compilação do seu CRM.
+            </p>
+            
+            <button onclick="window.location.reload()" class="w-full py-3.5 bg-primary hover:bg-emerald-600 rounded-xl font-bold text-xs text-slate-950 transition-all hover:scale-[1.01] shadow-md">
+                Recarregar Painel
+            </button>
+        </div>
+    </div>
+
+    <!-- DIAGNOSTICS & GLOBAL ERROR CATCHER -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            showDebugErrorBanner("Error: " + message + " (Linha: " + lineno + ", Col: " + colno + ")");
+            return false;
+        };
+        window.onunhandledrejection = function(event) {
+            showDebugErrorBanner("Unhandled Promise: " + (event.reason ? event.reason.message || event.reason : event));
+        };
+        function showDebugErrorBanner(errText) {
+            console.error(errText);
+            let banner = document.getElementById("debugErrorBanner");
+            if (!banner) {
+                banner = document.createElement("div");
+                banner.id = "debugErrorBanner";
+                banner.className = "fixed bottom-4 right-4 bg-red-500/90 text-white text-xs font-mono p-4 rounded-xl shadow-lg z-50 border border-red-400 max-w-md break-all animate-bounce";
+                document.body.appendChild(banner);
+            }
+            banner.innerText = errText;
+        }
+    </script>
+
+    <!-- CORE SCRIPT LOGIC -->
+    <script>
+        // Set dynamic API Base corresponding to deployment host (Hostinger VPS)
+        // Checks location to fallback gracefully in both development and production
+        const API_BASE = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+            ? 'http://localhost:8000/api'
+            : window.location.origin + '/api';
+
+        // Supabase configuration - Using JS SDK v2
+        const supabaseUrl = 'https://norgewmggdhoxbquhmnl.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vcmdld21nZ2Rob3hicXVobW5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3MDQ1OTUsImV4cCI6MjA5OTI4MDU5NX0.3rmkTtJdXboiC6vMjeKeZNV4FKEtOI8W3NkgbpPzrP4';
+        
+        let supabaseClient = null;
+        try {
+            if (window.supabase && supabaseKey && supabaseKey !== '[SUA ANON KEY]' && supabaseKey.trim() !== '') {
+                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+            } else {
+                console.warn("Supabase Key não configurada ou inválida. Rodando em modo de demonstração.");
+            }
+        } catch(e) {
+            console.error("Erro ao inicializar o cliente Supabase:", e);
+        }
+
+        // Retrieve company ID from URL parameter "?empresa=UUID"
+        const urlParams = new URLSearchParams(window.location.search);
+        const companyId = urlParams.get('empresa');
+
+        // Local state representation conforming to FastAPI model schema
+        let state = {
+            progress: 0,
+            checklist: {
+                empresa: false, equipe: false, imoveis: false, proprietarios: false,
+                documentos: false, financeiro_processo: false, financeiro_categorias: false,
+                fluxo_operacional: false, permissoes: false, identidade_visual: false
+            },
+            empresa: {
+                id: "", name: "", legalName: "", cnpj: "", stateRegistration: "",
+                address: "", city: "", state: "", phone: "", email: "", logoUrl: ""
+            },
+            equipe: [],
+            imoveis: [],
+            proprietarios: [],
+            documentos: { ficha_captacao: [], ficha_visita: [], contratos: [], autorizacoes: [], outros: [] },
+            financeiro_processo: { respostas: "", planilhas: [] },
+            financeiro_categorias: { receitas: [], despesas: [] },
+            fluxo_operacional: {},
+            permissoes: {},
+            identidade_visual: { logoUrl: "", primaryColor: "#22c55e", secondaryColor: "#22d3ee", font: "Inter", manualUrl: "" },
+            completed: false
+        };
+
+        // Active Timeline Step tracking
+        let activeTimelineStep = 'lead';
+        
+        // Active View state tracking ('dashboard' or numeric 1-10)
+        let activeView = 'dashboard';
+
+        // Timer for debounced autosaving
+        let autosaveTimeout = null;
+
+        // Step Information detailing lists of required parameters for validations
+        const stepsMetadata = {
+            1: { key: 'empresa', label: 'Dados da Empresa', icon: 'building-2' },
+            2: { key: 'equipe', label: 'Equipe & Corretores', icon: 'users' },
+            3: { key: 'imoveis', label: 'Cadastro de Imóveis', icon: 'key' },
+            4: { key: 'proprietarios', label: 'Proprietários', icon: 'users-2' },
+            5: { key: 'documentos', label: 'Documentos', icon: 'files' },
+            6: { key: 'financeiro_processo', label: 'Processo Financeiro', icon: 'dollar-sign' },
+            7: { key: 'financeiro_categorias', label: 'Categorias Financeiras', icon: 'list-tree' },
+            8: { key: 'fluxo_operacional', label: 'Fluxo Operacional', icon: 'git-fork' },
+            9: { key: 'permissoes', label: 'Permissões', icon: 'lock' },
+            10: { key: 'identidade_visual', label: 'Identidade Visual', icon: 'palette' }
+        };
+
+        // Initialize Onboarding
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (!companyId) {
+                showUrlErrorOverlay();
+                return;
+            }
+            state.empresa.id = companyId;
+            
+            await fetchStatus();
+            switchStep('dashboard');
+            lucide.createIcons();
+        });
+
+        // Displays clean error screen if company id is not provided
+        function showUrlErrorOverlay() {
+            const overlay = document.createElement("div");
+            overlay.className = "fixed inset-0 bg-slate-950 flex items-center justify-center z-50 p-4 animate-fade-in";
+            overlay.innerHTML = `
+                <div class="glass-panel max-w-md w-full rounded-3xl p-8 text-center border border-red-500/20 relative overflow-hidden shadow-[0_0_55px_rgba(239,68,68,0.08)]">
+                    <div class="w-16 h-16 rounded-full bg-red-500/10 border border-red-500 flex items-center justify-center text-red-500 mx-auto mb-6 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2 font-outfit">Identificador Não Informado</h2>
+                    <p class="text-xs text-brand-muted leading-relaxed mb-6">
+                        Para acessar o painel de onboarding da 8April Tech, o identificador da empresa deve ser fornecido na URL. Caso ainda não possua esse ID, gentileza entrar em contato com a nossa equipe e solicitar.
+                    </p>
+                    <div class="bg-slate-900 border border-brand-border rounded-xl p-3 text-left font-mono text-[10px] text-secondary select-all mb-4 break-all">
+                        https://app.8april.com.br/checklist/?empresa=INSERIR_ID_AQUI
+                    </div>
+                    <span class="text-[9px] text-brand-muted">Desenvolvido por 8April Tech</span>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            lucide.createIcons();
+        }
+
+        // --- DATA PERSISTENCE LAYER (SUPABASE ENGINE) ---
+
+        // Generic Supabase update helper
+        async function updateRecord(table, id, payload) {
+            if (!supabaseClient) throw new Error("Cliente Supabase não inicializado.");
+            const { data, error } = await supabaseClient
+                .from(table)
+                .update(payload)
+                .eq('id', id)
+                .select();
+            if (error) throw error;
+            return data;
+        }
+
+        // Generic Supabase load helper
+        async function loadRecord(table, id, selectFields = '*') {
+            if (!supabaseClient) throw new Error("Cliente Supabase não inicializado.");
+            const { data, error } = await supabaseClient
+                .from(table)
+                .select(selectFields)
+                .eq('id', id)
+                .maybeSingle();
+            if (error) throw error;
+            return data;
+        }
+
+        // Module: Company Information
+        async function loadCompany(id) {
+            const data = await loadRecord(
+                'empresas', 
+                id, 
+                'id, nome, razao_social, cnpj, inscricao_estadual, telefone, email, logradouro, cidade, estado'
+            );
+            if (data) {
+                state.empresa = {
+                    id: data.id,
+                    name: data.nome || "",
+                    legalName: data.razao_social || "",
+                    cnpj: data.cnpj || "",
+                    stateRegistration: data.inscricao_estadual || "",
+                    address: data.logradouro || "",
+                    city: data.cidade || "",
+                    state: data.estado || "",
+                    phone: data.telefone || "",
+                    email: data.email || "",
+                    logoUrl: "" // Excluded based on schema
+                };
+                state.checklist.empresa = true;
+                return true;
+            }
+            return false;
+        }
+
+        async function saveCompany(id, companyData) {
+            const payload = {
+                nome: companyData.name || "",
+                razao_social: companyData.legalName || "",
+                cnpj: companyData.cnpj || "",
+                inscricao_estadual: companyData.stateRegistration || "",
+                telefone: companyData.phone || "",
+                email: companyData.email || "",
+                logradouro: companyData.address || "",
+                cidade: companyData.city || "",
+                estado: companyData.state || "",
+                site: "",
+                cep: "",
+                numero: "",
+                complemento: "",
+                bairro: "",
+                ativo: true
+            };
+            await updateRecord('empresas', id, payload);
+        }
+
+        // Module: Onboarding Responses (Saves all sections to a single JSONB row)
+        async function loadOnboardingRespostas(id) {
+            if (!supabaseClient || !id) return false;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('onboarding_respostas')
+                    .select('*')
+                    .eq('empresa_id', id)
+                    .maybeSingle();
+                    
+                if (error) throw error;
+                
+                if (data) {
+                    state.progress = data.progress || 0;
+                    state.completed = data.completed || false;
+                    state.checklist = { ...state.checklist, ...data.checklist };
+                    state.equipe = data.equipe || [];
+                    state.imoveis = data.imoveis || [];
+                    state.proprietarios = data.proprietarios || [];
+                    state.documentos = data.documentos || { ficha_captacao: [], ficha_visita: [], contratos: [], autorizacoes: [], outros: [] };
+                    state.financeiro_processo = data.financeiro_processo || { respostas: "", planilhas: [] };
+                    state.financeiro_categorias = data.financeiro_categorias || { receitas: [], despesas: [] };
+                    state.fluxo_operacional = data.fluxo_operacional || {};
+                    state.permissoes = data.permissoes || {};
+                    state.identidade_visual = data.identidade_visual || { logoUrl: "", primaryColor: "#22c55e", secondaryColor: "#22d3ee", font: "Inter", manualUrl: "" };
+                    return true;
+                }
+            } catch(err) {
+                console.error("Erro ao carregar respostas do Supabase:", err);
+            }
+            return false;
+        }
+
+        // Architecture placeholders for future modules (next phases)
+        async function loadUsers(id) {}
+        async function saveUsers(id, data) {}
+        async function loadProperties(id) {}
+        async function saveProperties(id, data) {}
+        async function loadOwners(id) {}
+        async function saveOwners(id, data) {}
+
+        // Fetch onboarding progress status
+        async function fetchStatus() {
+            showLoadingSkeleton(true);
+            try {
+                // 1. Load Company Information from Supabase
+                if (supabaseClient && companyId) {
+                    await loadCompany(companyId);
+                }
+                
+                // 2. Load Onboarding Responses from Supabase
+                if (supabaseClient && companyId) {
+                    await loadOnboardingRespostas(companyId);
+                }
+                
+                // 3. Try to load additional FastAPI state if available
+                try {
+                    const response = await fetch(`${API_BASE}/onboarding/status`);
+                    if (response.ok) {
+                        const serverState = await response.json();
+                        // Ignore serverState for company info & checklist to allow Supabase to rule
+                    }
+                } catch(e) {
+                    // Backend offline
+                }
+                
+                // Server Connected
+                document.getElementById("serverStatus").className = "font-mono text-primary flex items-center gap-1";
+                document.getElementById("serverStatus").innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> Servidor Conectado';
+                document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-primary";
+                document.getElementById("saveStatusText").innerText = "Sincronizado com Supabase";
+            } catch(err) {
+                console.warn("Erro ao carregar dados do Supabase:", err);
+                document.getElementById("serverStatus").className = "font-mono text-amber-500 flex items-center gap-1";
+                document.getElementById("serverStatus").innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Modo Supabase (Offline)';
+                document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-red-500";
+                document.getElementById("saveStatusText").innerText = "Erro Supabase";
+            } finally {
+                showLoadingSkeleton(false);
+                syncUIRegistration();
+            }
+        }
+
+        // Toggle visibility between skeleton and main workspace container
+        function showLoadingSkeleton(show) {
+            const skeleton = document.getElementById("loadingSkeleton");
+            const workspace = document.getElementById("workspacePane");
+            if (show) {
+                skeleton.classList.remove("hidden");
+                workspace.classList.add("hidden");
+            } else {
+                skeleton.classList.add("hidden");
+                workspace.classList.remove("hidden");
+            }
+        }
+
+        // Clean reload and reset of the whole onboarding progression
+        async function resetAllOnboarding() {
+            if (confirm("ATENÇÃO: Deseja realmente excluir todas as informações cadastradas e reiniciar o onboarding do zero?")) {
+                try {
+                    // Reset Supabase company record by updating fields to empty
+                    if (supabaseClient && companyId) {
+                        const emptyPayload = {
+                            nome: "",
+                            razao_social: "",
+                            cnpj: "",
+                            inscricao_estadual: "",
+                            telefone: "",
+                            email: "",
+                            logradouro: "",
+                            cidade: "",
+                            estado: "",
+                            site: "",
+                            cep: "",
+                            numero: "",
+                            complemento: "",
+                            bairro: "",
+                            ativo: true
+                        };
+                        await updateRecord('empresas', companyId, emptyPayload);
+                        
+                        // Delete responses record from Supabase
+                        await supabaseClient
+                            .from('onboarding_respostas')
+                            .delete()
+                            .eq('empresa_id', companyId);
+                    }
+                } catch(e) {
+                    console.error("Erro ao resetar dados no Supabase:", e);
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/onboarding/reset`, { method: 'POST' });
+                    if (response.ok) {
+                        state = await response.json();
+                    }
+                } catch(e) {
+                    console.warn("Server reset unavailable.");
+                }
+                window.location.reload();
+            }
+        }
+
+        // Switch workspace panels view
+        function switchStep(viewId) {
+            activeView = viewId;
+            
+            // Hide all panels
+            document.querySelectorAll(".dynamic-pane").forEach(pane => pane.classList.add("hidden"));
+            
+            // Remove active classes from navigation items
+            document.querySelectorAll("aside nav button").forEach(btn => {
+                btn.classList.remove("active-sidebar-item");
+            });
+
+            if (viewId === 'dashboard') {
+                document.getElementById("pane-dashboard").classList.remove("hidden");
+                document.getElementById("nav-dashboard").classList.add("active-sidebar-item");
+                document.getElementById("headerCrumbActive").innerText = "Dashboard Geral";
+            } else {
+                const numericStep = parseInt(viewId);
+                const metadata = stepsMetadata[numericStep];
+                
+                document.getElementById(`pane-step-${numericStep}`).classList.remove("hidden");
+                document.getElementById(`nav-step-${numericStep}`).classList.add("active-sidebar-item");
+                document.getElementById("headerCrumbActive").innerText = metadata.label;
+
+                // Load forms specific data inside corresponding panes
+                populateSectionForms(numericStep);
+            }
+            
+            // Render specific components and icons
+            lucide.createIcons();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Populate details of the active steps into their inputs
+        function populateSectionForms(step) {
+            if (step === 1) {
+                const form = document.getElementById("formEmpresa");
+                const comp = state.empresa;
+                for (let key in comp) {
+                    if (form.elements[key] && key !== 'logoUrl') {
+                        form.elements[key].value = comp[key] || "";
+                    }
+                }
+                // Logo rendering
+                document.getElementById("logoUrlField").value = comp.logoUrl || "";
+                renderLogoPreview(comp.logoUrl);
+            } else if (step === 2) {
+                renderTeamTable();
+            } else if (step === 3) {
+                renderPropertiesTable();
+            } else if (step === 4) {
+                renderOwnersTable();
+            } else if (step === 5) {
+                renderDocumentsContainer();
+            } else if (step === 6) {
+                const form = document.getElementById("formFinanceiroProcesso");
+                let resp = { q_pagar: '', q_receber: '', q_comissao: '', q_despesas: '', q_receitas: '' };
+                if (state.financeiro_processo.respostas) {
+                    try {
+                        resp = JSON.parse(state.financeiro_processo.respostas);
+                    } catch(e) {
+                        resp.q_pagar = state.financeiro_processo.respostas;
+                    }
+                }
+                form.elements["q_pagar"].value = resp.q_pagar || "";
+                form.elements["q_receber"].value = resp.q_receber || "";
+                form.elements["q_comissao"].value = resp.q_comissao || "";
+                form.elements["q_despesas"].value = resp.q_despesas || "";
+                form.elements["q_receitas"].value = resp.q_receitas || "";
+                
+                // Planilha label
+                const sheets = state.financeiro_processo.planilhas || [];
+                const label = document.getElementById("financeSpreadsheetLabel");
+                if (sheets.length > 0) {
+                    label.innerText = `Planilha: ${sheets[sheets.length - 1].filename} (${formatBytes(sheets[sheets.length - 1].size)})`;
+                    label.className = "text-[10px] text-primary font-mono block";
+                } else {
+                    label.innerText = "Nenhum arquivo enviado";
+                    label.className = "text-[10px] text-brand-muted font-mono block";
+                }
+            } else if (step === 7) {
+                renderFinancialCategories();
+            } else if (step === 8) {
+                selectTimelineStep(activeTimelineStep);
+            } else if (step === 9) {
+                renderPermissionMatrix();
+            } else if (step === 10) {
+                const form = document.getElementById("formIdentidadeVisual");
+                const brand = state.identidade_visual;
+                form.elements["primaryColor"].value = brand.primaryColor || "#22c55e";
+                document.getElementById("primaryColorText").value = brand.primaryColor || "#22c55e";
+                form.elements["secondaryColor"].value = brand.secondaryColor || "#22d3ee";
+                document.getElementById("secondaryColorText").value = brand.secondaryColor || "#22d3ee";
+                form.elements["font"].value = brand.font || "Inter";
+                
+                // Manual logo preview or label
+                const label = document.getElementById("brandManualLabel");
+                if (brand.manualUrl) {
+                    const parts = brand.manualUrl.split("/");
+                    label.innerText = `Manual: ${parts[parts.length - 1]}`;
+                    label.className = "text-[10px] text-primary font-mono block";
+                } else {
+                    label.innerText = "Nenhum arquivo enviado";
+                    label.className = "text-[10px] text-brand-muted font-mono block";
+                }
+                document.getElementById("manualUrlField").value = brand.manualUrl || "";
+            }
+        }
+
+        // Sync local variables to update overall components in the viewport
+        function syncUIRegistration() {
+            // Recalculate progress values
+            let completedSteps = 0;
+            for(let key in state.checklist) {
+                if (state.checklist[key] === true) completedSteps++;
+            }
+            state.progress = completedSteps * 10;
+            if (state.completed) state.progress = 100;
+
+            const percentText = `${state.progress}%`;
+            document.getElementById("sidebarProgressText").innerText = percentText;
+            document.getElementById("sidebarProgressBar").style.width = percentText;
+            
+            // Dashboard Circular progress sync
+            const circle = document.getElementById("dashCircleProgress");
+            if (circle) {
+                const radius = 40;
+                const circumference = 2 * Math.PI * radius;
+                const offset = circumference - (state.progress / 100) * circumference;
+                circle.style.strokeDashoffset = offset;
+                document.getElementById("dashCirclePercent").innerText = percentText;
+                document.getElementById("completedStepsCount").innerText = `${completedSteps}/10 Etapas`;
+            }
+
+            // Sync global status label in Dashboard
+            const globalStatusLabel = document.getElementById("dashGlobalStatus");
+            if (globalStatusLabel) {
+                if (state.completed) {
+                    globalStatusLabel.innerText = "Concluído!";
+                    globalStatusLabel.className = "font-bold text-primary";
+                    document.getElementById("modalSuccess").classList.remove("hidden");
+                    document.getElementById("modalSuccess").classList.add("flex");
+                } else if (state.progress > 0) {
+                    globalStatusLabel.innerText = "Em Andamento";
+                    globalStatusLabel.className = "font-bold text-amber-400";
+                } else {
+                    globalStatusLabel.innerText = "Pendente";
+                    globalStatusLabel.className = "font-bold text-red-500";
+                }
+            }
+
+            // Update badges completed in steps side list & Dashboard grid list
+            const stepsDashboardGrid = document.getElementById("dashboardStepsGrid");
+            let gridHtml = '';
+
+            for (let i = 1; i <= 10; i++) {
+                const meta = stepsMetadata[i];
+                const isCompleted = state.checklist[meta.key] === true;
+                
+                // Sidebar badge
+                const navBadge = document.getElementById(`badge-nav-${i}`);
+                const navButton = document.getElementById(`nav-step-${i}`);
+                if (navBadge) {
+                    if (isCompleted) {
+                        navBadge.classList.remove("hidden");
+                        if (navButton) navButton.classList.add("border-primary/10");
+                    } else {
+                        navBadge.classList.add("hidden");
+                        if (navButton) navButton.classList.remove("border-primary/10");
+                    }
+                }
+
+                // Completed inline badge
+                const paneBadge = document.getElementById(`badge-completed-${i}`);
+                if (paneBadge) {
+                    if (isCompleted) paneBadge.classList.remove("hidden");
+                    else paneBadge.classList.add("hidden");
+                }
+
+                // Dashboard steps grid cards
+                gridHtml += `
+                    <div onclick="switchStep(${i})" class="glass-panel rounded-2xl p-5 flex items-center justify-between cursor-pointer hover:translate-y-[-2px] transition-all duration-300">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 rounded-xl bg-slate-900 border border-brand-border text-brand-muted">
+                                <i data-lucide="${meta.icon}" class="w-5 h-5 ${isCompleted ? 'text-primary' : 'text-brand-muted'}"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white uppercase tracking-wider">${meta.label}</h4>
+                                <span class="text-[10px] text-brand-muted block mt-0.5">Etapa ${i}</span>
+                            </div>
+                        </div>
+                        <div>
+                            ${isCompleted 
+                                ? '<span class="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[9px] text-primary font-bold">Concluído</span>' 
+                                : '<span class="px-2 py-0.5 rounded-full bg-slate-950/80 border border-brand-border text-[9px] text-brand-muted font-medium">Pendente</span>'}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (stepsDashboardGrid) {
+                stepsDashboardGrid.innerHTML = gridHtml;
+                lucide.createIcons();
+            }
+        }
+
+        // Save active step state directly to server / Supabase
+        async function saveSectionToServer(sectionKey, dataContent, isCompleted) {
+            // Keep local memory state updated
+            state[sectionKey] = dataContent;
+            state.checklist[sectionKey] = isCompleted;
+            syncUIRegistration();
+
+            document.getElementById("saveStatusText").innerText = "Salvando...";
+            document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-amber-400 animate-spin";
+
+            if (sectionKey === 'empresa') {
+                if (!supabaseClient) {
+                    console.error("Supabase client is not initialized.");
+                    document.getElementById("saveStatusText").innerText = "Erro: Supabase Offline";
+                    document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-red-500";
+                    return;
+                }
+                try {
+                    await saveCompany(companyId, dataContent);
+                    document.getElementById("saveStatusText").innerText = "Salvo no Supabase";
+                    document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-primary";
+                } catch(err) {
+                    console.error("Erro ao salvar no Supabase:", err);
+                    document.getElementById("saveStatusText").innerText = "Erro no Supabase";
+                    document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-red-500";
+                }
+                return;
+            }
+
+            // Save other sections to onboarding_respostas in Supabase
+            if (supabaseClient && companyId) {
+                try {
+                    const payload = {
+                        empresa_id: companyId,
+                        [sectionKey]: dataContent,
+                        checklist: state.checklist,
+                        progress: state.progress,
+                        completed: state.completed,
+                        updated_at: new Date().toISOString()
+                    };
+                    const { error } = await supabaseClient
+                        .from('onboarding_respostas')
+                        .upsert(payload);
+                    
+                    if (error) throw error;
+                    
+                    document.getElementById("saveStatusText").innerText = "Salvo no Supabase";
+                    document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-primary";
+                } catch(err) {
+                    console.error(`Erro ao salvar ${sectionKey} no Supabase:`, err);
+                    document.getElementById("saveStatusText").innerText = "Erro no Supabase";
+                    document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-red-500";
+                }
+            } else {
+                document.getElementById("saveStatusText").innerText = "Erro: Supabase Desconectado";
+                document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-red-500";
+            }
+
+            // Backup in FastAPI in background if available
+            try {
+                const payload = {
+                    data: dataContent,
+                    is_completed: isCompleted
+                };
+                await fetch(`${API_BASE}/onboarding/save-section/${sectionKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch(e) {
+                // Ignore API server offline
+            }
+        }
+
+        // Trigger debounced auto-save upon input modifications
+        function triggerAutosave(sectionKey) {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            
+            document.getElementById("saveStatusText").innerText = "Digitando...";
+            document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-blue-400 animate-pulse";
+
+            autosaveTimeout = setTimeout(async () => {
+                let dataToSave = {};
+                let isCompleted = false;
+                
+                if (sectionKey === 'empresa') {
+                    const form = document.getElementById("formEmpresa");
+                    const formData = new FormData(form);
+                    formData.forEach((value, key) => dataToSave[key] = value);
+                    // Minimal validation for autoguide
+                    isCompleted = (dataToSave.name && dataToSave.cnpj && dataToSave.phone && dataToSave.email) ? true : false;
+                } else if (sectionKey === 'financeiro_processo') {
+                    const form = document.getElementById("formFinanceiroProcesso");
+                    const answers = {
+                        q_pagar: form.elements["q_pagar"].value,
+                        q_receber: form.elements["q_receber"].value,
+                        q_comissao: form.elements["q_comissao"].value,
+                        q_despesas: form.elements["q_despesas"].value,
+                        q_receitas: form.elements["q_receitas"].value
+                    };
+                    dataToSave = {
+                        respostas: JSON.stringify(answers),
+                        planilhas: state.financeiro_processo.planilhas
+                    };
+                    isCompleted = (answers.q_pagar && answers.q_receber && answers.q_comissao && answers.q_despesas && answers.q_receitas) ? true : false;
+                } else if (sectionKey === 'identidade_visual') {
+                    const form = document.getElementById("formIdentidadeVisual");
+                    dataToSave = {
+                        logoUrl: state.identidade_visual.logoUrl,
+                        primaryColor: form.elements["primaryColor"].value,
+                        secondaryColor: form.elements["secondaryColor"].value,
+                        font: form.elements["font"].value,
+                        manualUrl: state.identidade_visual.manualUrl
+                    };
+                    isCompleted = (dataToSave.primaryColor && dataToSave.secondaryColor) ? true : false;
+                }
+                
+                await saveSectionToServer(sectionKey, dataToSave, isCompleted);
+            }, 1000);
+        }
+
+        // Generic Save action for simple steps without direct input forms
+        async function saveSectionDirect(sectionKey, forceCompleted, nextStepIndex) {
+            let dataContent = state[sectionKey];
+            
+            // Set defaults if empty
+            if (sectionKey === 'equipe') {
+                forceCompleted = (state.equipe.length > 0);
+            } else if (sectionKey === 'imoveis') {
+                forceCompleted = (state.imoveis.length > 0);
+            } else if (sectionKey === 'proprietarios') {
+                forceCompleted = (state.proprietarios.length > 0);
+            } else if (sectionKey === 'documentos') {
+                // Must have uploaded files in at least two categories to mark completed
+                let mandatoryCount = 0;
+                if (state.documentos.ficha_captacao.length > 0) mandatoryCount++;
+                if (state.documentos.ficha_visita.length > 0) mandatoryCount++;
+                if (state.documentos.contratos.length > 0) mandatoryCount++;
+                if (state.documentos.autorizacoes.length > 0) mandatoryCount++;
+                forceCompleted = (mandatoryCount >= 2);
+            } else if (sectionKey === 'financeiro_categorias') {
+                forceCompleted = (state.financeiro_categorias.receitas.length > 0 && state.financeiro_categorias.despesas.length > 0);
+            } else if (sectionKey === 'fluxo_operacional') {
+                forceCompleted = true; // Timeline notes are optional
+            } else if (sectionKey === 'permissoes') {
+                forceCompleted = true;
+            }
+
+            await saveSectionToServer(sectionKey, dataContent, forceCompleted);
+            if (nextStepIndex) switchStep(nextStepIndex);
+        }
+
+        // Form Submit handler
+        async function saveSectionForm(stepIndex, event) {
+            if (event) event.preventDefault();
+            const meta = stepsMetadata[stepIndex];
+            let dataToSave = {};
+            let isCompleted = true;
+
+            if (stepIndex === 1) {
+                const form = document.getElementById("formEmpresa");
+                const formData = new FormData(form);
+                formData.forEach((value, key) => dataToSave[key] = value);
+                isCompleted = form.checkValidity();
+            } else if (stepIndex === 6) {
+                const form = document.getElementById("formFinanceiroProcesso");
+                const answers = {
+                    q_pagar: form.elements["q_pagar"].value,
+                    q_receber: form.elements["q_receber"].value,
+                    q_comissao: form.elements["q_comissao"].value,
+                    q_despesas: form.elements["q_despesas"].value,
+                    q_receitas: form.elements["q_receitas"].value
+                };
+                dataToSave = {
+                    respostas: JSON.stringify(answers),
+                    planilhas: state.financeiro_processo.planilhas
+                };
+                isCompleted = form.checkValidity();
+            } else if (stepIndex === 10) {
+                const form = document.getElementById("formIdentidadeVisual");
+                dataToSave = {
+                    logoUrl: state.identidade_visual.logoUrl,
+                    primaryColor: form.elements["primaryColor"].value,
+                    secondaryColor: form.elements["secondaryColor"].value,
+                    font: form.elements["font"].value,
+                    manualUrl: state.identidade_visual.manualUrl
+                };
+                isCompleted = true;
+            }
+
+            await saveSectionToServer(meta.key, dataToSave, isCompleted);
+            
+            // Advance step if within limits
+            if (stepIndex < 10) switchStep(stepIndex + 1);
+            else switchStep('dashboard');
+        }
+
+        // --- STEP 1: LOGO FILE CALLBACK ---
+        function handleLogoUploadCallback(uploadResponse) {
+            document.getElementById("logoUrlField").value = uploadResponse.url;
+            renderLogoPreview(uploadResponse.url);
+            triggerAutosave('empresa');
+        }
+
+        function renderLogoPreview(url) {
+            const previewContainer = document.getElementById("logoPreviewContainer");
+            if (url) {
+                // If running local demo, file path is stored but let's draw a nice image placeholder
+                // We resolve the URL path correctly using location
+                const resolvedUrl = url.startsWith('/') ? API_BASE.replace('/api', '') + url : url;
+                previewContainer.innerHTML = `<img src="${resolvedUrl}" alt="Logo" class="w-full h-full object-contain p-2" onerror="this.src='https://placehold.co/100x100/0f172a/22c55e?text=Logo';">`;
+            } else {
+                previewContainer.innerHTML = '<i data-lucide="image" class="w-8 h-8 text-brand-muted"></i>';
+                lucide.createIcons();
+            }
+        }
+
+        // --- STEP 2: TEAM ACTIONS ---
+        async function addTeamMemberAction(event) {
+            event.preventDefault();
+            const member = {
+                name: document.getElementById("teamMemberName").value.trim(),
+                email: document.getElementById("teamMemberEmail").value.trim(),
+                phone: document.getElementById("teamMemberPhone").value.trim(),
+                role: document.getElementById("teamMemberRole").value.trim(),
+                commission: parseFloat(document.getElementById("teamMemberCommission").value) || 0,
+                permissionLevel: document.getElementById("teamMemberPermission").value,
+                isAdmin: document.getElementById("teamMemberIsAdmin").checked
+            };
+
+            state.equipe.push(member);
+            document.getElementById("formAddTeamMember").reset();
+            renderTeamTable();
+            
+            // Save state
+            await saveSectionToServer('equipe', state.equipe, state.equipe.length > 0);
+        }
+
+        async function removeTeamMember(index) {
+            if (confirm("Deseja remover este membro da equipe?")) {
+                state.equipe.splice(index, 1);
+                renderTeamTable();
+                await saveSectionToServer('equipe', state.equipe, state.equipe.length > 0);
+            }
+        }
+
+        function renderTeamTable() {
+            const tbody = document.getElementById("teamTableBody");
+            const badge = document.getElementById("teamCountBadge");
+            badge.innerText = `${state.equipe.length} Membro(s)`;
+            
+            if (state.equipe.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-xs text-brand-muted">
+                            <div class="flex flex-col items-center gap-2">
+                                <i data-lucide="users-2" class="w-8 h-8 text-brand-muted/40"></i>
+                                <span>Nenhum membro cadastrado nesta imobiliária.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            let html = '';
+            state.equipe.forEach((member, i) => {
+                html += `
+                    <tr class="border-b border-brand-border hover:bg-white/2 transition-colors">
+                        <td class="p-4">
+                            <div class="font-bold text-white text-xs">${member.name}</div>
+                            <div class="text-[10px] text-brand-muted mt-0.5">${member.role}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="text-xs text-white font-mono">${member.email}</div>
+                            <div class="text-[10px] text-brand-muted font-mono mt-0.5">${member.phone}</div>
+                        </td>
+                        <td class="p-4 text-center text-xs font-semibold text-secondary font-mono">${member.commission}%</td>
+                        <td class="p-4 text-center text-xs font-semibold text-white">${member.permissionLevel}</td>
+                        <td class="p-4 text-center">
+                            ${member.isAdmin 
+                                ? '<span class="text-xs text-primary font-bold"><i data-lucide="check" class="w-4 h-4 mx-auto"></i></span>' 
+                                : '<span class="text-xs text-brand-muted font-bold"><i data-lucide="minus" class="w-4 h-4 mx-auto"></i></span>'}
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="removeTeamMember(${i})" class="p-1.5 hover:bg-red-500/10 text-red-500 border border-transparent hover:border-red-500/20 rounded-lg transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // --- STEP 3: PROPERTIES ACTIONS ---
+        function handlePropImageUploadCallback(res) {
+            document.getElementById("propImageUrl").value = res.url;
+            document.getElementById("propImageLabel").innerText = res.filename;
+            document.getElementById("propImageLabel").className = "text-[10px] text-primary truncate";
+        }
+
+        async function addPropertyAction(event) {
+            event.preventDefault();
+            const prop = {
+                code: document.getElementById("propCode").value.trim().toUpperCase(),
+                type: document.getElementById("propType").value,
+                deal: document.getElementById("propDeal").value,
+                owner: document.getElementById("propOwner").value.trim(),
+                address: document.getElementById("propAddress").value.trim(),
+                neighborhood: document.getElementById("propNeighborhood").value.trim(),
+                city: document.getElementById("propCity").value.trim(),
+                price: parseFloat(document.getElementById("propPrice").value) || 0,
+                status: document.getElementById("propStatus").value,
+                imageUrl: document.getElementById("propImageUrl").value || ""
+            };
+
+            state.imoveis.push(prop);
+            document.getElementById("formAddProperty").reset();
+            document.getElementById("propImageUrl").value = "";
+            document.getElementById("propImageLabel").innerText = "Nenhum arquivo enviado";
+            document.getElementById("propImageLabel").className = "text-[10px] text-brand-muted truncate";
+            
+            renderPropertiesTable();
+            await saveSectionToServer('imoveis', state.imoveis, state.imoveis.length > 0);
+        }
+
+        async function removeProperty(index) {
+            if (confirm("Remover este imóvel de exemplo?")) {
+                state.imoveis.splice(index, 1);
+                renderPropertiesTable();
+                await saveSectionToServer('imoveis', state.imoveis, state.imoveis.length > 0);
+            }
+        }
+
+        function renderPropertiesTable() {
+            const tbody = document.getElementById("propertiesTableBody");
+            const badge = document.getElementById("propCountBadge");
+            badge.innerText = `${state.imoveis.length} Imóvel(is)`;
+
+            if (state.imoveis.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-xs text-brand-muted">
+                            <div class="flex flex-col items-center gap-2">
+                                <i data-lucide="key" class="w-8 h-8 text-brand-muted/40"></i>
+                                <span>Nenhum imóvel de exemplo cadastrado.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            let html = '';
+            state.imoveis.forEach((p, i) => {
+                const resolvedUrl = p.imageUrl.startsWith('/') ? API_BASE.replace('/api', '') + p.imageUrl : p.imageUrl;
+                const imgCell = p.imageUrl 
+                    ? `<img src="${resolvedUrl}" class="w-12 h-9 object-cover rounded-lg border border-brand-border" onerror="this.src='https://placehold.co/100x70/0f172a/22c55e?text=Imovel';">`
+                    : `<div class="w-12 h-9 rounded-lg bg-slate-950 flex items-center justify-center border border-brand-border"><i data-lucide="image" class="w-3.5 h-3.5 text-brand-muted"></i></div>`;
+                
+                html += `
+                    <tr class="border-b border-brand-border hover:bg-white/2 transition-colors">
+                        <td class="p-4">${imgCell}</td>
+                        <td class="p-4">
+                            <div class="font-bold text-white text-xs">${p.code}</div>
+                            <div class="text-[10px] text-brand-muted mt-0.5">${p.type}</div>
+                        </td>
+                        <td class="p-4 text-xs font-semibold text-white">${p.deal}</td>
+                        <td class="p-4 text-xs text-brand-muted">${p.owner}</td>
+                        <td class="p-4">
+                            <div class="text-xs text-white">${p.address}</div>
+                            <div class="text-[10px] text-brand-muted mt-0.5">${p.neighborhood}, ${p.city}</div>
+                        </td>
+                        <td class="p-4 text-xs font-semibold text-primary font-mono">${formatPrice(p.price)}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold ${p.status === 'Ativo' ? 'bg-primary/10 text-primary' : 'bg-slate-900 text-brand-muted'}">${p.status}</span>
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="removeProperty(${i})" class="p-1.5 hover:bg-red-500/10 text-red-500 border border-transparent hover:border-red-500/20 rounded-lg transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // --- STEP 4: OWNERS ACTIONS ---
+        async function addOwnerAction(event) {
+            event.preventDefault();
+            const owner = {
+                name: document.getElementById("ownerName").value.trim(),
+                doc: document.getElementById("ownerDoc").value.trim(),
+                phone: document.getElementById("ownerPhone").value.trim(),
+                email: document.getElementById("ownerEmail").value.trim(),
+                address: document.getElementById("ownerAddress").value.trim()
+            };
+
+            state.proprietarios.push(owner);
+            document.getElementById("formAddOwner").reset();
+            renderOwnersTable();
+            await saveSectionToServer('proprietarios', state.proprietarios, state.proprietarios.length > 0);
+        }
+
+        async function removeOwner(index) {
+            if (confirm("Remover este proprietário?")) {
+                state.proprietarios.splice(index, 1);
+                renderOwnersTable();
+                await saveSectionToServer('proprietarios', state.proprietarios, state.proprietarios.length > 0);
+            }
+        }
+
+        // Render Owners
+        function renderOwnersTable() {
+            const tbody = document.getElementById("ownersTableBody");
+            const badge = document.getElementById("ownerCountBadge");
+            badge.innerText = `${state.proprietarios.length} Proprietário(s)`;
+
+            if (state.proprietarios.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-xs text-brand-muted">
+                            <div class="flex flex-col items-center gap-2">
+                                <i data-lucide="users-2" class="w-8 h-8 text-brand-muted/40"></i>
+                                <span>Nenhum proprietário cadastrado.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            let html = '';
+            state.proprietarios.forEach((o, i) => {
+                html += `
+                    <tr class="border-b border-brand-border hover:bg-white/2 transition-colors">
+                        <td class="p-4 text-xs font-bold text-white">${o.name}</td>
+                        <td class="p-4 text-xs font-mono text-brand-muted">${o.doc}</td>
+                        <td class="p-4 text-xs font-mono text-white">${o.phone}</td>
+                        <td class="p-4 text-xs font-mono text-brand-muted">${o.email}</td>
+                        <td class="p-4 text-xs text-white max-w-xs truncate" title="${o.address}">${o.address}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="removeOwner(${i})" class="p-1.5 hover:bg-red-500/10 text-red-500 border border-transparent hover:border-red-500/20 rounded-lg transition-all">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        // --- STEP 5: DOCUMENTS DRAG & DROP & MULTIPLE UPLOADS ---
+        function renderDocumentsContainer() {
+            const categories = ["ficha_captacao", "ficha_visita", "contratos", "autorizacoes", "outros"];
+            categories.forEach(cat => {
+                const fileList = document.getElementById(`docFileList-${cat}`);
+                const badge = document.getElementById(`docStatusBadge-${cat}`);
+                const files = state.documentos[cat] || [];
+                
+                fileList.innerHTML = '';
+                if (files.length > 0) {
+                    files.forEach((f, i) => {
+                        fileList.innerHTML += `
+                            <li class="flex items-center justify-between py-1 px-2 bg-slate-900 border border-brand-border rounded-md text-[9px] text-white">
+                                <span class="truncate pr-2">${f.filename} (${formatBytes(f.size)})</span>
+                                <button type="button" onclick="removeDocumentFile('${cat}', ${i})" class="text-red-400 hover:text-red-500"><i data-lucide="x" class="w-3 h-3"></i></button>
+                            </li>
+                        `;
+                    });
+                    badge.innerText = `${files.length} Env.`;
+                    badge.className = "text-[9px] bg-primary/10 text-primary border border-primary/20 font-bold px-2 py-0.5 rounded-full";
+                } else {
+                    fileList.innerHTML = `<li class="text-center py-2 text-brand-muted/50 text-[9px]">Nenhum arquivo enviado</li>`;
+                    if (cat === 'outros') {
+                        badge.innerText = "Opcional";
+                        badge.className = "text-[9px] bg-slate-900 text-brand-muted border border-brand-border font-bold px-2 py-0.5 rounded-full";
+                    } else {
+                        badge.innerText = "Pendente";
+                        badge.className = "text-[9px] bg-red-500/10 text-red-400 border border-red-500/20 font-bold px-2 py-0.5 rounded-full";
+                    }
+                }
+            });
+            lucide.createIcons();
+        }
+
+        // Drag & Drop Event functions
+        function handleDragOver(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add("border-primary");
+        }
+
+        function handleDragLeave(ev) {
+            ev.currentTarget.classList.remove("border-primary");
+        }
+
+        async function handleDropFile(ev, category) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove("border-primary");
+            
+            const files = ev.dataTransfer.files;
+            if (files.length > 0) {
+                await uploadFileList(category, files);
+            }
+        }
+
+        // Multiple files trigger callback
+        async function uploadMultipleAction(category, input) {
+            if (input.files.length > 0) {
+                await uploadFileList(category, input.files);
+                input.value = ""; // Clear file selector
+            }
+        }
+
+        async function uploadFileList(category, files) {
+            document.getElementById("saveStatusText").innerText = "Enviando arquivo...";
+            document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-blue-400 animate-pulse";
+            
+            for (let i = 0; i < files.length; i++) {
+                const formData = new FormData();
+                formData.append("category", category);
+                formData.append("file", files[i]);
+                
+                try {
+                    const response = await fetch(`${API_BASE}/onboarding/upload`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (!state.documentos[category]) state.documentos[category] = [];
+                        state.documentos[category].push({
+                            filename: data.filename,
+                            url: data.url,
+                            size: data.size
+                        });
+                    }
+                } catch(e) {
+                    // Fallback for offline mode mock
+                    if (!state.documentos[category]) state.documentos[category] = [];
+                    state.documentos[category].push({
+                        filename: files[i].name,
+                        url: '',
+                        size: files[i].size
+                    });
+                }
+            }
+            renderDocumentsContainer();
+            await saveSectionDirect('documentos', false);
+        }
+
+        async function removeDocumentFile(category, index) {
+            if (confirm("Remover este documento?")) {
+                state.documentos[category].splice(index, 1);
+                renderDocumentsContainer();
+                await saveSectionDirect('documentos', false);
+            }
+        }
+
+        // --- STEP 6: FINANCE SPREADSHEET CALLBACK ---
+        function handleFinanceSpreadsheetCallback(res) {
+            if (!state.financeiro_processo.planilhas) state.financeiro_processo.planilhas = [];
+            state.financeiro_processo.planilhas.push({
+                filename: res.filename,
+                url: res.url,
+                size: res.size
+            });
+            // Update labels
+            const label = document.getElementById("financeSpreadsheetLabel");
+            label.innerText = `Planilha: ${res.filename} (${formatBytes(res.size)})`;
+            label.className = "text-[10px] text-primary font-mono block";
+            triggerAutosave('financeiro_processo');
+        }
+
+        // --- STEP 7: FINANCIAL CATEGORIES ACTIONS ---
+        async function addFinancialCategory(type) {
+            const input = document.getElementById(type === 'receitas' ? 'inputNewRevenue' : 'inputNewExpense');
+            const value = input.value.trim();
+            if (!value) return;
+
+            state.financeiro_categorias[type].push(value);
+            input.value = "";
+            renderFinancialCategories();
+            await saveSectionDirect('financeiro_categorias', false);
+        }
+
+        async function removeFinancialCategory(type, index) {
+            state.financeiro_categorias[type].splice(index, 1);
+            renderFinancialCategories();
+            await saveSectionDirect('financeiro_categorias', false);
+        }
+
+        function renderFinancialCategories() {
+            const rList = document.getElementById("revenueList");
+            const eList = document.getElementById("expenseList");
+            
+            // Set default list if empty
+            if (state.financeiro_categorias.receitas.length === 0 && state.financeiro_categorias.despesas.length === 0) {
+                state.financeiro_categorias.receitas = [
+                    "Comissão de Venda - Exclusivo",
+                    "Comissão de Venda - Compartilhado",
+                    "Comissão de Locação - Primeiro Aluguel",
+                    "Taxa de Administração de Aluguel"
+                ];
+                state.financeiro_categorias.despesas = [
+                    "Comissão de Corretor Parcerias",
+                    "Marketing Digital e Tráfego Pago",
+                    "Fotografia Profissional de Imóveis",
+                    "Assinatura de Portais Imobiliários"
+                ];
+            }
+
+            rList.innerHTML = '';
+            state.financeiro_categorias.receitas.forEach((item, i) => {
+                rList.innerHTML += `
+                    <li class="flex items-center justify-between px-3 py-2 bg-slate-950/40 border border-brand-border rounded-xl text-xs hover:border-primary/20 transition-all">
+                        <span class="text-white font-medium">${item}</span>
+                        <button onclick="removeFinancialCategory('receitas', ${i})" class="text-brand-muted hover:text-red-400 transition-colors"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                    </li>
+                `;
+            });
+
+            eList.innerHTML = '';
+            state.financeiro_categorias.despesas.forEach((item, i) => {
+                eList.innerHTML += `
+                    <li class="flex items-center justify-between px-3 py-2 bg-slate-950/40 border border-brand-border rounded-xl text-xs hover:border-red-500/20 transition-all">
+                        <span class="text-white font-medium">${item}</span>
+                        <button onclick="removeFinancialCategory('despesas', ${i})" class="text-brand-muted hover:text-red-400 transition-colors"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+                    </li>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // --- STEP 8: OPERATIONAL FLOW TIMELINE ACTIONS ---
+        const timelineStepsInfo = {
+            lead: { title: '1. Lead / Funil de Entrada', desc: 'Atendimento inicial do lead recebido via redes sociais, portal de anúncios ou site.' },
+            captacao: { title: '2. Captação de Imóveis', desc: 'Cadastro do imóvel sob responsabilidade do corretor, visita e confecção da ficha.' },
+            cadastro: { title: '3. Registro & Validação', desc: 'Vistoria jurídica da documentação do imóvel antes da publicação de vendas.' },
+            marketing: { title: '4. Divulgação e Marketing', desc: 'Sessão fotográfica, tráfego pago localizado, portais imobiliários e impulsionamento.' },
+            visita: { title: '5. Visita Monitorada', desc: 'Visitação presencial de clientes interessados com o corretor responsável.' },
+            proposta: { title: '6. Negociação de Proposta', desc: 'Rebates de proposta de preço de aquisição ou locação assinada pelas partes.' },
+            venda: { title: '7. Fechamento e Assinatura', desc: 'Análise documental, emissão de certidões, escritura e fechamento de contrato.' },
+            comissao: { title: '8. Comissão de Corretores', desc: 'Faturamento final do percentual de comissões aos envolvidos na transação.' }
+        };
+
+        function selectTimelineStep(nodeId) {
+            activeTimelineStep = nodeId;
+            
+            // Sync selected class on timeline nodes
+            document.querySelectorAll("#flowTimelineContainer div[id^='node-']").forEach(div => {
+                const nodeKey = div.id.replace('node-', '');
+                const icon = document.getElementById(`icon-node-${nodeKey}`);
+                if (nodeKey === nodeId) {
+                    icon.className = "w-10 h-10 rounded-full bg-primary border-2 border-primary flex items-center justify-center text-xs font-bold text-slate-950 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)] scale-[1.05]";
+                    div.querySelector("span").className = "text-[10px] font-extrabold text-primary mt-2 text-center uppercase tracking-wide";
+                } else {
+                    icon.className = "w-10 h-10 rounded-full bg-slate-900 border-2 border-brand-border flex items-center justify-center text-xs font-bold transition-all text-brand-muted hover:border-brand-muted";
+                    div.querySelector("span").className = "text-[10px] font-bold text-brand-muted mt-2 text-center uppercase tracking-wide";
+                }
+            });
+
+            // Set editor variables
+            const info = timelineStepsInfo[nodeId];
+            document.getElementById("timelineActiveStepTitle").innerText = info.title;
+            document.getElementById("timelineActiveStepDesc").innerText = info.desc;
+            
+            // Load note
+            if (!state.fluxo_operacional[nodeId]) state.fluxo_operacional[nodeId] = { notes: "" };
+            document.getElementById("timelineStepNotes").value = state.fluxo_operacional[nodeId].notes || "";
+        }
+
+        async function saveTimelineNotes() {
+            const notes = document.getElementById("timelineStepNotes").value;
+            if (!state.fluxo_operacional[activeTimelineStep]) state.fluxo_operacional[activeTimelineStep] = { notes: "" };
+            state.fluxo_operacional[activeTimelineStep].notes = notes;
+            
+            // Trigger saving directly
+            await saveSectionToServer('fluxo_operacional', state.fluxo_operacional, true);
+        }
+
+        // --- STEP 9: PERMISSIONS MATRIX ACTIONS ---
+        const matrixRows = [
+            { key: 'financeiro', label: 'Financeiro (Contas e Comissões)' },
+            { key: 'imoveis', label: 'Imóveis (Cadastro e Publicação)' },
+            { key: 'proprietarios', label: 'Proprietários (Dados de Contato)' },
+            { key: 'relatorios', label: 'Relatórios e Telemetria' },
+            { key: 'administracao', label: 'Administração de Sistema (Ajustes)' }
+        ];
+        const matrixCols = ['administrador', 'gerente', 'corretor', 'assistente'];
+
+        function renderPermissionMatrix() {
+            const tbody = document.getElementById("permissionMatrixBody");
+            
+            // Check default permissions
+            if (Object.keys(state.permissoes).length === 0) {
+                state.permissoes = {
+                    financeiro: { administrador: true, gerente: true, corretor: false, assistente: false },
+                    imoveis: { administrador: true, gerente: true, corretor: true, assistente: true },
+                    proprietarios: { administrador: true, gerente: true, corretor: true, assistente: false },
+                    relatorios: { administrador: true, gerente: true, corretor: false, assistente: false },
+                    administracao: { administrador: true, gerente: false, corretor: false, assistente: false }
+                };
+            }
+
+            let html = '';
+            matrixRows.forEach(row => {
+                html += `
+                    <tr class="border-b border-brand-border hover:bg-white/2 transition-colors">
+                        <td class="p-4 text-xs font-bold text-white">${row.label}</td>
+                `;
+                
+                matrixCols.forEach(col => {
+                    const isChecked = state.permissoes[row.key] && state.permissoes[row.key][col] === true;
+                    html += `
+                        <td class="p-4 text-center">
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} 
+                                       onclick="togglePermissionCell('${row.key}', '${col}', this.checked)"
+                                       class="w-4.5 h-4.5 bg-slate-950 border-brand-border text-primary rounded focus:ring-0 focus:ring-offset-0">
+                            </label>
+                        </td>
+                    `;
+                });
+                
+                html += `</tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        async function togglePermissionCell(rowKey, colKey, checked) {
+            if (!state.permissoes[rowKey]) state.permissoes[rowKey] = {};
+            state.permissoes[rowKey][colKey] = checked;
+            await saveSectionToServer('permissoes', state.permissoes, true);
+        }
+
+        // --- STEP 10: VISUAL IDENTITY COLOR & TYPOGRAPHY PREVIEW ---
+        function updateColorPreview(type, val) {
+            const textInput = document.getElementById(type + "Text");
+            if (textInput) textInput.value = val;
+            
+            // Apply live preview styles to the page header dynamic gradients
+            if (type === 'primaryColor') {
+                document.documentElement.style.setProperty('--color-primary', val);
+            } else if (type === 'secondaryColor') {
+                document.documentElement.style.setProperty('--color-secondary', val);
+            }
+        }
+
+        function handleBrandManualCallback(res) {
+            state.identidade_visual.manualUrl = res.url;
+            document.getElementById("manualUrlField").value = res.url;
+            
+            const label = document.getElementById("brandManualLabel");
+            label.innerText = `Manual: ${res.filename} (${formatBytes(res.size)})`;
+            label.className = "text-[10px] text-primary font-mono block";
+            triggerAutosave('identidade_visual');
+        }
+
+        // Submits final Onboarding Complete
+        async function submitOnboardingComplete() {
+            // Verify if at least company info has been filled
+            if (!state.checklist.empresa) {
+                alert("Por favor, preencha os dados da Empresa (Passo 1) para finalizar o onboarding.");
+                switchStep(1);
+                return;
+            }
+
+            state.completed = true;
+            state.progress = 100;
+            syncUIRegistration();
+
+            if (supabaseClient && companyId) {
+                try {
+                    await supabaseClient
+                        .from('onboarding_respostas')
+                        .upsert({
+                            empresa_id: companyId,
+                            checklist: state.checklist,
+                            progress: 100,
+                            completed: true,
+                            updated_at: new Date().toISOString()
+                        });
+                } catch(e) {
+                    console.error("Erro ao finalizar no Supabase:", e);
+                }
+            }
+
+            try {
+                await fetch(`${API_BASE}/onboarding/complete`, { method: 'POST' });
+            } catch(e) {
+                // Offline fallback
+            }
+        }
+
+        // Helper: Generic File Upload handler
+        async function uploadFileAction(category, fileInput, callback) {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            document.getElementById("saveStatusText").innerText = "Enviando arquivo...";
+            document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-blue-400 animate-pulse";
+
+            const formData = new FormData();
+            formData.append("category", category);
+            formData.append("file", file);
+
+            try {
+                const response = await fetch(`${API_BASE}/onboarding/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (response.ok) {
+                    const res = await response.json();
+                    callback(res);
+                }
+            } catch(e) {
+                // Local mock URL path for offline deployment demo
+                const fakeUrl = URL.createObjectURL(file);
+                callback({
+                    filename: file.name,
+                    url: fakeUrl,
+                    size: file.size
+                });
+            }
+        }
+
+        // Formats file sizes
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Formats prices into BRL currency
+        function formatPrice(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+        }
+
+        // CNPJ Input mask
+        function maskCNPJ(input) {
+            let v = input.value.replace(/\D/g, "");
+            if (v.length > 14) v = v.substring(0, 14);
+            v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+            v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+            v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+            v = v.replace(/(\d{4})(\d)/, "$1-$2");
+            input.value = v;
+        }
+
+        // Telephone/Celular input mask
+        function maskPhone(input) {
+            let v = input.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.substring(0, 11);
+            v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+            if (v.length > 9) {
+                v = v.replace(/(\d{5})(\d)/, "$1-$2");
+            } else {
+                v = v.replace(/(\d{4})(\d)/, "$1-$2");
+            }
+            input.value = v;
+        }
+    </script>
+</body>
+</html>

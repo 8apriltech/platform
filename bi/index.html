@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>8April Tech BI</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <script>
+
+    const client = window.supabase.createClient(
+      "https://exrvjejlhtdjdhcuzwth.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cnZqZWpsaHRkamRoY3V6d3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0MTk2NDQsImV4cCI6MjA4NTk5NTY0NH0.Jd_gn8bvcDyw5RjiXIL5FePT6mTg6B1tDbBKw-hRakc"
+    );
+
+    window.addEventListener("DOMContentLoaded", () => {
+      verificarSessao();
+    });
+
+    async function verificarSessao() {
+
+      const { data: { session } } =
+        await client.auth.getSession();
+
+      if (!session) {
+
+        window.location.href = "/login.html";
+
+        return;
+      }
+
+      iniciarBI();
+    }
+
+    function iniciarBI() {
+
+      document.getElementById("bi-frame").src =
+        "https://app.powerbi.com/view?r=eyJrIjoiYjk5ZjI0ZjgtYzRjMy00M2UzLTlhNzUtNzRiMmZhMmNmMDJhIiwidCI6IjgzYmE0NWIzLTEwYWQtNDQ1Mi1hNDAxLTdiZmQwN2I3NDY4OCJ9&filterPaneEnabled=false";
+    }
+
+  </script>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      overflow:hidden;
+      background:#020617;
+      font-family:Arial, sans-serif;
+    }
+
+    iframe{
+      width:100vw;
+      height:100vh;
+      border:none;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <iframe
+    id="bi-frame"
+    allowfullscreen>
+  </iframe>
+
+</body>
+</html>

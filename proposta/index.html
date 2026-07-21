@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Central de Propostas | 8April Tech</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+
+    --bg:#020617;
+    --bg-card:rgba(15,23,42,.72);
+    --bg-card-2:rgba(30,41,59,.65);
+
+    --border:
+    rgba(255,255,255,.07);
+
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+
+    --green:#22c55e;
+    --blue:#3b82f6;
+    --cyan:#22d3ee;
+    --gold:#f59e0b;
+
+    --shadow:
+        0 0 35px rgba(0,0,0,.35),
+        0 0 20px rgba(0,140,255,.04);
+
+    --shadow-hover:
+        0 0 40px rgba(0,255,180,.08),
+        0 0 40px rgba(0,140,255,.08);
+
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+
+    background:
+        linear-gradient(
+            rgba(2,6,23,.95),
+            rgba(2,6,23,.97)
+        ),
+        url('https://i.ibb.co/jvWBrnKh/4a89f731-ec6d-45e7-95ec-bc7990ddf87c.png');
+
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+
+    line-height:1.7;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    background:#020617 !important;
+}
+
+body::before{
+
+    content:"";
+
+    position:fixed;
+    inset:0;
+
+    background:
+
+    radial-gradient(
+        circle at top left,
+        rgba(0,255,180,.08),
+        transparent 25%
+    ),
+
+    radial-gradient(
+        circle at bottom right,
+        rgba(59,130,246,.08),
+        transparent 30%
+    );
+
+    pointer-events:none;
+    z-index:-1;
+}
+
+.container{
+    width:100%;
+    max-width:100%;
+    margin:0 auto;
+}
+
+/* ====================================
+PAGE
+==================================== */
+
+.page{
+    width:min(1200px,96vw);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px;
+    margin:0 auto;
+}
+
+.page:last-child{
+    page-break-after:auto;
+}
+
+/* ====================================
+CARDS
+==================================== */
+
+.glass-card{
+
+    background:var(--bg-card);
+
+    border:1px solid var(--border);
+
+    backdrop-filter:blur(14px);
+
+    border-radius:28px;
+
+    box-shadow:var(--shadow);
+
+    transition:.25s ease;
+}
+
+.glass-card:hover{
+
+    border-color:
+    rgba(0,255,180,.18);
+
+    box-shadow:
+    var(--shadow-hover);
+}
+
+.section{
+
+    padding:28px;
+    margin-bottom:28px;
+}
+
+/* ====================================
+TYPOGRAPHY
+==================================== */
+
+.kicker{
+
+    color:var(--cyan);
+
+    text-transform:uppercase;
+
+    font-size:12px;
+
+    letter-spacing:2px;
+
+    font-weight:700;
+
+    margin-bottom:14px;
+}
+
+h1{
+
+    font-size:48px;
+    line-height:1.1;
+
+    font-weight:800;
+
+    margin-bottom:20px;
+}
+
+h2{
+
+    font-size:36px;
+    margin-bottom:20px;
+}
+
+h3{
+
+    font-size:24px;
+    margin-bottom:14px;
+}
+
+p{
+
+    color:var(--muted);
+    font-size:16px;
+}
+
+.highlight{
+    color:white;
+    font-weight:700;
+}
+
+/* ====================================
+BUTTON BADGE
+==================================== */
+
+.badge{
+
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+
+    background:
+    rgba(34,211,238,.08);
+
+    border:
+    1px solid rgba(34,211,238,.15);
+
+    padding:10px 18px;
+
+    border-radius:999px;
+
+    font-size:14px;
+    color:#dbeafe;
+}
+
+/* ====================================
+COVER
+==================================== */
+
+.hero{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:35px;
+}
+
+.hero-content{
+    flex:1;
+    min-width:0;
+}
+
+.hero-right{
+    width:360px;
+    flex-shrink:0;
+}
+
+.logo{
+    width:220px;
+    display:block;
+    margin:0 auto 36px;
+}
+
+.logo-box{
+
+    background:rgba(255,255,255,.03);
+
+    border:
+    1px solid rgba(255,255,255,.05);
+
+    border-radius:32px;
+
+    padding:40px;
+
+    text-align:center;
+}
+
+.logo-box img{
+
+    width:220px;
+    margin-bottom:20px;
+}
+
+.tech-signature{
+
+    margin-top:40px;
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+
+    color:var(--muted);
+}
+
+.tech-dot{
+
+    width:12px;
+    height:12px;
+
+    border-radius:50%;
+
+    background:
+    linear-gradient(
+        135deg,
+        #22d3ee,
+        #22c55e
+    );
+
+    box-shadow:
+    0 0 20px rgba(34,211,238,.4);
+}
+
+/* ====================================
+GRID
+==================================== */
+
+.grid-2{
+
+    display:grid;
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:24px;
+}
+
+.grid-3{
+
+    display:grid;
+    grid-template-columns:
+    repeat(3,1fr);
+
+    gap:24px;
+}
+
+/* ====================================
+FEATURE CARD
+==================================== */
+
+.feature{
+
+    padding:28px;
+    border-radius:24px;
+
+    background:
+    rgba(255,255,255,.03);
+
+    border:
+    1px solid rgba(255,255,255,.05);
+}
+
+.feature h4{
+
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+/* ====================================
+PDF
+==================================== */
+
+@page{
+    size:A4;
+    margin:0;
+}
+
+@media print{
+
+    body{
+        background:#020617;
+    }
+
+    .page{
+        min-height:auto;
+        padding:10px 0;
+    }
+
+    .glass-card{
+        break-inside:avoid;
+    }
+}
+
+/* ====================================
+RESPONSIVO
+==================================== */
+
+@media(max-width:980px){
+
+    .hero{
+        flex-direction:column;
+    }
+
+    .hero-right{
+        width:100%;
+    }
+
+    .grid-2,
+    .grid-3{
+        grid-template-columns:1fr;
+    }
+
+    h1{
+        font-size:40px;
+    }
+
+    h2{
+        font-size:28px;
+    }
+}
+
+@media print {
+
+    html,
+    body{
+        width:210mm;
+        height:auto;
+        background:#020617 !important;
+    }
+
+    .page{
+        break-inside:avoid;
+        overflow:hidden;
+    }
+
+    .glass-card{
+        box-shadow:none !important;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<section class="page" style="
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+">
+
+    <div class="container">
+
+        <div class="glass-card section" style="
+            max-width:900px;
+            margin:auto;
+            text-align:center;
+            padding:70px 60px;
+        ">
+
+           <img 
+                src="https://i.ibb.co/twv6Dfmt/Chat-GPT-Image-14-de-mai-de-2026-08-39-00.png" 
+                alt="8April Tech"
+                class="logo"
+            > 
+
+            <div class="badge">
+                📄 Central de Propostas
+            </div>
+
+            <div style="height:28px;"></div>
+
+            <span class="kicker">
+                PROPOSTA NÃO ENCONTRADA
+            </span>
+
+            <h1>
+                Nenhuma proposta disponível
+            </h1>
+
+            <p style="
+                max-width:700px;
+                margin:30px auto;
+                font-size:20px;
+                line-height:1.9;
+            ">
+
+                As propostas da
+                <span class="highlight">8April Tech</span>
+                são disponibilizadas por meio de links exclusivos para cada cliente.
+
+                <br><br>
+
+                Se você recebeu este link recentemente,
+                é possível que a proposta ainda esteja sendo publicada
+                ou que o endereço informado não seja válido.
+
+            </p>
+
+            <div style="
+                display:flex;
+                justify-content:center;
+                gap:18px;
+                flex-wrap:wrap;
+                margin-top:45px;
+            ">
+
+                <a
+                    href="https://wa.me/5534998039530"
+                    style="
+                        text-decoration:none;
+                        background:linear-gradient(135deg,#22c55e,#16a34a);
+                        color:white;
+                        padding:16px 28px;
+                        border-radius:14px;
+                        font-weight:700;
+                        transition:.25s;
+                    "
+                >
+                    💬 Falar com a 8April
+                </a>
+
+                <a
+                    href="https://8april.com.br"
+                    style="
+                        text-decoration:none;
+                        background:rgba(255,255,255,.05);
+                        border:1px solid rgba(255,255,255,.08);
+                        color:white;
+                        padding:16px 28px;
+                        border-radius:14px;
+                        font-weight:600;
+                    "
+                >
+                    🌐 Voltar ao site
+                </a>
+
+            </div>
+
+            <div style="
+                margin-top:55px;
+                padding-top:30px;
+                border-top:1px solid rgba(255,255,255,.08);
+                color:var(--muted);
+            ">
+
+                <strong style="color:white;">
+                    8April Tech
+                </strong>
+
+                <br>
+
+                Tecnologia • Inteligência Artificial • Automação • Business Intelligence
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</body>
+
+</html>
+

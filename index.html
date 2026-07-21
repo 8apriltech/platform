@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>8April Hub</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <script>
+
+    const client = window.supabase.createClient(
+      "https://exrvjejlhtdjdhcuzwth.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cnZqZWpsaHRkamRoY3V6d3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0MTk2NDQsImV4cCI6MjA4NTk5NTY0NH0.Jd_gn8bvcDyw5RjiXIL5FePT6mTg6B1tDbBKw-hRakc"
+    );
+
+    verificarSessao();
+
+    async function verificarSessao() {
+
+      const { data: { session } } =
+        await client.auth.getSession();
+
+      if (!session) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("userEmail").innerText =
+          session.user.email;
+      });
+    }
+
+    async function logout() {
+
+      await client.auth.signOut();
+
+      window.location.href = "/login.html";
+    }
+
+  </script>
+
+<style>
+
+:root {
+
+  --bg-card: rgba(15, 23, 42, 0.72);
+
+  --border: rgba(255,255,255,0.05);
+
+  --text: #f8fafc;
+  --muted: #94a3b8;
+
+  --blue: #38bdf8;
+  --green: #22c55e;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+
+  --shadow:
+    0 0 25px rgba(0,0,0,.35),
+    0 0 20px rgba(0,140,255,.04);
+
+  --shadow-hover:
+    0 0 30px rgba(0,255,180,.08),
+    0 0 45px rgba(0,140,255,.12);
+
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* =========================
+   BODY
+========================= */
+
+body {
+
+  font-family: 'Segoe UI', sans-serif;
+
+  color: var(--text);
+
+  min-height: 100vh;
+
+  padding: 40px;
+
+  background:
+    linear-gradient(
+      rgba(2, 6, 23, .92),
+      rgba(2, 6, 23, .96)
+    ),
+
+    url('https://i.ibb.co/Xk81gvBg/fundo-8-April.png');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  overflow-x: hidden;
+}
+
+/* glow ambiente */
+
+body::before {
+
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  background:
+
+    radial-gradient(
+      circle at top left,
+      rgba(0,255,180,.08),
+      transparent 25%
+    ),
+
+    radial-gradient(
+      circle at bottom right,
+      rgba(0,140,255,.08),
+      transparent 30%
+    );
+
+  pointer-events: none;
+
+  z-index: -1;
+}
+
+/* grid suave futurista */
+
+body::after {
+
+  content: "";
+
+  position: fixed;
+
+  inset: 0;
+
+  background-image:
+
+    linear-gradient(
+      rgba(255,255,255,.015) 1px,
+      transparent 1px
+    ),
+
+    linear-gradient(
+      90deg,
+      rgba(255,255,255,.015) 1px,
+      transparent 1px
+    );
+
+  background-size: 40px 40px;
+
+  pointer-events: none;
+
+  z-index: -1;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+
+.topbar {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 50px;
+
+  gap: 20px;
+}
+
+.logo-area img {
+
+  width: 100px;
+
+  max-width: 100%;
+
+  filter:
+    drop-shadow(0 0 18px rgba(0,140,255,.18));
+}
+
+.user-box {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  color: var(--muted);
+
+  font-size: 14px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.logout-btn {
+
+  background:
+    linear-gradient(
+      135deg,
+      #ef4444,
+      #dc2626
+    );
+
+  border: none;
+
+  color: white;
+
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+  font-weight: 600;
+
+  box-shadow:
+    0 0 15px rgba(239,68,68,.18);
+}
+
+.logout-btn:hover {
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 0 20px rgba(239,68,68,.28);
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+
+  margin-bottom: 45px;
+}
+
+.hero h1 {
+
+  font-size: 38px;
+
+  margin-bottom: 12px;
+
+  text-shadow:
+    0 0 20px rgba(0,140,255,.18);
+}
+
+.hero p {
+
+  color: var(--muted);
+
+  font-size: 16px;
+
+  line-height: 1.6;
+
+  max-width: 700px;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.grid {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(280px, 1fr));
+
+  gap: 25px;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card {
+
+  background: var(--bg-card);
+
+  backdrop-filter: blur(12px);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 22px;
+
+  padding: 30px;
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease;
+
+  box-shadow: var(--shadow);
+
+  text-decoration: none;
+
+  color: inherit;
+
+  display: block;
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+/* brilho interno */
+
+.card::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.03),
+      transparent
+    );
+
+  pointer-events: none;
+}
+
+/* hover neon */
+
+.card:hover {
+
+  transform:
+    translateY(-6px);
+
+  border-color:
+    rgba(0,255,180,.22);
+
+  box-shadow:
+    var(--shadow-hover);
+}
+
+/* glow lateral */
+
+.card:hover::after {
+
+  content: "";
+
+  position: absolute;
+
+  top: -50%;
+
+  right: -20%;
+
+  width: 180px;
+  height: 180px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0,255,180,.10),
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+/* =========================
+   ICONS
+========================= */
+
+.card .icon {
+
+  width: 64px;
+  height: 64px;
+
+  margin-bottom: 20px;
+
+  object-fit: contain;
+
+  display: block;
+
+  filter:
+    drop-shadow(0 0 15px rgba(0,140,255,.12));
+}
+
+/* =========================
+   TEXT
+========================= */
+
+.card h2 {
+
+  margin-bottom: 10px;
+
+  font-size: 22px;
+}
+
+.card p {
+
+  color: var(--muted);
+
+  line-height: 1.6;
+
+  font-size: 14px;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status {
+
+  margin-top: 18px;
+
+  display: inline-block;
+
+  padding: 7px 12px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(34,197,94,.14);
+
+  color: var(--green);
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  letter-spacing: .5px;
+}
+
+.status.soon {
+
+  background:
+    rgba(245,158,11,.14);
+
+  color: var(--yellow);
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media (max-width: 700px) {
+
+  body {
+    padding: 20px;
+  }
+
+  .topbar {
+
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+.footer {
+
+  width: 100%;
+
+  text-align: center;
+
+  margin-top: 120px;
+
+  padding: 25px 10px;
+
+  color: rgba(255,255,255,0.45);
+
+  font-size: 13px;
+
+  letter-spacing: .4px;
+
+  position: relative;
+
+  z-index: 2;
+}
+
+.footer::before {
+
+  content: "";
+
+  display: block;
+
+  width: 180px;
+
+  height: 1px;
+
+  margin: 0 auto 18px auto;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(0,255,180,.35),
+      transparent
+    );
+}
+
+.footer-brand {
+
+  margin-top: 50px;
+
+  margin-bottom: 15px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+}
+
+.footer-logo-link {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-decoration: none;
+}
+
+.footer-brand img {
+
+  width: 120px;
+
+  opacity: .82;
+
+  object-fit: contain;
+
+  filter:
+    drop-shadow(0 0 12px rgba(0,255,180,.12));
+
+  transition:
+    transform .25s ease,
+    opacity .25s ease;
+}
+
+.footer-brand img:hover {
+
+  transform:
+    translateY(-2px);
+
+  opacity: 1;
+}
+
+</style>
+
+</head>
+
+<body>
+
+  <div class="topbar">
+
+    <div class="logo-area">
+      <img src="https://i.ibb.co/7JrZkrJ2/8541d06a-0aa0-497e-b698-53419c0dbe75.png">
+    </div>
+
+    <div class="user-box">
+
+      <span id="userEmail"></span>
+
+      <button class="logout-btn" onclick="logout()">
+        Sair
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="hero">
+
+    <h1 style="display:flex;align-items:center;gap:14px;">
+      8April Hub
+    </h1>
+
+    <p>
+      Central de operações, CRM, ordens de serviço e inteligência da 8April.
+    </p>
+
+  </div>
+
+  <div class="grid">
+
+    <a class="card" href="/crm/">
+
+      <img class="icon" src="https://i.ibb.co/mVF6RL3c/a75e3903-15ec-4a2c-9491-1280565e9ebd.png" alt="CRM">
+
+      <h2>CRM</h2>
+
+      <p>
+        Gestão de leads, clientes, contatos e funil comercial.
+      </p>
+
+      <div class="status">
+        ONLINE
+      </div>
+
+    </a>
+
+    <a class="card" href="/os/">
+
+      <img class="icon" src="https://i.ibb.co/DPF2CYGh/014f3c1a-15da-4e88-8cc6-533c5d55a320.png" alt="OS">
+
+      <h2>Ordens de Serviço</h2>
+
+      <p>
+        Controle operacional, faturamento e acompanhamento de serviços.
+      </p>
+
+      <div class="status">
+        ONLINE
+      </div>
+
+    </a>
+
+  <a class="card" href="/bi/">
+
+    <img class="icon" src="https://i.ibb.co/JwqkZbgy/ef108570-9dc5-4522-9e04-4e323424ea8d.png" alt="BI">
+
+    <h2>BI & Analytics</h2>
+
+    <p>
+      Dashboards, indicadores e inteligência operacional.
+    </p>
+
+    <div class="status">
+      ONLINE
+    </div>
+
+  </a>
+
+  <a class="card" href="/familia/">
+
+  <img class="icon" src="https://i.ibb.co/0y0phK05/7713e158-3d66-4d02-baa7-e41264f3ddd7.png" alt="Financeiro">
+
+  <h2>Financeiro</h2>
+
+  <p>
+    Fluxo de caixa, contas e gestão financeira integrada.
+  </p>
+
+  <div class="status">
+    ONLINE
+  </div>
+
+</a>
+
+  </div>
+
+<footer class="footer">
+
+  <div class="footer-brand">
+
+    <a 
+      href="https://8april.com.br"
+      target="_blank"
+      class="footer-logo-link"
+    >
+
+      <img 
+        src="https://i.ibb.co/twv6Dfmt/Chat-GPT-Image-14-de-mai-de-2026-08-39-00.png"
+        alt="8April Logo"
+      >
+
+    </a>
+
+  </div>
+
+  © 2026 · 8April Tech · Todos os direitos reservados.
+
+</footer>
+
+</body>
+</html>
