@@ -186,6 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-save-config').addEventListener('click', saveConnectionConfig);
   document.getElementById('btn-logout').addEventListener('click', handleLogout);
   
+  const btnGoogle = document.getElementById('btn-login-google');
+  if (btnGoogle) {
+    btnGoogle.addEventListener('click', handleGoogleLogin);
+  }
+  
   // Event Listeners de Busca
   const searchInput = document.getElementById('search-input');
   searchInput.addEventListener('input', handleSearch);
@@ -206,6 +211,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Fechar drawer no tablet
     document.getElementById('column-details').classList.remove('show-drawer');
+  });
+
+  // Ação de Excluir Conversa
+  document.addEventListener('click', async (e) => {
+    const btnDelete = e.target.closest('#btn-delete-conversation');
+    if (btnDelete) {
+      const contactId = btnDelete.dataset.id;
+      await handleDeleteConversation(contactId);
+    }
   });
 
   // Tenta auto-login
@@ -327,6 +341,10 @@ async function autoLogin() {
     try {
       const { data: { session } } = await STATE.supabase.auth.getSession();
       if (session) {
+        // Limpa tokens da URL pós-redirecionamento OAuth (Google)
+        if (window.location.hash) {
+          window.history.replaceState(null, null, window.location.pathname);
+        }
         showAppScreen();
         loadInbox();
       }
@@ -378,6 +396,33 @@ async function handleLogin(e) {
     btnSubmit.disabled = false;
     btnSubmit.innerHTML = '<span>Entrar no Sistema</span><i data-lucide="arrow-right"></i>';
     if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+async function handleGoogleLogin() {
+  const errorContainer = document.getElementById('login-error');
+  const errorText = document.getElementById('login-error-text');
+  errorContainer.classList.add('hidden');
+  
+  const isConnected = initSupabase();
+  if (!isConnected) {
+    errorText.innerText = 'Supabase não configurado. Por favor, acesse "Configurações do Banco" e informe a URL e Chave Anon.';
+    errorContainer.classList.remove('hidden');
+    return;
+  }
+  
+  try {
+    const { error } = await STATE.supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+    
+    if (error) throw error;
+  } catch (err) {
+    errorText.innerText = err.message || 'Erro ao conectar via Google.';
+    errorContainer.classList.remove('hidden');
   }
 }
 
@@ -640,4 +685,107 @@ function toggleDetailsSidebar() {
     // Em tablets, abre como drawer lateral
     detailsSidebar.classList.toggle('show-drawer');
   }
+}
+
+// --- FUNÇÃO PARA DELETAR CONVERSA ---
+async function handleDeleteConversation(contactId) {
+  const confirmDelete = confirm("Tem certeza que deseja excluir permanentemente esta conversa e todo o seu histórico? Esta ação não pode ser desfeita.");
+  if (!confirmDelete) return;
+
+  // Feedback visual de carregamento no botão
+  const btnDelete = document.getElementById('btn-delete-conversation');
+  if (btnDelete) {
+    btnDelete.disabled = true;
+    btnDelete.innerHTML = `<i data-lucide="loader" class="spinner"></i> <span>Excluindo...</span>`;
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  if (STATE.isDemoMode) {
+    // Modo Demo: Simula exclusão em memória
+    setTimeout(() => {
+      MOCK_DATA.inbox = MOCK_DATA.inbox.filter(c => c.id !== contactId);
+      delete MOCK_DATA.messages[contactId];
+      delete MOCK_DATA.conversas[contactId];
+
+      STATE.conversations = STATE.conversations.filter(c => c.id !== contactId);
+      
+      resetActiveChat();
+      filterInboxList();
+      alert("Conversa excluída com sucesso! (Modo Demo)");
+    }, 800);
+    return;
+  }
+
+  try {
+    // Banco Real: Exclui o contato (devido ao CASCADE, apaga mensagens e conversas)
+    const { error } = await STATE.supabase
+      .from('contatos')
+      .delete()
+      .eq('id', contactId);
+
+    if (error) throw error;
+
+    // Atualiza estado local
+    STATE.conversations = STATE.conversations.filter(c => c.id !== contactId);
+    
+    // Reseta visualização do chat ativo
+    resetActiveChat();
+    
+    // Filtra e recarrega a barra lateral
+    filterInboxList();
+    
+    alert("Conversa excluída com sucesso!");
+  } catch (err) {
+    console.error("Erro ao excluir conversa:", err);
+    alert("Erro ao excluir conversa: " + (err.message || err));
+    
+    // Restaura botão original
+    if (btnDelete) {
+      btnDelete.disabled = false;
+      btnDelete.innerHTML = `<i data-lucide="trash-2"></i> <span>Excluir Conversa</span>`;
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+}
+
+// Reseta o painel de chat e informações para o estado padrão (limpo)
+function resetActiveChat() {
+  STATE.selectedContactId = null;
+  STATE.activeContact = null;
+  STATE.activeMessages = [];
+  STATE.activeSummary = null;
+
+  // Limpa elementos da tela
+  document.getElementById('chat-header-container').innerHTML = '';
+  
+  // Exibe tela vazia padrão no chat
+  const viewport = document.getElementById('message-viewport');
+  viewport.innerHTML = `
+    <div class="chat-empty-state">
+      <div class="chat-empty-icon">
+        <i data-lucide="message-square"></i>
+      </div>
+      <h2>INNA - Central de Conversas</h2>
+      <p>Selecione um cliente na lista lateral para visualizar o histórico completo da conversa.</p>
+    </div>
+  `;
+  
+  document.getElementById('contact-panel-container').innerHTML = `
+    <div class="empty-list-state" style="padding: 20px 0;">
+      <p>Selecione um contato para ver os detalhes.</p>
+    </div>
+  `;
+  
+  document.getElementById('ai-summary-container').innerHTML = `
+    <div class="ai-empty-message">Resumo ainda não disponível.</div>
+  `;
+
+  // Se estiver em mobile, volta para a lista
+  const container = document.getElementById('app-screen');
+  container.className = 'app-container';
+  
+  // Fecha o drawer no tablet
+  document.getElementById('column-details').classList.remove('show-drawer');
+
+  if (window.lucide) window.lucide.createIcons();
 }

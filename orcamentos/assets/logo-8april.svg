@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad8April" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#6366F1" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#3B82F6" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Icon Mark -->
+  <g transform="translate(10, 10)">
+    <rect x="0" y="0" width="80" height="80" rx="20" fill="url(#grad8April)" filter="url(#shadow)" />
+    <path d="M40 24 C33 24 28 28 28 34 C28 39 32 42 40 44 C48 46 52 49 52 56 C52 63 46 67 39 67 C32 67 27 63 27 57" 
+          fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="40" cy="34" r="5" fill="#FFFFFF"/>
+    <circle cx="39" cy="57" r="6" fill="#FFFFFF"/>
+  </g>
+
+  <!-- Typography -->
+  <text x="105" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="62" fill="url(#grad8April)" letter-spacing="-2">8</text>
+  <text x="145" y="68" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="54" fill="#FFFFFF" letter-spacing="-1">APRIL</text>
+  <text x="106" y="86" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="600" font-size="12" fill="#9CA3AF" letter-spacing="4">SOLUÇÕES DIGITAIS</text>
+</svg>

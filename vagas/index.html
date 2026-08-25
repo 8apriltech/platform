@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robô de Vagas 24/7 | 8April Platform</title>
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="brand-title">
+          <h1>Robô de Vagas Gringas <span class="badge-version">24/7 Auto-Pilot</span></h1>
+          <p>Automação Inteligente de Candidaturas • Power BI / Data Engineering / AI</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div id="bot-status-indicator" class="status-pill">
+          <div class="pulse-dot"></div>
+          <span id="bot-status-text">Robô Ativo 24/7</span>
+        </div>
+        <button class="btn" id="btn-toggle-bot" onclick="toggleBotStatus()">
+          <i class="fas fa-pause"></i> <span>Pausar</span>
+        </button>
+        <button class="btn btn-primary" onclick="triggerScan(false)">
+          <i class="fas fa-sync-alt" id="scan-spinner"></i> <span>Buscar Vagas Agora</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- STATS CARDS -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon cyan">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="stat-scanned-hour">0</h3>
+          <p>Pesquisadas (Última Hora)</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon indigo">
+          <i class="fas fa-bullseye"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="stat-matched">0</h3>
+          <p>Com Match &ge; 60%</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <i class="fas fa-paper-plane"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="stat-applied">0</h3>
+          <p>Candidaturas Enviadas</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon amber">
+          <i class="fas fa-comments"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="stat-responses">0</h3>
+          <p>Retornos / Entrevistas</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-jobs', this)">
+        <i class="fas fa-briefcase"></i> Vagas & Oportunidades
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-profile', this)">
+        <i class="fas fa-user-check"></i> Meu Perfil & Skills
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-settings', this)">
+        <i class="fas fa-sliders-h"></i> Configurações do Robô
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-logs', this)">
+        <i class="fas fa-terminal"></i> Logs do Sistema
+      </button>
+    </nav>
+
+    <!-- TAB 1: JOBS FEED -->
+    <main id="tab-jobs" class="tab-content active">
+      <div class="controls-bar">
+        <div class="search-input-group">
+          <i class="fas fa-search"></i>
+          <input type="text" id="filter-search" placeholder="Pesquisar por título, empresa ou tecnologia (ex: Power BI, Snowflake, Python)..." oninput="filterJobs()">
+        </div>
+        <div class="filter-selects">
+          <select id="filter-status" class="custom-select" onchange="filterJobs()">
+            <option value="all">Todos os Status</option>
+            <option value="matched">Apenas com Match Recomendado</option>
+            <option value="applied">Aplicadas</option>
+            <option value="pending">Pendentes</option>
+          </select>
+          <select id="filter-min-match" class="custom-select" onchange="filterJobs()">
+            <option value="0">Qualquer Match</option>
+            <option value="60" selected>Match &ge; 60%</option>
+            <option value="70">Match &ge; 70% (Forte Aderência)</option>
+            <option value="85">Match &ge; 85% (Alta Prioridade)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="jobs-container" class="jobs-list">
+        <!-- Dynamic Job Cards injected by app.js -->
+      </div>
+    </main>
+
+    <!-- TAB 2: PROFILE & SKILLS -->
+    <section id="tab-profile" class="tab-content">
+      <div class="settings-grid">
+        <div class="panel-card">
+          <h3><i class="fas fa-id-card"></i> Dados Pessoais & Contato</h3>
+          <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" id="p-name" class="form-control" value="Rudge Santana">
+          </div>
+          <div class="form-group">
+            <label>Headline Profissional</label>
+            <input type="text" id="p-headline" class="form-control" value="Power BI Developer | Data Engineer | Data Scientist">
+          </div>
+          <div class="form-group">
+            <label>E-mail de Aplicação</label>
+            <input type="email" id="p-email" class="form-control" value="contato@8april.com.br">
+          </div>
+          <div class="form-group">
+            <label>Telefone / WhatsApp</label>
+            <input type="text" id="p-phone" class="form-control" value="+55 34 99109-4313">
+          </div>
+          <div class="form-group">
+            <label>LinkedIn URL</label>
+            <input type="url" id="p-linkedin" class="form-control" value="https://linkedin.com/in/rudgesantana">
+          </div>
+          <div class="form-group">
+            <label>GitHub URL</label>
+            <input type="url" id="p-github" class="form-control" value="https://github.com/8apriltech">
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3><i class="fas fa-cogs"></i> Skills, Idiomas e Certificações</h3>
+          <div class="form-group">
+            <label>Principais Tecnologias (separadas por vírgula)</label>
+            <textarea id="p-skills" class="form-control" rows="4">Power BI, DAX, Power Query (M), SQL Server, Data Modeling, ETL / Pipelines, SSIS / SSAS, Data Warehouse, Python, Snowflake, Automation (n8n), REST APIs, M365 Ecosystem</textarea>
+          </div>
+          <div class="form-group">
+            <label>Idiomas & Níveis</label>
+            <input type="text" id="p-languages" class="form-control" value="Inglês (C2 / Fluente - EF SET / TOEFL 648), Português (Nativo), Espanhol (Conversacional)">
+          </div>
+          <div class="form-group">
+            <label>Certificações Relevantes</label>
+            <input type="text" id="p-certs" class="form-control" value="Data Engineering (Turing), C2 Proficiency (EF SET), CS & Python (MITx), TOEFL ITP (ETS)">
+          </div>
+          <div class="form-group">
+            <label>Pretensão Salarial Média (USD)</label>
+            <input type="text" id="p-salary" class="form-control" value="4,500 - 6,500 USD / mês (B2B Contractor)">
+          </div>
+          <button class="btn btn-primary" onclick="saveProfileChanges()" style="align-self: flex-start;">
+            <i class="fas fa-save"></i> Salvar Alterações de Perfil
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: SETTINGS -->
+    <section id="tab-settings" class="tab-content">
+      <div class="settings-grid">
+        <div class="panel-card">
+          <h3><i class="fas fa-sliders-h"></i> Parâmetros de Automação</h3>
+          <div class="form-group">
+            <label>Corte Mínimo de Match (%)</label>
+            <input type="number" id="s-min-match" class="form-control" min="40" max="95" value="60">
+            <small style="color: var(--text-muted);">Vagas abaixo deste score não serão sugeridas com destaque.</small>
+          </div>
+          <div class="form-group">
+            <label>Intervalo de Varredura (Minutos)</label>
+            <input type="number" id="s-interval" class="form-control" min="5" max="180" value="15">
+          </div>
+          <div class="form-group" style="flex-direction: row; align-items: center; gap: 12px; margin-top: 10px;">
+            <input type="checkbox" id="s-auto-apply" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+            <label for="s-auto-apply" style="cursor: pointer;">Robô Ativo para Varreduras 24/7</label>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3><i class="fas fa-filter"></i> Filtros de Vagas Gringas</h3>
+          <div class="form-group">
+            <label>Palavras-Chave Alvo</label>
+            <textarea id="s-keywords" class="form-control" rows="3">Power BI, Data Engineer, Business Intelligence, DAX, Python, Data Scientist, Analytics Engineer, ETL, SQL Server, Snowflake</textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettingsChanges()" style="align-self: flex-start; margin-top: 20px;">
+            <i class="fas fa-check"></i> Atualizar Configurações
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: SYSTEM LOGS -->
+    <section id="tab-logs" class="tab-content">
+      <div class="terminal-card">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+          </div>
+          <span style="font-size: 11px; color: var(--text-muted);"><i class="fas fa-satellite-dish"></i> Live Output Feed</span>
+          <button class="btn" style="padding: 4px 10px; font-size: 11px;" onclick="renderLogsUI()">
+            <i class="fas fa-redo"></i> Recarregar
+          </button>
+        </div>
+        <div id="log-stream" class="log-stream">
+          <!-- Live logs injected here -->
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Custom Script -->
+  <script src="app.js"></script>
+</body>
+</html>

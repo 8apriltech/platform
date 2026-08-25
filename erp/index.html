@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8April ERP | Sistema Integrado</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Chart.js & Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- 8April ERP CSS -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Mobile Top Header Bar -->
+  <div class="mobile-header">
+    <button class="btn btn-secondary btn-sm" onclick="toggleMobileSidebar()"><i class="fa-solid fa-bars"></i> Menu</button>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <img src="https://i.ibb.co/Xxy18Dkc/42ed18d1-2c0c-4ac9-b996-154e0d12e45d.png" alt="8April ERP Logo" style="height:32px;">
+      <strong style="font-size:1rem; color:var(--accent-neon);">8April ERP</strong>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar Backdrop -->
+  <div class="sidebar-backdrop" onclick="toggleMobileSidebar()"></div>
+
+  <!-- Unified Sidebar Navigation -->
+  <aside id="main-sidebar">
+    <div class="brand">
+      <img src="https://i.ibb.co/Xxy18Dkc/42ed18d1-2c0c-4ac9-b996-154e0d12e45d.png" alt="8April Logo" class="brand-logo-img">
+      <div class="brand-text">
+        <h2>8April ERP</h2>
+        <span>8April Tech</span>
+      </div>
+    </div>
+
+    <div class="nav-section">VISÃO GERAL</div>
+    <ul class="nav-menu">
+      <li class="nav-item active" onclick="switchView('dashboard', this)">
+        <a href="#dashboard"><i class="fa-solid fa-chart-line" style="color:var(--accent-neon);"></i> Dashboard Consolidado</a>
+      </li>
+    </ul>
+
+    <div class="nav-section">MÓDULOS OPERACIONAIS</div>
+    <ul class="nav-menu">
+      <li class="nav-item" onclick="switchView('comercial', this)">
+        <a href="#comercial"><i class="fa-solid fa-file-contract" style="color:var(--primary);"></i> Contratos Comercial</a>
+      </li>
+      <li class="nav-item" onclick="switchView('parcelas', this)">
+        <a href="#parcelas"><i class="fa-solid fa-file-invoice-dollar" style="color:var(--accent-cyan);"></i> Parcelas & Cobranças</a>
+      </li>
+      <li class="nav-item" onclick="switchView('recebimentos', this)">
+        <a href="#recebimentos"><i class="fa-solid fa-hand-holding-dollar" style="color:var(--success);"></i> Recebimentos</a>
+      </li>
+      <li class="nav-item" onclick="switchView('os', this)">
+        <a href="#os"><i class="fa-solid fa-screwdriver-wrench" style="color:var(--warning);"></i> Ordens de Serviço</a>
+      </li>
+      <li class="nav-item" onclick="switchView('financeiro', this)">
+        <a href="#financeiro"><i class="fa-solid fa-wallet" style="color:var(--success);"></i> Financeiro Geral</a>
+      </li>
+      <li class="nav-item" onclick="switchView('clientes', this)">
+        <a href="#clientes"><i class="fa-solid fa-users" style="color:var(--purple);"></i> Clientes</a>
+      </li>
+    </ul>
+
+    <div class="nav-section">SISTEMA</div>
+    <ul class="nav-menu">
+      <li class="nav-item" onclick="switchView('configuracoes', this)">
+        <a href="#configuracoes"><i class="fa-solid fa-sliders" style="color:var(--accent-cyan);"></i> Configurações</a>
+      </li>
+      <li class="nav-item" onclick="fazerLogout()">
+        <a href="#logout" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Sair do Sistema</a>
+      </li>
+    </ul>
+
+    <div class="user-profile">
+      <div class="avatar">8A</div>
+      <div class="user-info">
+        <div class="name">8April Admin</div>
+        <div class="role" id="sidebar-conn-status"><span style="color:var(--success)">🟢 Local / Demo Activo</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Layout -->
+  <main>
+
+    <!-- Status Banner -->
+    <div class="arch-banner">
+      <div>
+        <strong style="font-size: 0.9rem;" id="banner-title"><i class="fa-solid fa-circle-check" style="color: var(--success);"></i> ERP Operacional 8April</strong>
+        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px;" id="banner-sub">Interface unificada 8April ERP com gestão de contratos, cobrança WhatsApp e OS.</p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="openModal('modal-login-supabase')" id="btn-login-status">
+          <i class="fa-solid fa-right-to-bracket"></i> Login
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="openModal('modal-config-supabase')" id="btn-supabase-status">
+          <i class="fa-solid fa-database" style="color:var(--success)"></i> Supabase
+        </button>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIEW 1: DASHBOARD CONSOLIDADO INICIAL
+         ==================================================================== -->
+    <section id="view-dashboard" class="view-section active">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-chart-pie" style="color:var(--accent-neon);"></i> Dashboard Consolidado 8April ERP</h1>
+          <p>Visão geral unificada dos módulos Comercial e Ordens de Serviço</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="abrirModalOS()"><i class="fa-solid fa-plus"></i> Nova OS</button>
+          <button class="btn btn-accent" onclick="openModal('modal-novo-contrato')"><i class="fa-solid fa-file-signature"></i> Novo Contrato</button>
+        </div>
+      </div>
+
+      <!-- 8 Indicator Cards Consolidados -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Contratos Ativos</span>
+            <div class="metric-icon purple"><i class="fa-solid fa-file-contract"></i></div>
+          </div>
+          <div class="metric-value" id="dash-contratos-ativos">0</div>
+          <div class="metric-sub">Em execução comercial</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Receita Recorrente Mensal</span>
+            <div class="metric-icon neon"><i class="fa-solid fa-arrows-rotate"></i></div>
+          </div>
+          <div class="metric-value" id="dash-mrr">R$ 0,00</div>
+          <div class="metric-sub">MRR mensal consolidado</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Receita Prevista</span>
+            <div class="metric-icon blue"><i class="fa-solid fa-chart-line"></i></div>
+          </div>
+          <div class="metric-value" id="dash-receita-prevista">R$ 0,00</div>
+          <div class="metric-sub">Parcelas e OS pendentes</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Valor Recebido no Mês</span>
+            <div class="metric-icon green"><i class="fa-solid fa-circle-check"></i></div>
+          </div>
+          <div class="metric-value" id="dash-recebido-mes">R$ 0,00</div>
+          <div class="metric-sub">Entradas do mês atual</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">OS Abertas</span>
+            <div class="metric-icon amber"><i class="fa-solid fa-clock-rotate-left"></i></div>
+          </div>
+          <div class="metric-value" id="dash-os-abertas">0</div>
+          <div class="metric-sub">Em andamento</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">OS Concluídas</span>
+            <div class="metric-icon green"><i class="fa-solid fa-check-double"></i></div>
+          </div>
+          <div class="metric-value" id="dash-os-concluidas">0</div>
+          <div class="metric-sub">Finalizadas</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Receita de OS</span>
+            <div class="metric-icon cyan"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          </div>
+          <div class="metric-value" id="dash-receita-os">R$ 0,00</div>
+          <div class="metric-sub">Faturamento acumulado OS</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Próximos Vencimentos</span>
+            <div class="metric-icon red"><i class="fa-solid fa-calendar-day"></i></div>
+          </div>
+          <div class="metric-value" style="font-size:1.1rem; padding-top:4px;" id="dash-vencimentos-count">Ver Tabela</div>
+          <div class="metric-sub">Mensalidades & Cobranças</div>
+        </div>
+      </div>
+
+      <!-- Consolidated Chart Section -->
+      <div class="dashboard-grid">
+        <div class="card" style="grid-column: span 2;">
+          <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-chart-column" style="color: var(--accent-neon);"></i> Comparativo de Receitas: Comercial vs Ordens de Serviço</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartConsolidado"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table: Próximas Mensalidades / Vencimentos Consolidados -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-list-check" style="color: var(--warning);"></i> Próximas Mensalidades e Vencimentos em Aberto</div>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Módulo Origem</th>
+                <th>Cliente</th>
+                <th>Descrição / Serviço</th>
+                <th>Vencimento / Data</th>
+                <th>Valor</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="dash-tbl-vencimentos">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 2: MÓDULO COMERCIAL
+         ==================================================================== -->
+    <section id="view-comercial" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-file-contract" style="color:var(--primary);"></i> Módulo Comercial</h1>
+          <p>Gestão de contratos, mensalidades, cobranças e recebimentos</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="openModal('modal-novo-contrato')"><i class="fa-solid fa-plus"></i> Criar Contrato</button>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Valor Contratado</span>
+            <div class="metric-icon blue"><i class="fa-solid fa-file-signature"></i></div>
+          </div>
+          <div class="metric-value" id="kpi-contratado">R$ 0,00</div>
+          <div class="metric-sub">Total de contratos vigentes</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Valor Recebido</span>
+            <div class="metric-icon green"><i class="fa-solid fa-circle-check"></i></div>
+          </div>
+          <div class="metric-value" id="kpi-recebido">R$ 0,00</div>
+          <div class="metric-sub"><span style="color: var(--success); font-weight:700;" id="kpi-pct-recebido">0.0%</span> quitado</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Valor em Aberto</span>
+            <div class="metric-icon amber"><i class="fa-solid fa-clock"></i></div>
+          </div>
+          <div class="metric-value" id="kpi-aberto">R$ 0,00</div>
+          <div class="metric-sub">Parcelas a vencer</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Valor Vencido</span>
+            <div class="metric-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          </div>
+          <div class="metric-value" id="kpi-vencido">R$ 0,00</div>
+          <div class="metric-sub"><span style="color:var(--danger); font-weight:700;">Requer cobrança</span></div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Contratos Ativos</span>
+            <div class="metric-icon purple"><i class="fa-solid fa-building-user"></i></div>
+          </div>
+          <div class="metric-value" id="kpi-qtd-ativos">0 / 0</div>
+          <div class="metric-sub">Em execução</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-chart-column" style="color: var(--primary);"></i> Recebimentos Comerciais</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartRecebimentosComercial"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--purple);"></i> Contratos por Status</div>
+          </div>
+          <div class="chart-container">
+            <canvas id="chartStatusComercial"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela de Contratos -->
+      <div class="card">
+        <div class="toolbar">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="filter-search-contrato" class="input-control" placeholder="Buscar por contrato, cliente ou responsável..." onkeyup="filterContratos()">
+          </div>
+          <select id="filter-status-contrato" class="select-control" onchange="filterContratos()">
+            <option value="">Todos os Status</option>
+            <option value="Em negociação">Em negociação</option>
+            <option value="Aguardando assinatura">Aguardando assinatura</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Em execução">Em execução</option>
+            <option value="Finalizado">Finalizado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Contrato & Cliente</th>
+                <th>Tipo</th>
+                <th>Valor Total</th>
+                <th>Impl. Quitado (%)</th>
+                <th>Responsável</th>
+                <th>Vigência</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-contratos-body">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 3: DETALHES DO CONTRATO
+         ==================================================================== -->
+    <section id="view-detalhe-contrato" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" onclick="switchView('comercial')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+            <h1 id="detalhe-nome-contrato">Selecione um Contrato</h1>
+          </div>
+          <p id="detalhe-sub-contrato">Cliente: - • Responsável: -</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="openEditarContratoModal(activeContractId)"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+          <button class="btn btn-danger btn-sm" onclick="excluirContratoConfirm(activeContractId)"><i class="fa-solid fa-trash"></i> Excluir</button>
+          <button class="btn btn-primary" onclick="openModal('modal-novo-recebimento')"><i class="fa-solid fa-dollar-sign"></i> Registrar Recebimento</button>
+          <span class="badge badge-execucao" id="detalhe-badge-status">Status</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="margin-bottom:1rem;">
+          <span style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Descrição do Escopo</span>
+          <p style="margin-top: 4px; font-size: 0.95rem; color: #e2e8f0;" id="detalhe-desc">-</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">VALOR TOTAL</div>
+            <div style="font-size:1.3rem; font-weight:700; color:var(--primary);" id="detalhe-val-total">R$ 0,00</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">TOTAL RECEBIDO</div>
+            <div style="font-size:1.3rem; font-weight:700; color:var(--success);" id="detalhe-val-recebido">R$ 0,00</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">SALDO RESTANTE</div>
+            <div style="font-size:1.3rem; font-weight:700; color:var(--warning);" id="detalhe-val-saldo">R$ 0,00</div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--text-secondary);">IMPL. QUITADA (%)</div>
+            <div style="font-size:1.3rem; font-weight:700;" id="detalhe-pct-texto">0.0%</div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="detalhe-pct-bar" style="width: 0%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs de Conteúdo do Contrato -->
+      <div style="display:flex; gap:10px; border-bottom:1px solid var(--border-color); margin-bottom:1.25rem; flex-wrap:wrap;">
+        <button class="btn btn-secondary tab-btn active" onclick="switchContractTab('tab-parcelas', this)"><i class="fa-solid fa-list-check"></i> Parcelas & Mensalidades</button>
+        <button class="btn btn-secondary tab-btn" onclick="switchContractTab('tab-historico-recebimentos', this)"><i class="fa-solid fa-receipt"></i> Histórico de Recebimentos</button>
+        <button class="btn btn-secondary tab-btn" onclick="switchContractTab('tab-timeline', this)"><i class="fa-solid fa-timeline"></i> Timeline & Auditoria</button>
+      </div>
+
+      <!-- Tab 1: Parcelas -->
+      <div id="tab-parcelas" class="tab-content active card">
+        <div class="card-header">
+          <div class="card-title">Cronograma de Parcelas & Recorrência</div>
+          <button class="btn btn-secondary btn-sm" onclick="openAdicionarParcelaModal()"><i class="fa-solid fa-plus"></i> + Adicionar Parcela / Mensalidade</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th># ID</th>
+                <th>Descrição / Etapa</th>
+                <th>Vencimento</th>
+                <th>Valor Parcela</th>
+                <th>Valor Pago</th>
+                <th>Forma Pagto</th>
+                <th>Status</th>
+                <th>Ações / Gateway</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-detalhe-parcelas">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 2: Histórico de Recebimentos -->
+      <div id="tab-historico-recebimentos" class="tab-content card">
+        <div class="card-header">
+          <div class="card-title">Registros Financeiros de Recebimento</div>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID Recebimento</th>
+                <th>Parcela Referência</th>
+                <th>Data Pagamento</th>
+                <th>Valor Recebido</th>
+                <th>Forma</th>
+                <th>Registrado Por</th>
+                <th>Observação</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-detalhe-recebimentos">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 3: Timeline -->
+      <div id="tab-timeline" class="tab-content card">
+        <div class="card-header">
+          <div class="card-title">Histórico Auditável de Eventos</div>
+        </div>
+        <div class="timeline" id="timeline-events">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW: PARCELAS GERAIS & COBRANÇAS
+         ==================================================================== -->
+    <section id="view-parcelas" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-file-invoice-dollar" style="color:var(--accent-cyan);"></i> Central de Cobranças e Parcelas</h1>
+          <p>Visão global de vencimentos, parcelas e cobrança digital via PIX & WhatsApp</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Contrato / Cliente</th>
+                <th>Parcela / Descrição</th>
+                <th>Vencimento</th>
+                <th>Valor Total</th>
+                <th>Valor Pago</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-todas-parcelas">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW: RECEBIMENTOS GERAIS
+         ==================================================================== -->
+    <section id="view-recebimentos" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-hand-holding-dollar" style="color:var(--success);"></i> Histórico Geral de Recebimentos</h1>
+          <p>Entradas de caixa registradas</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Contrato / Cliente</th>
+                <th>Parcela</th>
+                <th>Valor Recebido</th>
+                <th>Forma de Pagamento</th>
+                <th>Usuário</th>
+                <th>Observação</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-todos-recebimentos">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 4: MÓDULO ORDENS DE SERVIÇO
+         ==================================================================== -->
+    <section id="view-os" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-screwdriver-wrench" style="color:var(--warning);"></i> Ordens de Serviço</h1>
+          <p>Controle operacional de atendimento, serviços e faturamento por OS</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="abrirModalOS()"><i class="fa-solid fa-plus"></i> Nova OS</button>
+        </div>
+      </div>
+
+      <!-- Dashboard OS KPIs -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Total de OS</span>
+            <div class="metric-icon blue"><i class="fa-solid fa-clipboard-list"></i></div>
+          </div>
+          <div class="metric-value" id="totalOS">0</div>
+          <div class="metric-sub">Ordens cadastradas</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Faturamento OS</span>
+            <div class="metric-icon purple"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          </div>
+          <div class="metric-value" id="totalValorOS">R$ 0,00</div>
+          <div class="metric-sub">Valor total de serviços</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">💵 Recebido</span>
+            <div class="metric-icon green"><i class="fa-solid fa-circle-check"></i></div>
+          </div>
+          <div class="metric-value" id="faturadoOS">R$ 0,00</div>
+          <div class="metric-sub">Finalizadas</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">🕒 A Receber</span>
+            <div class="metric-icon amber"><i class="fa-solid fa-clock"></i></div>
+          </div>
+          <div class="metric-value" id="aReceberOS">R$ 0,00</div>
+          <div class="metric-sub">Em andamento</div>
+        </div>
+      </div>
+
+      <!-- Gráfico Faturamento OS -->
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-chart-line" style="color:var(--primary);"></i> Faturamento por Data (Ordens de Serviço)</div>
+        </div>
+        <div class="chart-container" style="height: 220px;">
+          <canvas id="graficoFaturamentoOS"></canvas>
+        </div>
+      </div>
+
+      <!-- Toolbar de Filtros OS -->
+      <div class="card toolbar" style="margin-bottom: 1.5rem;">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="buscaOS" class="input-control" placeholder="Buscar cliente, serviço, cidade ou estado" onkeyup="filtrarOS()">
+        </div>
+
+        <select id="filtroStatusOS" class="select-control" onchange="filtrarOS()">
+          <option value="">Todos Status</option>
+          <option value="Em andamento">Em andamento</option>
+          <option value="Finalizada">Finalizada</option>
+        </select>
+
+        <select id="filtroPeriodoOS" class="select-control" onchange="aplicarPeriodoOS()">
+          <option value="">Período</option>
+          <option value="mes_atual">Mês Atual</option>
+          <option value="mes_anterior">Mês Anterior</option>
+          <option value="ano_atual">Ano Atual</option>
+          <option value="ultimos_7">Últimos 7 dias</option>
+          <option value="ultimos_30">Últimos 30 dias</option>
+        </select>
+
+        <input type="date" id="dataInicioOS" class="input-control" style="width: auto;">
+        <input type="date" id="dataFimOS" class="input-control" style="width: auto;">
+
+        <button class="btn btn-primary" onclick="filtrarOS()"><i class="fa-solid fa-filter"></i> Filtrar</button>
+      </div>
+
+      <!-- Tabela OS Desktop -->
+      <div class="card table-os-desktop">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th onclick="ordenarOS('nome')">Nome <i class="fa-solid fa-sort"></i></th>
+                <th onclick="ordenarOS('servico')">Serviço <i class="fa-solid fa-sort"></i></th>
+                <th onclick="ordenarOS('cidade')">Cidade <i class="fa-solid fa-sort"></i></th>
+                <th onclick="ordenarOS('estado')">Estado <i class="fa-solid fa-sort"></i></th>
+                <th onclick="ordenarOS('valor')">Valor <i class="fa-solid fa-sort"></i></th>
+                <th onclick="ordenarOS('data_entrega')">Data <i class="fa-solid fa-sort"></i></th>
+                <th>Descrição</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaOS">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cards Container Mobile OS -->
+      <div id="cardsOS" class="cards-container"></div>
+
+      <!-- Paginação OS -->
+      <div style="margin-top: 1.5rem; display: flex; gap: 15px; align-items: center; justify-content: center;">
+        <button class="btn btn-secondary" onclick="osPaginaAnterior()">⬅️ Anterior</button>
+        <span id="infoPaginaOS" style="font-weight:600;">Página 1</span>
+        <button class="btn btn-secondary" onclick="osProximaPagina()">Próxima ➡️</button>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 5: FINANCEIRO GERAL CONSOLIDADO
+         ==================================================================== -->
+    <section id="view-financeiro" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-wallet" style="color:var(--success);"></i> Módulo Financeiro Geral</h1>
+          <p>Consolidação de receitas de Comercial e Ordens de Serviço (Union / Consulta Unificada)</p>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Total Geral Recebido</span>
+            <div class="metric-icon green"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+          </div>
+          <div class="metric-value" id="fin-total-recebido">R$ 0,00</div>
+          <div class="metric-sub">Comercial + OS</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Receita Comercial</span>
+            <div class="metric-icon blue"><i class="fa-solid fa-file-contract"></i></div>
+          </div>
+          <div class="metric-value" id="fin-total-comercial">R$ 0,00</div>
+          <div class="metric-sub">Recebimentos de contratos</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Receita OS</span>
+            <div class="metric-icon cyan"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+          </div>
+          <div class="metric-value" id="fin-total-os">R$ 0,00</div>
+          <div class="metric-sub">Ordens de Serviço finalizadas</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="fin-busca" class="input-control" placeholder="Buscar por cliente, descrição ou ID..." onkeyup="renderFinanceiroGeral()">
+          </div>
+          <select id="fin-filtro-origem" class="select-control" onchange="renderFinanceiroGeral()">
+            <option value="">Todas as Origens</option>
+            <option value="Comercial">Apenas Comercial</option>
+            <option value="Ordens de Serviço">Apenas Ordens de Serviço</option>
+          </select>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Origem</th>
+                <th>Cliente</th>
+                <th>Descrição</th>
+                <th>Data</th>
+                <th>Valor</th>
+                <th>Forma / Tipo</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-financeiro-geral">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 6: CLIENTES CONSOLIDADO
+         ==================================================================== -->
+    <section id="view-clientes" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-users" style="color:var(--purple);"></i> Gestão Unificada de Clientes</h1>
+          <p>Visão integrada de clientes dos módulos Comercial e Ordens de Serviço (CRM Leads)</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="busca-cliente" class="input-control" placeholder="Buscar cliente por nome..." onkeyup="renderClientesModule()">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome do Cliente</th>
+                <th>Origem Cadastral</th>
+                <th>Telefone / WhatsApp</th>
+                <th>Contratos Vinculados</th>
+                <th>OS Vinculadas</th>
+              </tr>
+            </thead>
+            <tbody id="tbl-clientes-consolidado">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VIEW 7: CONFIGURAÇÕES
+         ==================================================================== -->
+    <section id="view-configuracoes" class="view-section">
+      <div class="top-bar">
+        <div class="page-header">
+          <h1><i class="fa-solid fa-sliders" style="color:var(--accent-cyan);"></i> Configurações do Sistema</h1>
+          <p>Credenciais da conexão Supabase, parâmetros e preferências</p>
+        </div>
+      </div>
+
+      <div class="card" style="max-width: 700px;">
+        <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-database" style="color:var(--success);"></i> Parâmetros da Conexão Supabase</h3>
+        <form onsubmit="salvarConfigSupabase(event)">
+          <div class="form-group full">
+            <label class="form-label">Supabase Project URL</label>
+            <input type="url" class="form-input" id="cfg-supabase-url" required>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Supabase Anon Key (Chave Pública)</label>
+            <input type="text" class="form-input" id="cfg-supabase-key" required>
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1.5rem;">
+            💡 O 8April ERP utiliza uma conexão direta e segura com seu banco PostgreSQL hospedado no Supabase.
+          </div>
+          <div style="display:flex; justify-content:flex-end;">
+            <button type="submit" class="btn btn-primary" style="background:var(--success);"><i class="fa-solid fa-plug"></i> Salvar e Conectar</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Webhook de Cobrança WhatsApp (n8n) -->
+      <div class="card" style="max-width: 700px; margin-top: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;"><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> Webhook de Cobrança WhatsApp (n8n)</h3>
+        <form onsubmit="salvarConfigWebhookCobranca(event)">
+          <div class="form-group full">
+            <label class="form-label">URL do Webhook n8n (WhatsApp)</label>
+            <input type="url" class="form-input" id="cfg-webhook-cobranca-url" value="https://n8n.srv1129054.hstgr.cloud/webhook/cobranca-whatsapp" required>
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1.5rem;">
+            💡 O 8April ERP enviará os dados do cliente, vencimento, valor formatado, <b>PIX Copia e Cola</b> e QR Code para este endpoint.
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="testarWebhookCobranca()"><i class="fa-solid fa-paper-plane"></i> Testar Envio ao n8n</button>
+            <button type="submit" class="btn btn-primary" style="background:#25D366; color:#000; font-weight:700;"><i class="fa-solid fa-floppy-disk"></i> Salvar Webhook</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      © 2026 · 8April Tech · 8April ERP · Todos os direitos reservados.
+    </footer>
+  </main>
+
+  <!-- ====================================================================
+       MODAIS DO SISTEMA
+       ==================================================================== -->
+
+  <!-- MODAL: NOVA / EDITAR OS -->
+  <div id="modalOS" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="tituloModalOS" style="font-size:1.2rem;"><i class="fa-solid fa-screwdriver-wrench" style="color:var(--warning);"></i> ➕ Nova Ordem de Serviço</h2>
+        <button class="modal-close" onclick="fecharModalOS()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <p id="erroFormOS" style="color:#f87171; display:none; margin-bottom:10px;"></p>
+
+      <form id="formOS" onsubmit="salvarOS(event)">
+        <input type="hidden" id="os_id">
+        <div class="form-group full">
+          <label class="form-label">Nome do Cliente</label>
+          <input type="text" id="os_nome" class="form-input" placeholder="Nome do cliente" list="clientesListOS" autocomplete="off" required>
+          <datalist id="clientesListOS"></datalist>
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Serviço</label>
+          <select id="os_servico" class="form-select" required>
+            <option value="">Selecione um serviço</option>
+            <option>Instalação de Componentes</option>
+            <option>Instalação Office</option>
+            <option>Formatação</option>
+            <option>Inteligência Artificial</option>
+            <option>Externos</option>
+            <option>Configuração de Impressora</option>
+            <option>AutoCAD</option>
+            <option>Avaliação</option>
+            <option>Configuração de Rede</option>
+            <option>Criação de Site</option>
+            <option>TCC</option>
+            <option>Power BI</option>
+            <option>Ativação Windows</option>
+            <option>Consultoria</option>
+            <option>Outros</option>
+          </select>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Cidade</label>
+            <input type="text" id="os_cidade" class="form-input" placeholder="Cidade">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <input type="text" id="os_estado" class="form-input" placeholder="Estado">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor (R$)</label>
+            <input id="os_valor" type="number" step="0.01" class="form-input" placeholder="Valor" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Entrega</label>
+            <input id="os_data_entrega" type="date" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="recurrence-box">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="os_recorrente" onchange="toggleRecorrenciaOS()">
+            <span style="font-weight:600;">Serviço Recorrente</span>
+          </label>
+
+          <div id="boxRecorrenciaOS" style="display:none; margin-top:10px;">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Periodicidade</label>
+                <select id="os_periodicidade" class="form-select">
+                  <option value="mensal">Mensal</option>
+                  <option value="semanal">Semanal</option>
+                  <option value="quinzenal">Quinzenal</option>
+                  <option value="anual">Anual</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Qtd Recorrências</label>
+                <input id="os_qtdRecorrencias" type="number" class="form-input" value="12" min="2" placeholder="Quantidade">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Observações</label>
+          <textarea id="os_obs" class="form-textarea" placeholder="Observações..." rows="3"></textarea>
+        </div>
+
+        <div class="form-group full">
+          <label class="form-label">Status</label>
+          <select id="os_status" class="form-select">
+            <option>Em andamento</option>
+            <option>Finalizada</option>
+          </select>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="fecharModalOS()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar OS</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: NOVO CONTRATO -->
+  <div class="modal-overlay" id="modal-novo-contrato">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-file-contract" style="color: var(--primary);"></i> Cadastrar Novo Contrato</h2>
+        <button class="modal-close" onclick="closeModal('modal-novo-contrato')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-contrato" onsubmit="salvarNovoContrato(event)">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Cliente / Razão Social</label>
+            <input type="text" class="form-input" id="inp-cliente" placeholder="Ex: Innova Revendas" required>
+          </div>
+          <div class="form-group full">
+            <label class="form-label"><i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> WhatsApp / Telefone do Cliente</label>
+            <input type="text" class="form-input" id="inp-telefone" placeholder="Ex: 3498039530 (apenas números com DDD)">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Nome do Contrato / Projeto</label>
+            <input type="text" class="form-input" id="inp-nome" placeholder="Ex: Inna - Assistente de IA" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo de Contrato</label>
+            <select class="form-select" id="inp-tipo">
+              <option value="parcelado">Parcelado (Setup / Implementação)</option>
+              <option value="recorrente">Recorrente (Apenas Mensalidades)</option>
+              <option value="valor_unico">Valor Único (À Vista)</option>
+              <option value="por_etapas">Por Etapas / Milestones</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor do Setup / Implementação (R$)</label>
+            <input type="number" step="0.01" class="form-input" id="inp-valor" placeholder="3000.00" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Divisão em Parcelas do Setup</label>
+            <input type="number" min="1" max="60" class="form-input" id="inp-qtd-parcelas" value="2" placeholder="Ex: 2x" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Início</label>
+            <input type="date" class="form-input" id="inp-data-inicio" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Previsão Término do Setup</label>
+            <input type="date" class="form-input" id="inp-data-fim" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Responsável Comercial</label>
+            <input type="text" class="form-input" id="inp-responsavel" placeholder="Ex: Rudge" required>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Status Inicial</label>
+            <select class="form-select" id="inp-status">
+              <option value="Em negociação">Em negociação</option>
+              <option value="Aguardando assinatura">Aguardando assinatura</option>
+              <option value="Ativo" selected>Ativo</option>
+              <option value="Em execução">Em execução</option>
+            </select>
+          </div>
+
+          <!-- RECORRÊNCIA DE MENSALIDADE -->
+          <div class="recurrence-box">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 0.5rem;">
+              <strong style="font-size:0.88rem; color:var(--purple);"><i class="fa-solid fa-arrows-rotate"></i> Incluir Mensalidades de Manutenção / Suporte</strong>
+              <label style="font-size:0.78rem; cursor:pointer;"><input type="checkbox" id="chk-tem-mensalidade" onchange="document.getElementById('box-fields-mensalidade').style.display = this.checked ? 'block' : 'none'"> Ativar Recorrência</label>
+            </div>
+            <div id="box-fields-mensalidade" style="display:none; margin-top: 0.75rem;">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Valor da Mensalidade (R$)</label>
+                  <input type="number" step="0.01" class="form-input" id="inp-valor-mensalidade" placeholder="Ex: 500.00">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Qtd Meses de Recorrência</label>
+                  <input type="number" min="1" max="48" class="form-input" id="inp-qtd-mensalidades" value="12">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Descrição / Cláusulas de Cobrança</label>
+            <textarea class="form-textarea" id="inp-desc" rows="3" placeholder="Detalhes do escopo..."></textarea>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-novo-contrato')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Contrato</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: EDITAR CONTRATO -->
+  <div class="modal-overlay" id="modal-editar-contrato">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-pen-to-square" style="color: var(--primary);"></i> Editar Contrato</h2>
+        <button class="modal-close" onclick="closeModal('modal-editar-contrato')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-editar-contrato" onsubmit="salvarEdicaoContrato(event)">
+        <input type="hidden" id="edit-contrato-id">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Cliente / Razão Social</label>
+            <input type="text" class="form-input" id="edit-cliente" required>
+          </div>
+          <div class="form-group full">
+            <label class="form-label"><i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> WhatsApp / Telefone do Cliente</label>
+            <input type="text" class="form-input" id="edit-telefone" placeholder="Ex: 3498039530 (apenas números com DDD)">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Nome do Contrato / Projeto</label>
+            <input type="text" class="form-input" id="edit-nome" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo de Contrato</label>
+            <select class="form-select" id="edit-tipo">
+              <option value="parcelado">Parcelado (Setup / Implementação)</option>
+              <option value="recorrente">Recorrente (Mensalidades)</option>
+              <option value="valor_unico">Valor Único (À Vista)</option>
+              <option value="por_etapas">Por Etapas / Milestones</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Valor Total do Setup (R$)</label>
+            <input type="number" step="0.01" class="form-input" id="edit-valor-setup" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Divisão em Parcelas do Setup</label>
+            <input type="number" min="1" max="60" class="form-input" id="edit-inp-qtd-parcelas" value="2" required>
+          </div>
+
+          <div class="setup-recalculate-box">
+            <label style="font-size:0.83rem; color:var(--accent-cyan); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;">
+              <input type="checkbox" id="edit-chk-regerar-setup" checked>
+              <span>⚡ Recalcular & Atualizar Parcelas do Setup no Cronograma</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Data Início</label>
+            <input type="date" class="form-input" id="edit-data-inicio" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Previsão Término</label>
+            <input type="date" class="form-input" id="edit-data-fim" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Responsável Comercial</label>
+            <input type="text" class="form-input" id="edit-responsavel" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status do Contrato</label>
+            <select class="form-select" id="edit-status">
+              <option value="Em negociação">Em negociação</option>
+              <option value="Aguardando assinatura">Aguardando assinatura</option>
+              <option value="Ativo">Ativo</option>
+              <option value="Em execução">Em execução</option>
+              <option value="Finalizado">Finalizado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="recurrence-box">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 0.5rem;">
+              <strong style="font-size:0.88rem; color:var(--purple);"><i class="fa-solid fa-arrows-rotate"></i> Gerar Novas Mensalidades</strong>
+              <label style="font-size:0.78rem; cursor:pointer;"><input type="checkbox" id="edit-chk-tem-mensalidade" onchange="document.getElementById('edit-box-fields-mensalidade').style.display = this.checked ? 'block' : 'none'"> Adicionar Recorrência</label>
+            </div>
+            <div id="edit-box-fields-mensalidade" style="display:none; margin-top: 0.75rem;">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label">Valor da Mensalidade (R$)</label>
+                  <input type="number" step="0.01" class="form-input" id="edit-inp-valor-mensalidade">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Qtd Novas Mensalidades</label>
+                  <input type="number" min="1" max="48" class="form-input" id="edit-inp-qtd-mensalidades" value="12">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Descrição / Cláusulas de Cobrança</label>
+            <textarea class="form-textarea" id="edit-desc" rows="3"></textarea>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-editar-contrato')">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADICIONAR PARCELA / MENSALIDADE AVULSA -->
+  <div class="modal-overlay" id="modal-add-parcela">
+    <div class="modal-container" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 style="font-size: 1.15rem;"><i class="fa-solid fa-plus-circle" style="color: var(--purple);"></i> Adicionar Parcela / Mensalidade</h2>
+        <button class="modal-close" onclick="closeModal('modal-add-parcela')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="salvarAdicaoParcela(event)">
+        <div class="form-group full">
+          <label class="form-label">Descrição da Parcela / Mensalidade</label>
+          <input type="text" class="form-input" id="add-parc-desc" placeholder="Ex: Mensalidade Julho/2026 - Manutenção" required>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Valor (R$)</label>
+          <input type="number" step="0.01" class="form-input" id="add-parc-valor" placeholder="500.00" required>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Data de Vencimento</label>
+          <input type="date" class="form-input" id="add-parc-venc" required>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Forma de Pagamento Prevista</label>
+          <select class="form-select" id="add-parc-forma">
+            <option value="pix">Pix (Instantâneo)</option>
+            <option value="boleto">Boleto Bancário</option>
+            <option value="cartao_credito">Cartão de Crédito</option>
+            <option value="transferencia">Transferência</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-parcela')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="background: var(--purple);"><i class="fa-solid fa-plus"></i> Adicionar ao Cronograma</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR RECEBIMENTO -->
+  <div class="modal-overlay" id="modal-novo-recebimento">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-hand-holding-dollar" style="color: var(--success);"></i> Registrar Recebimento Financeiro</h2>
+        <button class="modal-close" onclick="closeModal('modal-novo-recebimento')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="form-recebimento" onsubmit="salvarRecebimento(event)">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Selecionar Parcela do Contrato</label>
+            <select class="form-select" id="inp-rec-parcela" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor do Recebimento (R$)</label>
+            <input type="number" step="0.01" class="form-input" id="inp-rec-valor" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data do Recebimento</label>
+            <input type="date" class="form-input" id="inp-rec-data" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Forma de Pagamento</label>
+            <select class="form-select" id="inp-rec-forma">
+              <option value="pix">Pix (Instantâneo)</option>
+              <option value="boleto">Boleto Bancário</option>
+              <option value="cartao_credito">Cartão de Crédito</option>
+              <option value="transferencia">Transferência (TED/DOC)</option>
+              <option value="dinheiro">Dinheiro Espécie</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Usuário Responsável</label>
+            <input type="text" class="form-input" id="inp-rec-usuario" value="Rudge Santana">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Observações / ID do Comprovante</label>
+            <input type="text" class="form-input" id="inp-rec-obs" placeholder="Ex: Comprovante Itaú #98421">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-novo-recebimento')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="background: var(--success);"><i class="fa-solid fa-check"></i> Confirmar Baixa</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: COBRANÇA PIX / QR CODE -->
+  <div class="modal-overlay" id="modal-gateway-pay">
+    <div class="modal-container" style="text-align: center; max-width: 480px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-qrcode" style="color:var(--success);"></i> Cobrança Digital (PIX)</h3>
+        <button class="modal-close" onclick="closeModal('modal-gateway-pay')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;" id="gateway-pay-desc">Chave PIX Oficial 8April Tech (CNPJ)</p>
+      <div style="background: #fff; padding: 1rem; border-radius: 12px; display: inline-block; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+        <img id="gateway-pay-qr" src="" alt="PIX QR Code" style="width: 180px; height: 180px;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pix Copia e Cola (Payload Banco Central)</label>
+        <input type="text" id="gateway-pay-key" class="form-input" style="font-family: monospace; font-size: 0.75rem; text-align: center; color: var(--accent-cyan);" value="" readonly>
+      </div>
+      <div style="display: flex; gap: 8px; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+        <button class="btn btn-primary btn-sm" style="background:var(--success);" onclick="copiarPixPayload()"><i class="fa-solid fa-copy"></i> Copiar Pix Copia e Cola</button>
+        <button class="btn btn-secondary btn-sm" onclick="copiarChavePixApenas()"><i class="fa-solid fa-hashtag"></i> Copiar CNPJ</button>
+        <button class="btn btn-secondary btn-sm" style="background:#25D366; color:#000; font-weight:700;" id="btn-whats-gateway" onclick="dispararCobrancaWhatsAppActive()"><i class="fa-brands fa-whatsapp"></i> Enviar WhatsApp</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURAÇÃO SUPABASE -->
+  <div class="modal-overlay" id="modal-config-supabase">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-database" style="color: var(--success);"></i> Configurar Conexão Supabase</h2>
+        <button class="modal-close" onclick="closeModal('modal-config-supabase')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="salvarConfigSupabase(event)">
+        <div class="form-group full">
+          <label class="form-label">Supabase Project URL</label>
+          <input type="url" class="form-input" id="modal-cfg-supabase-url" required>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Supabase Anon Key (Chave Pública)</label>
+          <input type="text" class="form-input" id="modal-cfg-supabase-key" required>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-config-supabase')">Cancelar</button>
+          <button type="submit" class="btn btn-primary" style="background: var(--success);"><i class="fa-solid fa-plug"></i> Salvar e Conectar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: LOGIN SUPABASE -->
+  <div class="modal-overlay" id="modal-login-supabase">
+    <div class="modal-container" style="max-width:450px;">
+      <div class="modal-header">
+        <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-right-to-bracket" style="color: var(--primary);"></i> Autenticar no Supabase</h2>
+        <button class="modal-close" onclick="closeModal('modal-login-supabase')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="fazerLoginSupabase(event)">
+        <div class="form-group full">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-input" id="login-email" placeholder="seu-email@8april.com.br" required>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Senha</label>
+          <input type="password" class="form-input" id="login-password" placeholder="Sua senha" required>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top:1rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-login-supabase')">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Entrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification element -->
+  <div id="toast" class="toast"></div>
+
+  <!-- 8April ERP Main Script Engine -->
+  <script src="app.js"></script>
+</body>
+</html>

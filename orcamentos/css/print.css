@@ -1,0 +1,280 @@
+/* =========================================================
+   8APRIL ORÇAMENTOS - A4 PDF & PRINT LAYOUT STYLESHEET
+   ========================================================= */
+
+/* Document Container in Web Modal Preview */
+.a4-document {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm 18mm;
+  margin: 0 auto;
+  background: #FFFFFF !important;
+  color: #1F2937 !important;
+  font-family: 'Inter', -apple-system, sans-serif;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Document Top / Content Area */
+.pdf-content-wrapper {
+  flex: 1;
+}
+
+/* Header */
+.pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #3B82F6;
+  margin-bottom: 1.75rem;
+}
+
+.pdf-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pdf-brand img, .pdf-brand svg {
+  height: 48px;
+  width: auto;
+}
+
+.pdf-meta-box {
+  text-align: right;
+}
+
+.pdf-orcamento-number {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1E40AF;
+  letter-spacing: 0.5px;
+}
+
+.pdf-orcamento-date {
+  font-size: 0.9rem;
+  color: #4B5563;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Client & Summary Info Grids */
+.pdf-section {
+  margin-bottom: 1.75rem;
+}
+
+.pdf-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.pdf-info-block label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.pdf-info-block p {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0F172A;
+  word-break: break-word;
+}
+
+/* Items Table */
+.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+.pdf-table th {
+  background: #1E3A8A;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  padding: 0.75rem 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.pdf-table th:first-child {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.pdf-table th:last-child {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  text-align: right;
+}
+
+.pdf-table td {
+  padding: 0.75rem 0.85rem;
+  font-size: 0.9rem;
+  color: #334155;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.pdf-table tr:nth-child(even) td {
+  background-color: #F8FAFC;
+}
+
+.pdf-table td.text-right {
+  text-align: right;
+}
+
+.pdf-table td.text-center {
+  text-align: center;
+}
+
+/* Grand Total Box */
+.pdf-total-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.75rem;
+}
+
+.pdf-total-box {
+  background: #1E3A8A;
+  color: #FFFFFF;
+  border-radius: 8px;
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-total-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #93C5FD;
+}
+
+.pdf-total-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+/* Terms & Notes Blocks */
+.pdf-details-block {
+  margin-bottom: 1.25rem;
+}
+
+.pdf-details-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #475569;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pdf-details-content {
+  font-size: 0.9rem;
+  color: #1E293B;
+  background: #F8FAFC;
+  border-left: 3px solid #3B82F6;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0 6px 6px 0;
+  white-space: pre-line;
+}
+
+/* Footer Section */
+.pdf-footer {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid #E2E8F0;
+  text-align: center;
+}
+
+.pdf-footer-msg {
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.pdf-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #25D366;
+  color: #FFFFFF !important;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  box-shadow: 0 2px 5px rgba(37, 211, 102, 0.3);
+}
+
+/* Print Only Rules */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  
+  .app-header,
+  .app-content,
+  .modal-header,
+  .modal-footer,
+  #toast-container {
+    display: none !important;
+  }
+
+  .modal-backdrop {
+    position: static !important;
+    background: none !important;
+    display: block !important;
+    padding: 0 !important;
+  }
+
+  .modal-container {
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    max-height: none !important;
+  }
+
+  .modal-body {
+    background: #FFFFFF !important;
+    padding: 0 !important;
+  }
+
+  .a4-document {
+    width: 100% !important;
+    min-height: 100vh !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm;
+  }
+}

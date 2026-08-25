@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8April - Gerador de Orçamentos</title>
+  <link rel="icon" type="image/png" href="https://i.ibb.co/60K4yCN5/407563c3-7243-496d-b286-6cfe91da0a2f.png">
+  
+  <!-- Fontes Google Inter e Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- html2pdf.js para exportação de PDF A4 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Topbar / Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <img src="https://i.ibb.co/y1fJmKc/eec57614-3405-4cf2-a497-6deb99f25aae.png" alt="8April Logo" class="header-logo" id="header-logo-img">
+        <span class="badge-app">Orçamentos</span>
+      </div>
+      <div class="header-right">
+        <nav class="nav-tabs">
+          <button class="tab-btn active" data-tab="tab-novo">
+            <i data-lucide="file-plus"></i> Novo Orçamento
+          </button>
+          <button class="tab-btn" data-tab="tab-historico">
+            <i data-lucide="history"></i> Histórico <span id="count-badge" class="count-badge">0</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-config">
+            <i data-lucide="database"></i> Supabase
+          </button>
+        </nav>
+        <button type="button" id="btn-theme-toggle" class="theme-toggle-btn" title="Alternar Tema Escuro/Claro">
+          <i data-lucide="moon" id="theme-icon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    
+    <!-- ABA: NOVO / EDITAR ORÇAMENTO -->
+    <section id="tab-novo" class="tab-content active">
+      <div class="page-title-bar">
+        <div>
+          <h1 id="form-title">Novo Orçamento</h1>
+          <p class="subtitle">Preencha os dados abaixo para gerar e armazenar o orçamento profissional.</p>
+        </div>
+        <div class="action-buttons-head">
+          <button type="button" id="btn-novo-reset" class="btn btn-secondary">
+            <i data-lucide="rotate-ccw"></i> Limpar Formulário
+          </button>
+          <button type="button" id="btn-preview-pdf" class="btn btn-secondary">
+            <i data-lucide="eye"></i> Pré-visualizar PDF
+          </button>
+          <button type="button" id="btn-salvar" class="btn btn-primary">
+            <i data-lucide="save"></i> Salvar Orçamento
+          </button>
+        </div>
+      </div>
+
+      <form id="orcamento-form" class="orcamento-grid">
+        <input type="hidden" id="orcamento-id">
+
+        <!-- Card Dados Principais -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h3><i data-lucide="info"></i> Informações do Orçamento</h3>
+          </div>
+          <div class="card-body grid-2">
+            <div class="form-group">
+              <label for="numero-orcamento">Número do Orçamento <span class="req">*</span></label>
+              <input type="text" id="numero-orcamento" class="form-control font-mono bold" readonly>
+            </div>
+            <div class="form-group">
+              <label for="data-emissao">Data de Emissão <span class="req">*</span></label>
+              <input type="date" id="data-emissao" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label for="nome-cliente">Nome do Cliente <span class="req">*</span></label>
+              <input type="text" id="nome-cliente" class="form-control" placeholder="Ex.: João Silva" required>
+            </div>
+            <div class="form-group">
+              <label for="empresa-cliente">Empresa (Opcional)</label>
+              <input type="text" id="empresa-cliente" class="form-control" placeholder="Ex.: Tech Solutions Ltda">
+            </div>
+            <div class="form-group">
+              <label for="validade-orcamento">Validade do Orçamento</label>
+              <input type="text" id="validadeS-orcamento" class="form-control" placeholder="Ex.: 15 dias" value="15 dias">
+            </div>
+            <div class="form-group">
+              <label for="prazo-execucao">Prazo de Execução / Entrega (Opcional)</label>
+              <input type="text" id="prazo-execucao" class="form-control" placeholder="Ex.: 10 dias úteis após a aprovação">
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Condições & Observações -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h3><i data-lucide="credit-card"></i> Condições & Observações</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="condicoes-pagamento">Condições de Pagamento</label>
+              <input type="text" id="condicoes-pagamento" class="form-control" placeholder="Ex.: 50% de entrada + 50% na entrega" value="50% de entrada + 50% na entrega final">
+            </div>
+            <div class="form-group">
+              <label for="observacoes">Observações (Opcional)</label>
+              <textarea id="observacoes" class="form-control" rows="3" placeholder="Informações complementares, garantia, restrições ou termos adicionais..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Itens do Orçamento -->
+        <div class="card form-card full-width">
+          <div class="card-header space-between">
+            <h3><i data-lucide="list"></i> Itens do Orçamento</h3>
+            <button type="button" id="btn-add-item" class="btn btn-sm btn-outline">
+              <i data-lucide="plus-circle"></i> Adicionar Item
+            </button>
+          </div>
+          <div class="card-body padding-none">
+            <div class="table-responsive">
+              <table class="items-table" id="table-itens">
+                <thead>
+                  <tr>
+                    <th style="width: 5%">#</th>
+                    <th style="width: 50%">Descrição do Serviço / Produto</th>
+                    <th style="width: 12%">Qtd</th>
+                    <th style="width: 15%">Valor Unit. (R$)</th>
+                    <th style="width: 15%">Total (R$)</th>
+                    <th style="width: 3%"></th>
+                  </tr>
+                </thead>
+                <tbody id="itens-tbody">
+                  <!-- Linhas adicionadas via JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Resumo e Valor Total -->
+            <div class="summary-footer">
+              <div class="summary-notes">
+                <p><i data-lucide="lightbulb"></i> Os valores são calculados automaticamente conforme a quantidade e valor unitário informados.</p>
+              </div>
+              <div class="summary-totals">
+                <div class="total-row grand-total">
+                  <span>Valor Total:</span>
+                  <span id="valor-total-display" class="highlight-price">R$ 0,00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões Finais de Ação -->
+        <div class="form-actions-bottom full-width">
+          <button type="button" id="btn-salvar-bottom" class="btn btn-primary btn-lg">
+            <i data-lucide="check-circle"></i> Salvar Orçamento
+          </button>
+          <button type="button" id="btn-gerar-pdf-direct" class="btn btn-accent btn-lg">
+            <i data-lucide="file-text"></i> Gerar PDF (A4)
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- ABA: HISTÓRICO DE ORÇAMENTOS -->
+    <section id="tab-historico" class="tab-content">
+      <div class="page-title-bar">
+        <div>
+          <h1>Histórico de Orçamentos</h1>
+          <p class="subtitle">Gerencie, pesquise, edite e exporte orçamentos gerados anteriormente.</p>
+        </div>
+        <div class="search-box">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="search-input" class="form-control search-input" placeholder="Pesquisar por cliente ou número...">
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i data-lucide="file-check"></i></div>
+          <div class="stat-data">
+            <span class="stat-value" id="stat-total-count">0</span>
+            <span class="stat-label">Orçamentos Emitidos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i data-lucide="dollar-sign"></i></div>
+          <div class="stat-data">
+            <span class="stat-value" id="stat-total-value">R$ 0,00</span>
+            <span class="stat-label">Valor Total Salvo</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela do Histórico -->
+      <div class="card">
+        <div class="card-body padding-none">
+          <div class="table-responsive">
+            <table class="history-table">
+              <thead>
+                <tr>
+                  <th>Nº Orçamento</th>
+                  <th>Data</th>
+                  <th>Cliente</th>
+                  <th>Empresa</th>
+                  <th>Valor Total</th>
+                  <th class="text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="historico-tbody">
+                <!-- Preenchido via JS -->
+              </tbody>
+            </table>
+          </div>
+          <div id="history-empty" class="empty-state">
+            <i data-lucide="folder-open" class="empty-icon"></i>
+            <h3>Nenhum orçamento encontrado</h3>
+            <p>Os orçamentos salvos aparecerão nesta lista.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA: CONFIGURAÇÃO SUPABASE -->
+    <section id="tab-config" class="tab-content">
+      <div class="page-title-bar">
+        <div>
+          <h1>Configuração do Supabase</h1>
+          <p class="subtitle">Conecte o sistema ao seu projeto no Supabase para sincronização em nuvem.</p>
+        </div>
+      </div>
+
+      <div class="card form-card max-w-700">
+        <div class="card-header">
+          <h3><i data-lucide="database"></i> Parâmetros de Conexão</h3>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <i data-lucide="info"></i>
+            <span>Por padrão, o sistema funciona 100% no modo <strong>LocalStorage (Local)</strong>. Quando estiver pronto para homologar em <code>app.8april.com.br/orcamento</code>, basta preencher as chaves abaixo.</span>
+          </div>
+          <form id="supabase-config-form">
+            <div class="form-group">
+              <label for="supabase-url">URL do Projeto Supabase</label>
+              <input type="url" id="supabase-url" class="form-control font-mono" placeholder="https://xyzcompany.supabase.co">
+            </div>
+            <div class="form-group">
+              <label for="supabase-key">Chave Pública (anon key)</label>
+              <input type="password" id="supabase-key" class="form-control font-mono" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Salvar Conexão</button>
+              <button type="button" id="btn-test-supabase" class="btn btn-secondary"><i data-lucide="plug"></i> Testar Conexão</button>
+              <button type="button" id="btn-clear-supabase" class="btn btn-outline text-danger"><i data-lucide="trash-2"></i> Usar Apenas LocalStorage</button>
+            </div>
+            <div id="supabase-status" class="status-msg"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL DE PRÉ-VISUALIZAÇÃO DO PDF (A4 PRINTABLE AREA) -->
+  <div id="pdf-modal" class="modal-backdrop">
+    <div class="modal-container modal-xl">
+      <div class="modal-header">
+        <h3 class="modal-title"><i data-lucide="file-text"></i> Pré-visualização do Orçamento</h3>
+        <div class="modal-actions">
+          <button type="button" id="btn-modal-download" class="btn btn-accent"><i data-lucide="download"></i> Baixar PDF (A4)</button>
+          <button type="button" id="btn-modal-wa" class="btn btn-whatsapp"><i data-lucide="message-square"></i> Abrir WhatsApp</button>
+          <button type="button" id="btn-modal-close" class="btn btn-icon"><i data-lucide="x"></i></button>
+        </div>
+      </div>
+      <div class="modal-body modal-scroll-body">
+        
+        <!-- ELEMENTO A4 RENDERIZADO NO PDF -->
+        <div id="pdf-template" class="pdf-page-a4">
+          
+          <!-- Cabeçalho do PDF -->
+          <div class="pdf-header">
+            <div class="pdf-brand">
+              <img src="https://i.ibb.co/1tWcrw3Z/b9eceaee-fd2a-4ebb-bf9e-413a75306c8f.png" alt="8April Logo" class="pdf-logo">
+            </div>
+            <div class="pdf-doc-info">
+              <div class="pdf-doc-title">ORÇAMENTO</div>
+              <div class="pdf-doc-number" id="pdf-num-orcamento">ORC-2026-0001</div>
+              <div class="pdf-doc-meta">
+                <span><strong>Data:</strong> <span id="pdf-data-emissao">05/08/2026</span></span>
+                <span><strong>Validade:</strong> <span id="pdf-validade">15 dias</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pdf-divider"></div>
+
+          <!-- Dados do Cliente -->
+          <div class="pdf-section client-section">
+            <div class="pdf-section-title">DADOS DO CLIENTE</div>
+            <div class="pdf-client-grid">
+              <div class="pdf-client-item">
+                <span class="pdf-label">Cliente:</span>
+                <span class="pdf-value bold" id="pdf-cliente-nome">-</span>
+              </div>
+              <div class="pdf-client-item" id="pdf-empresa-wrapper">
+                <span class="pdf-label">Empresa:</span>
+                <span class="pdf-value" id="pdf-cliente-empresa">-</span>
+              </div>
+              <div class="pdf-client-item" id="pdf-prazo-wrapper">
+                <span class="pdf-label">Prazo de Entrega:</span>
+                <span class="pdf-value" id="pdf-prazo-execucao">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela de Itens no PDF -->
+          <div class="pdf-section">
+            <div class="pdf-section-title">ITENS E SERVIÇOS</div>
+            <table class="pdf-table">
+              <thead>
+                <tr>
+                  <th style="width: 8%">#</th>
+                  <th style="width: 52%">Descrição</th>
+                  <th style="width: 10%" class="text-center">Qtd</th>
+                  <th style="width: 15%" class="text-right">Valor Unit.</th>
+                  <th style="width: 15%" class="text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody id="pdf-itens-tbody">
+                <!-- Itens injetados via JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Destaque do Total -->
+          <div class="pdf-total-container">
+            <div class="pdf-total-box">
+              <span class="pdf-total-label">VALOR TOTAL DO ORÇAMENTO</span>
+              <span class="pdf-total-amount" id="pdf-valor-total">R$ 0,00</span>
+            </div>
+          </div>
+
+          <!-- Condições de Pagamento e Observações -->
+          <div class="pdf-section conditions-section">
+            <div class="pdf-cond-block" id="pdf-cond-wrapper">
+              <div class="pdf-cond-title"><i data-lucide="credit-card"></i> Condições de Pagamento</div>
+              <div class="pdf-cond-text" id="pdf-condicoes">-</div>
+            </div>
+            
+            <div class="pdf-cond-block" id="pdf-obs-wrapper">
+              <div class="pdf-cond-title"><i data-lucide="file-text"></i> Observações</div>
+              <div class="pdf-cond-text" id="pdf-observacoes">-</div>
+            </div>
+          </div>
+
+          <!-- Rodapé do PDF com a mensagem pedida e Link do WhatsApp -->
+          <div class="pdf-footer">
+            <p class="pdf-footer-msg">Em caso de dúvidas ou solicitações, gentileza entrar em contato conosco.</p>
+            <div class="pdf-footer-contact">
+              <a href="https://wa.me/5534998039530" target="_blank" class="pdf-wa-link">
+                📱 WhatsApp: (34) 99803-9530
+              </a>
+              <span class="pdf-website">www.8april.com.br</span>
+            </div>
+          </div>
+
+        </div>
+        <!-- FIM DO PDF TEMPLATE -->
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast / Notificações -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts do App -->
+  <script src="js/storage.js"></script>
+  <script src="js/pdf.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

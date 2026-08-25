@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Assinatura de E-mail — 8April Tech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="logo-box">
+                    <img src="https://i.ibb.co/KxJ2ZZpX/fef4f49f-0e55-4c3c-aba0-d877979a0167.png" alt="8April Tech Logo" class="brand-logo">
+                </div>
+                <div>
+                    <h1>8April Tech — Gerador de Assinaturas</h1>
+                    <p class="subtitle">Assinaturas de E-mail Premium, Ultra-Minimalistas & Compatíveis com Gmail, Outlook e Apple Mail</p>
+                </div>
+            </div>
+            <div class="actions">
+                <button id="btn-copy-html" class="btn btn-primary">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copiar Assinatura (Pronta para Gmail/Outlook)
+                </button>
+                <button id="btn-copy-code" class="btn btn-secondary">Copiar Código HTML</button>
+            </div>
+        </header>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="toast">Assinatura copiada para a área de transferência!</div>
+
+        <!-- Main Studio Workspace -->
+        <main class="workspace">
+            <!-- Sidebar Controls -->
+            <aside class="controls-panel">
+                <h2>Dados do Colaborador</h2>
+
+                <div class="control-group">
+                    <label for="input-name">Nome Completo</label>
+                    <input type="text" id="input-name" value="Rudge Santana" placeholder="Ex: Rudge Santana">
+                </div>
+
+                <div class="control-group">
+                    <label for="input-role">Cargo / Função</label>
+                    <input type="text" id="input-role" value="Senior Data & AI Engineer" placeholder="Ex: Senior Data & AI Engineer">
+                </div>
+
+                <div class="control-group">
+                    <label for="input-phone">Telefone / WhatsApp</label>
+                    <input type="text" id="input-phone" value="+55 (11) 99999-8888" placeholder="+55 (11) 99999-8888">
+                </div>
+
+                <div class="control-group">
+                    <label for="input-email">E-mail Corporativo</label>
+                    <input type="email" id="input-email" value="rudge.santana@8april.tech" placeholder="seu.nome@8april.tech">
+                </div>
+
+                <div class="control-group">
+                    <label for="input-linkedin">LinkedIn (Opcional)</label>
+                    <input type="text" id="input-linkedin" value="linkedin.com/in/rudgesantana" placeholder="linkedin.com/in/seuusuario">
+                </div>
+
+                <div class="control-group">
+                    <label for="input-website">Website da Empresa</label>
+                    <input type="text" id="input-website" value="8april.tech" placeholder="8april.tech">
+                </div>
+
+                <hr class="divider">
+
+                <h2>Estilo & Tema</h2>
+
+                <div class="theme-selector">
+                    <button class="theme-btn active" data-theme="dark-premium">
+                        <span class="dot" style="background:#06B6D4;"></span> Dark Premium (8April Tech)
+                    </button>
+                    <button class="theme-btn" data-theme="clean-minimal">
+                        <span class="dot" style="background:#0284C7;"></span> Clean Light / Corporate
+                    </button>
+                    <button class="theme-btn" data-theme="compact-bar">
+                        <span class="dot" style="background:#38BDF8;"></span> Compact Horizontal Bar
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Preview Area -->
+            <section class="preview-panel">
+                <div class="panel-header">
+                    <div class="preview-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06B6D4" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <span>Pré-visualização da Assinatura</span>
+                    </div>
+                    <div class="preview-mode-switch">
+                        <button id="btn-mode-dark" class="mode-btn active">Fundo Escuro</button>
+                        <button id="btn-mode-light" class="mode-btn">Fundo Claro (Gmail Standard)</button>
+                    </div>
+                </div>
+
+                <div id="preview-stage" class="preview-stage mode-dark">
+                    <div class="email-mockup">
+                        <div class="email-mockup-header">
+                            <span class="mock-dot"></span>
+                            <span class="mock-dot"></span>
+                            <span class="mock-dot"></span>
+                            <span class="mock-title">Mensagem de E-mail — Exemplo</span>
+                        </div>
+                        <div class="email-mockup-body">
+                            <p class="email-sample-text">Olá,</p>
+                            <p class="email-sample-text">Segue abaixo a proposta técnica atualizada do projeto de Inteligência Artificial e Engenharia de Dados da 8April Tech.</p>
+                            <p class="email-sample-text">Qualquer dúvida, fico à disposição!</p>
+                            <p class="email-sample-text">Atenciosamente,</p>
+                            
+                            <div class="signature-divider"></div>
+                            
+                            <!-- Container onde a Assinatura HTML real é renderizada -->
+                            <div id="signature-container" class="signature-render-area"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guidance Info Box -->
+                <div class="guide-box">
+                    <div class="guide-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#06B6D4" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>Como Instalar no Gmail / Outlook / Apple Mail</span>
+                    </div>
+                    <ol class="guide-steps">
+                        <li>Clique no botão <strong>"Copiar Assinatura (Pronta para Gmail/Outlook)"</strong> acima.</li>
+                        <li>Abra as **Configurações de E-mail** no seu provedor (Gmail: *Configurações -> Ver todas as configurações -> Assinatura*; Outlook: *Configurações -> E-mail -> Assinaturas*).</li>
+                        <li>Crie uma nova assinatura e dê **Ctrl + V** (Colar) no campo de texto da assinatura.</li>
+                        <li>Salve as alterações. A logo e a formatação ficarão idênticas!</li>
+                    </ol>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

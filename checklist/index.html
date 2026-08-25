@@ -88,11 +88,14 @@
 </head>
 <body class="font-sans antialiased relative min-h-screen">
 
+    <!-- Backdrop Overlay for Mobile Sidebar -->
+    <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden md:hidden transition-all duration-300"></div>
+
     <!-- App Shell Layout -->
     <div class="flex min-h-screen">
         
         <!-- Sidebar Navigation -->
-        <aside class="w-76 border-r border-brand-border bg-brand-bg/80 backdrop-blur-xl flex flex-col fixed inset-y-0 left-0 z-20 transition-all duration-300">
+        <aside id="appSidebar" class="w-76 border-r border-brand-border bg-brand-bg/80 backdrop-blur-xl flex flex-col fixed inset-y-0 left-0 z-50 md:z-20 transition-all duration-300 transform -translate-x-full md:translate-x-0">
             <!-- Header Logo -->
             <div class="p-6 border-b border-brand-border flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -102,6 +105,10 @@
                         <span class="text-[10px] font-medium text-brand-muted uppercase tracking-wider">Onboarding System</span>
                     </div>
                 </div>
+                <!-- Mobile Close button -->
+                <button onclick="toggleSidebar(false)" class="p-2 -mr-2 text-brand-muted hover:text-white md:hidden focus:outline-none" aria-label="Fechar menu">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
             
             <!-- Global Telemetry Progress -->
@@ -227,13 +234,17 @@
         </aside>
         
         <!-- Main Workspace -->
-        <div class="flex-1 pl-76 flex flex-col min-h-screen">
+        <div class="flex-1 pl-0 md:pl-76 flex flex-col min-h-screen">
             
             <!-- Top Navigation / Controls Bar -->
-            <header class="h-16 border-b border-brand-border px-8 bg-brand-bg/40 backdrop-blur-md flex items-center justify-between sticky top-0 z-10">
-                <div class="flex items-center gap-3 text-xs">
-                    <span class="text-brand-muted font-medium">Morada Imobiliária</span>
-                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-brand-border"></i>
+            <header class="h-16 border-b border-brand-border px-4 md:px-8 bg-brand-bg/40 backdrop-blur-md flex items-center justify-between sticky top-0 z-10">
+                <div class="flex items-center gap-2.5 md:gap-3 text-xs">
+                    <!-- Mobile Hamburger Menu Button -->
+                    <button onclick="toggleSidebar(true)" class="p-2 -ml-2 text-brand-muted hover:text-white md:hidden focus:outline-none" aria-label="Abrir menu">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <span class="text-brand-muted font-medium hidden sm:inline">Morada Imobiliária</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-brand-border hidden sm:inline"></i>
                     <span id="headerCrumbActive" class="text-white font-bold">Carregando...</span>
                 </div>
                 
@@ -247,7 +258,7 @@
             </header>
             
             <!-- Content Pane Containers -->
-            <main class="flex-1 p-8 max-w-6xl w-full mx-auto relative">
+            <main class="flex-1 p-4 md:p-8 max-w-6xl w-full mx-auto relative">
                 
                 <!-- Loading Skeleton Frame (shows when changing views or initialization) -->
                 <div id="loadingSkeleton" class="space-y-6 animate-pulse hidden">
@@ -1342,6 +1353,21 @@
         const urlParams = new URLSearchParams(window.location.search);
         const companyId = urlParams.get('empresa');
 
+        // Mobile Sidebar Control
+        function toggleSidebar(open) {
+            const sidebar = document.getElementById("appSidebar");
+            const backdrop = document.getElementById("sidebarBackdrop");
+            if (!sidebar || !backdrop) return;
+            
+            if (open) {
+                sidebar.classList.remove("-translate-x-full");
+                backdrop.classList.remove("hidden");
+            } else {
+                sidebar.classList.add("-translate-x-full");
+                backdrop.classList.add("hidden");
+            }
+        }
+
         // Local state representation conforming to FastAPI model schema
         let state = {
             progress: 0,
@@ -1413,7 +1439,7 @@
                     </div>
                     <h2 class="text-xl font-bold text-white mb-2 font-outfit">Identificador Não Informado</h2>
                     <p class="text-xs text-brand-muted leading-relaxed mb-6">
-                        Para acessar o painel de onboarding da 8April Tech, o identificador da empresa deve ser fornecido na URL. Caso ainda não possua esse ID, gentileza entrar em contato com a nossa equipe e solicitar.
+                        Para acessar o painel de onboarding da 8April Tech, o identificador da empresa deve ser fornecido na URL. Caso ainda não tenha esse ID, entre em contato com a nossa equipe para solicitar.
                     </p>
                     <div class="bg-slate-900 border border-brand-border rounded-xl p-3 text-left font-mono text-[10px] text-secondary select-all mb-4 break-all">
                         https://app.8april.com.br/checklist/?empresa=INSERIR_ID_AQUI
@@ -1470,7 +1496,7 @@
                     state: data.estado || "",
                     phone: data.telefone || "",
                     email: data.email || "",
-                    logoUrl: "" // Excluded based on schema
+                    logoUrl: ""
                 };
                 state.checklist.empresa = true;
                 return true;
@@ -1520,7 +1546,13 @@
                     state.proprietarios = data.proprietarios || [];
                     state.documentos = data.documentos || { ficha_captacao: [], ficha_visita: [], contratos: [], autorizacoes: [], outros: [] };
                     state.financeiro_processo = data.financeiro_processo || { respostas: "", planilhas: [] };
-                    state.financeiro_categorias = data.financeiro_categorias || { receitas: [], despesas: [] };
+                    
+                    // Safe assignment for financeiro_categorias preventing undefined arrays
+                    state.financeiro_categorias = {
+                        receitas: Array.isArray(data.financeiro_categorias?.receitas) ? data.financeiro_categorias.receitas : [],
+                        despesas: Array.isArray(data.financeiro_categorias?.despesas) ? data.financeiro_categorias.despesas : []
+                    };
+                    
                     state.fluxo_operacional = data.fluxo_operacional || {};
                     state.permissoes = data.permissoes || {};
                     state.identidade_visual = data.identidade_visual || { logoUrl: "", primaryColor: "#22c55e", secondaryColor: "#22d3ee", font: "Inter", manualUrl: "" };
@@ -1532,40 +1564,54 @@
             return false;
         }
 
-        // Architecture placeholders for future modules (next phases)
-        async function loadUsers(id) {}
-        async function saveUsers(id, data) {}
-        async function loadProperties(id) {}
-        async function saveProperties(id, data) {}
-        async function loadOwners(id) {}
-        async function saveOwners(id, data) {}
+        // Upload a file to Supabase Storage bucket 'onboarding-files'
+        async function uploadFileToSupabaseStorage(category, file) {
+            if (!supabaseClient || !companyId) throw new Error("Supabase não inicializado ou ID da empresa ausente.");
+            
+            const fileExt = file.name.split('.').pop();
+            const cleanName = file.name.replace(/[^a-zA-Z0-9]/g, '_');
+            const path = `${companyId}/${category}/${Date.now()}_${cleanName}.${fileExt}`;
+            
+            const { data, error } = await supabaseClient
+                .storage
+                .from('onboarding-files')
+                .upload(path, file, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
+                
+            if (error) throw error;
+            
+            const { data: urlData } = supabaseClient
+                .storage
+                .from('onboarding-files')
+                .getPublicUrl(path);
+                
+            return {
+                filename: file.name,
+                url: urlData.publicUrl,
+                size: file.size
+            };
+        }
 
         // Fetch onboarding progress status
         async function fetchStatus() {
             showLoadingSkeleton(true);
             try {
-                // 1. Load Company Information from Supabase
                 if (supabaseClient && companyId) {
                     await loadCompany(companyId);
-                }
-                
-                // 2. Load Onboarding Responses from Supabase
-                if (supabaseClient && companyId) {
                     await loadOnboardingRespostas(companyId);
                 }
                 
-                // 3. Try to load additional FastAPI state if available
                 try {
                     const response = await fetch(`${API_BASE}/onboarding/status`);
                     if (response.ok) {
                         const serverState = await response.json();
-                        // Ignore serverState for company info & checklist to allow Supabase to rule
                     }
                 } catch(e) {
                     // Backend offline
                 }
                 
-                // Server Connected
                 document.getElementById("serverStatus").className = "font-mono text-primary flex items-center gap-1";
                 document.getElementById("serverStatus").innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span> Servidor Conectado';
                 document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-primary";
@@ -1582,7 +1628,6 @@
             }
         }
 
-        // Toggle visibility between skeleton and main workspace container
         function showLoadingSkeleton(show) {
             const skeleton = document.getElementById("loadingSkeleton");
             const workspace = document.getElementById("workspacePane");
@@ -1595,32 +1640,16 @@
             }
         }
 
-        // Clean reload and reset of the whole onboarding progression
         async function resetAllOnboarding() {
             if (confirm("ATENÇÃO: Deseja realmente excluir todas as informações cadastradas e reiniciar o onboarding do zero?")) {
                 try {
-                    // Reset Supabase company record by updating fields to empty
                     if (supabaseClient && companyId) {
                         const emptyPayload = {
-                            nome: "",
-                            razao_social: "",
-                            cnpj: "",
-                            inscricao_estadual: "",
-                            telefone: "",
-                            email: "",
-                            logradouro: "",
-                            cidade: "",
-                            estado: "",
-                            site: "",
-                            cep: "",
-                            numero: "",
-                            complemento: "",
-                            bairro: "",
-                            ativo: true
+                            nome: "", razao_social: "", cnpj: "", inscricao_estadual: "",
+                            telefone: "", email: "", logradouro: "", cidade: "", estado: "",
+                            site: "", cep: "", numero: "", complemento: "", bairro: "", ativo: true
                         };
                         await updateRecord('empresas', companyId, emptyPayload);
-                        
-                        // Delete responses record from Supabase
                         await supabaseClient
                             .from('onboarding_respostas')
                             .delete()
@@ -1642,14 +1671,11 @@
             }
         }
 
-        // Switch workspace panels view
         function switchStep(viewId) {
             activeView = viewId;
+            toggleSidebar(false);
             
-            // Hide all panels
             document.querySelectorAll(".dynamic-pane").forEach(pane => pane.classList.add("hidden"));
-            
-            // Remove active classes from navigation items
             document.querySelectorAll("aside nav button").forEach(btn => {
                 btn.classList.remove("active-sidebar-item");
             });
@@ -1666,16 +1692,13 @@
                 document.getElementById(`nav-step-${numericStep}`).classList.add("active-sidebar-item");
                 document.getElementById("headerCrumbActive").innerText = metadata.label;
 
-                // Load forms specific data inside corresponding panes
                 populateSectionForms(numericStep);
             }
             
-            // Render specific components and icons
             lucide.createIcons();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Populate details of the active steps into their inputs
         function populateSectionForms(step) {
             if (step === 1) {
                 const form = document.getElementById("formEmpresa");
@@ -1685,7 +1708,6 @@
                         form.elements[key].value = comp[key] || "";
                     }
                 }
-                // Logo rendering
                 document.getElementById("logoUrlField").value = comp.logoUrl || "";
                 renderLogoPreview(comp.logoUrl);
             } else if (step === 2) {
@@ -1712,7 +1734,6 @@
                 form.elements["q_despesas"].value = resp.q_despesas || "";
                 form.elements["q_receitas"].value = resp.q_receitas || "";
                 
-                // Planilha label
                 const sheets = state.financeiro_processo.planilhas || [];
                 const label = document.getElementById("financeSpreadsheetLabel");
                 if (sheets.length > 0) {
@@ -1737,7 +1758,6 @@
                 document.getElementById("secondaryColorText").value = brand.secondaryColor || "#22d3ee";
                 form.elements["font"].value = brand.font || "Inter";
                 
-                // Manual logo preview or label
                 const label = document.getElementById("brandManualLabel");
                 if (brand.manualUrl) {
                     const parts = brand.manualUrl.split("/");
@@ -1751,9 +1771,7 @@
             }
         }
 
-        // Sync local variables to update overall components in the viewport
         function syncUIRegistration() {
-            // Recalculate progress values
             let completedSteps = 0;
             for(let key in state.checklist) {
                 if (state.checklist[key] === true) completedSteps++;
@@ -1765,7 +1783,6 @@
             document.getElementById("sidebarProgressText").innerText = percentText;
             document.getElementById("sidebarProgressBar").style.width = percentText;
             
-            // Dashboard Circular progress sync
             const circle = document.getElementById("dashCircleProgress");
             if (circle) {
                 const radius = 40;
@@ -1776,7 +1793,6 @@
                 document.getElementById("completedStepsCount").innerText = `${completedSteps}/10 Etapas`;
             }
 
-            // Sync global status label in Dashboard
             const globalStatusLabel = document.getElementById("dashGlobalStatus");
             if (globalStatusLabel) {
                 if (state.completed) {
@@ -1793,7 +1809,6 @@
                 }
             }
 
-            // Update badges completed in steps side list & Dashboard grid list
             const stepsDashboardGrid = document.getElementById("dashboardStepsGrid");
             let gridHtml = '';
 
@@ -1801,7 +1816,6 @@
                 const meta = stepsMetadata[i];
                 const isCompleted = state.checklist[meta.key] === true;
                 
-                // Sidebar badge
                 const navBadge = document.getElementById(`badge-nav-${i}`);
                 const navButton = document.getElementById(`nav-step-${i}`);
                 if (navBadge) {
@@ -1814,14 +1828,12 @@
                     }
                 }
 
-                // Completed inline badge
                 const paneBadge = document.getElementById(`badge-completed-${i}`);
                 if (paneBadge) {
                     if (isCompleted) paneBadge.classList.remove("hidden");
                     else paneBadge.classList.add("hidden");
                 }
 
-                // Dashboard steps grid cards
                 gridHtml += `
                     <div onclick="switchStep(${i})" class="glass-panel rounded-2xl p-5 flex items-center justify-between cursor-pointer hover:translate-y-[-2px] transition-all duration-300">
                         <div class="flex items-center gap-3">
@@ -1848,9 +1860,7 @@
             }
         }
 
-        // Save active step state directly to server / Supabase
         async function saveSectionToServer(sectionKey, dataContent, isCompleted) {
-            // Keep local memory state updated
             state[sectionKey] = dataContent;
             state.checklist[sectionKey] = isCompleted;
             syncUIRegistration();
@@ -1877,7 +1887,6 @@
                 return;
             }
 
-            // Save other sections to onboarding_respostas in Supabase
             if (supabaseClient && companyId) {
                 try {
                     const payload = {
@@ -1906,12 +1915,8 @@
                 document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-red-500";
             }
 
-            // Backup in FastAPI in background if available
             try {
-                const payload = {
-                    data: dataContent,
-                    is_completed: isCompleted
-                };
+                const payload = { data: dataContent, is_completed: isCompleted };
                 await fetch(`${API_BASE}/onboarding/save-section/${sectionKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1922,7 +1927,6 @@
             }
         }
 
-        // Trigger debounced auto-save upon input modifications
         function triggerAutosave(sectionKey) {
             if (autosaveTimeout) clearTimeout(autosaveTimeout);
             
@@ -1937,7 +1941,6 @@
                     const form = document.getElementById("formEmpresa");
                     const formData = new FormData(form);
                     formData.forEach((value, key) => dataToSave[key] = value);
-                    // Minimal validation for autoguide
                     isCompleted = (dataToSave.name && dataToSave.cnpj && dataToSave.phone && dataToSave.email) ? true : false;
                 } else if (sectionKey === 'financeiro_processo') {
                     const form = document.getElementById("formFinanceiroProcesso");
@@ -1969,11 +1972,9 @@
             }, 1000);
         }
 
-        // Generic Save action for simple steps without direct input forms
         async function saveSectionDirect(sectionKey, forceCompleted, nextStepIndex) {
             let dataContent = state[sectionKey];
             
-            // Set defaults if empty
             if (sectionKey === 'equipe') {
                 forceCompleted = (state.equipe.length > 0);
             } else if (sectionKey === 'imoveis') {
@@ -1981,7 +1982,6 @@
             } else if (sectionKey === 'proprietarios') {
                 forceCompleted = (state.proprietarios.length > 0);
             } else if (sectionKey === 'documentos') {
-                // Must have uploaded files in at least two categories to mark completed
                 let mandatoryCount = 0;
                 if (state.documentos.ficha_captacao.length > 0) mandatoryCount++;
                 if (state.documentos.ficha_visita.length > 0) mandatoryCount++;
@@ -1989,9 +1989,11 @@
                 if (state.documentos.autorizacoes.length > 0) mandatoryCount++;
                 forceCompleted = (mandatoryCount >= 2);
             } else if (sectionKey === 'financeiro_categorias') {
-                forceCompleted = (state.financeiro_categorias.receitas.length > 0 && state.financeiro_categorias.despesas.length > 0);
+                const receitas = state.financeiro_categorias?.receitas || [];
+                const despesas = state.financeiro_categorias?.despesas || [];
+                forceCompleted = (receitas.length > 0 && despesas.length > 0);
             } else if (sectionKey === 'fluxo_operacional') {
-                forceCompleted = true; // Timeline notes are optional
+                forceCompleted = true;
             } else if (sectionKey === 'permissoes') {
                 forceCompleted = true;
             }
@@ -2000,7 +2002,6 @@
             if (nextStepIndex) switchStep(nextStepIndex);
         }
 
-        // Form Submit handler
         async function saveSectionForm(stepIndex, event) {
             if (event) event.preventDefault();
             const meta = stepsMetadata[stepIndex];
@@ -2040,7 +2041,6 @@
 
             await saveSectionToServer(meta.key, dataToSave, isCompleted);
             
-            // Advance step if within limits
             if (stepIndex < 10) switchStep(stepIndex + 1);
             else switchStep('dashboard');
         }
@@ -2055,8 +2055,6 @@
         function renderLogoPreview(url) {
             const previewContainer = document.getElementById("logoPreviewContainer");
             if (url) {
-                // If running local demo, file path is stored but let's draw a nice image placeholder
-                // We resolve the URL path correctly using location
                 const resolvedUrl = url.startsWith('/') ? API_BASE.replace('/api', '') + url : url;
                 previewContainer.innerHTML = `<img src="${resolvedUrl}" alt="Logo" class="w-full h-full object-contain p-2" onerror="this.src='https://placehold.co/100x100/0f172a/22c55e?text=Logo';">`;
             } else {
@@ -2082,7 +2080,6 @@
             document.getElementById("formAddTeamMember").reset();
             renderTeamTable();
             
-            // Save state
             await saveSectionToServer('equipe', state.equipe, state.equipe.length > 0);
         }
 
@@ -2266,7 +2263,6 @@
             }
         }
 
-        // Render Owners
         function renderOwnersTable() {
             const tbody = document.getElementById("ownersTableBody");
             const badge = document.getElementById("ownerCountBadge");
@@ -2342,7 +2338,6 @@
             lucide.createIcons();
         }
 
-        // Drag & Drop Event functions
         function handleDragOver(ev) {
             ev.preventDefault();
             ev.currentTarget.classList.add("border-primary");
@@ -2362,11 +2357,10 @@
             }
         }
 
-        // Multiple files trigger callback
         async function uploadMultipleAction(category, input) {
             if (input.files.length > 0) {
                 await uploadFileList(category, input.files);
-                input.value = ""; // Clear file selector
+                input.value = "";
             }
         }
 
@@ -2374,33 +2368,47 @@
             document.getElementById("saveStatusText").innerText = "Enviando arquivo...";
             document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-blue-400 animate-pulse";
             
+            if (!state.documentos[category]) state.documentos[category] = [];
+
             for (let i = 0; i < files.length; i++) {
-                const formData = new FormData();
-                formData.append("category", category);
-                formData.append("file", files[i]);
-                
-                try {
-                    const response = await fetch(`${API_BASE}/onboarding/upload`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (!state.documentos[category]) state.documentos[category] = [];
+                const file = files[i];
+                let uploaded = false;
+
+                if (supabaseClient && companyId) {
+                    try {
+                        const res = await uploadFileToSupabaseStorage(category, file);
+                        state.documentos[category].push(res);
+                        uploaded = true;
+                    } catch(err) {
+                        console.warn("Upload para Supabase Storage falhou, tentando fallback para API local:", err);
+                    }
+                }
+
+                if (!uploaded) {
+                    const formData = new FormData();
+                    formData.append("category", category);
+                    formData.append("file", file);
+                    
+                    try {
+                        const response = await fetch(`${API_BASE}/onboarding/upload`, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            state.documentos[category].push({
+                                filename: data.filename,
+                                url: data.url,
+                                size: data.size
+                            });
+                        }
+                    } catch(e) {
                         state.documentos[category].push({
-                            filename: data.filename,
-                            url: data.url,
-                            size: data.size
+                            filename: file.name,
+                            url: '',
+                            size: file.size
                         });
                     }
-                } catch(e) {
-                    // Fallback for offline mode mock
-                    if (!state.documentos[category]) state.documentos[category] = [];
-                    state.documentos[category].push({
-                        filename: files[i].name,
-                        url: '',
-                        size: files[i].size
-                    });
                 }
             }
             renderDocumentsContainer();
@@ -2423,18 +2431,20 @@
                 url: res.url,
                 size: res.size
             });
-            // Update labels
             const label = document.getElementById("financeSpreadsheetLabel");
             label.innerText = `Planilha: ${res.filename} (${formatBytes(res.size)})`;
             label.className = "text-[10px] text-primary font-mono block";
             triggerAutosave('financeiro_processo');
         }
 
-        // --- STEP 7: FINANCIAL CATEGORIES ACTIONS ---
+        // --- STEP 7: FINANCIAL CATEGORIES ACTIONS (SAFELY IMPLEMENTED) ---
         async function addFinancialCategory(type) {
             const input = document.getElementById(type === 'receitas' ? 'inputNewRevenue' : 'inputNewExpense');
             const value = input.value.trim();
             if (!value) return;
+
+            if (!state.financeiro_categorias) state.financeiro_categorias = { receitas: [], despesas: [] };
+            if (!Array.isArray(state.financeiro_categorias[type])) state.financeiro_categorias[type] = [];
 
             state.financeiro_categorias[type].push(value);
             input.value = "";
@@ -2443,6 +2453,7 @@
         }
 
         async function removeFinancialCategory(type, index) {
+            if (!state.financeiro_categorias || !Array.isArray(state.financeiro_categorias[type])) return;
             state.financeiro_categorias[type].splice(index, 1);
             renderFinancialCategories();
             await saveSectionDirect('financeiro_categorias', false);
@@ -2452,6 +2463,17 @@
             const rList = document.getElementById("revenueList");
             const eList = document.getElementById("expenseList");
             
+            // Safe fallbacks to prevent undefined access
+            if (!state.financeiro_categorias) {
+                state.financeiro_categorias = { receitas: [], despesas: [] };
+            }
+            if (!Array.isArray(state.financeiro_categorias.receitas)) {
+                state.financeiro_categorias.receitas = [];
+            }
+            if (!Array.isArray(state.financeiro_categorias.despesas)) {
+                state.financeiro_categorias.despesas = [];
+            }
+
             // Set default list if empty
             if (state.financeiro_categorias.receitas.length === 0 && state.financeiro_categorias.despesas.length === 0) {
                 state.financeiro_categorias.receitas = [
@@ -2505,7 +2527,6 @@
         function selectTimelineStep(nodeId) {
             activeTimelineStep = nodeId;
             
-            // Sync selected class on timeline nodes
             document.querySelectorAll("#flowTimelineContainer div[id^='node-']").forEach(div => {
                 const nodeKey = div.id.replace('node-', '');
                 const icon = document.getElementById(`icon-node-${nodeKey}`);
@@ -2518,12 +2539,10 @@
                 }
             });
 
-            // Set editor variables
             const info = timelineStepsInfo[nodeId];
             document.getElementById("timelineActiveStepTitle").innerText = info.title;
             document.getElementById("timelineActiveStepDesc").innerText = info.desc;
             
-            // Load note
             if (!state.fluxo_operacional[nodeId]) state.fluxo_operacional[nodeId] = { notes: "" };
             document.getElementById("timelineStepNotes").value = state.fluxo_operacional[nodeId].notes || "";
         }
@@ -2533,7 +2552,6 @@
             if (!state.fluxo_operacional[activeTimelineStep]) state.fluxo_operacional[activeTimelineStep] = { notes: "" };
             state.fluxo_operacional[activeTimelineStep].notes = notes;
             
-            // Trigger saving directly
             await saveSectionToServer('fluxo_operacional', state.fluxo_operacional, true);
         }
 
@@ -2550,7 +2568,6 @@
         function renderPermissionMatrix() {
             const tbody = document.getElementById("permissionMatrixBody");
             
-            // Check default permissions
             if (Object.keys(state.permissoes).length === 0) {
                 state.permissoes = {
                     financeiro: { administrador: true, gerente: true, corretor: false, assistente: false },
@@ -2598,7 +2615,6 @@
             const textInput = document.getElementById(type + "Text");
             if (textInput) textInput.value = val;
             
-            // Apply live preview styles to the page header dynamic gradients
             if (type === 'primaryColor') {
                 document.documentElement.style.setProperty('--color-primary', val);
             } else if (type === 'secondaryColor') {
@@ -2616,9 +2632,7 @@
             triggerAutosave('identidade_visual');
         }
 
-        // Submits final Onboarding Complete
         async function submitOnboardingComplete() {
-            // Verify if at least company info has been filled
             if (!state.checklist.empresa) {
                 alert("Por favor, preencha os dados da Empresa (Passo 1) para finalizar o onboarding.");
                 switchStep(1);
@@ -2652,13 +2666,24 @@
             }
         }
 
-        // Helper: Generic File Upload handler
         async function uploadFileAction(category, fileInput, callback) {
             const file = fileInput.files[0];
             if (!file) return;
 
             document.getElementById("saveStatusText").innerText = "Enviando arquivo...";
             document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-blue-400 animate-pulse";
+
+            if (supabaseClient && companyId) {
+                try {
+                    const res = await uploadFileToSupabaseStorage(category, file);
+                    callback(res);
+                    document.getElementById("saveStatusText").innerText = "Arquivo enviado";
+                    document.getElementById("saveStatusDot").className = "w-2 h-2 rounded-full bg-primary";
+                    return;
+                } catch(err) {
+                    console.warn("Upload para Supabase Storage falhou, tentando fallback para API local:", err);
+                }
+            }
 
             const formData = new FormData();
             formData.append("category", category);
@@ -2674,7 +2699,6 @@
                     callback(res);
                 }
             } catch(e) {
-                // Local mock URL path for offline deployment demo
                 const fakeUrl = URL.createObjectURL(file);
                 callback({
                     filename: file.name,
@@ -2684,7 +2708,6 @@
             }
         }
 
-        // Formats file sizes
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -2694,12 +2717,10 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         }
 
-        // Formats prices into BRL currency
         function formatPrice(value) {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
         }
 
-        // CNPJ Input mask
         function maskCNPJ(input) {
             let v = input.value.replace(/\D/g, "");
             if (v.length > 14) v = v.substring(0, 14);
@@ -2710,7 +2731,6 @@
             input.value = v;
         }
 
-        // Telephone/Celular input mask
         function maskPhone(input) {
             let v = input.value.replace(/\D/g, "");
             if (v.length > 11) v = v.substring(0, 11);

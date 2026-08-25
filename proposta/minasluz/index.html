@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Proposta de Implantação Modular — Minas Luz | 8April Tech</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+    --bg:#020617;
+    --bg-card:rgba(15,23,42,.75);
+    --bg-card-2:rgba(30,41,59,.65);
+
+    --border: rgba(255,255,255,.08);
+    --border-glow: rgba(34,211,238,.2);
+
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+
+    --green:#22c55e;
+    --blue:#3b82f6;
+    --cyan:#22d3ee;
+    --gold:#f59e0b;
+    --amber:#fbbf24;
+    --purple:#a855f7;
+
+    --shadow:
+        0 0 35px rgba(0,0,0,.35),
+        0 0 20px rgba(0,140,255,.04);
+
+    --shadow-hover:
+        0 0 40px rgba(0,255,180,.08),
+        0 0 40px rgba(0,140,255,.08);
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
+    background:#020617 !important;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    color:var(--text);
+    background:#020617 !important;
+    line-height:1.7;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at 10% 10%, rgba(34,211,238,.07), transparent 30%),
+        radial-gradient(circle at 90% 90%, rgba(59,130,246,.08), transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(34,197,94,.03), transparent 45%);
+    pointer-events:none;
+    z-index:-1;
+}
+
+.container{
+    width:100%;
+    max-width:100%;
+    margin:0 auto;
+}
+
+/* ====================================
+PAGE & SECTIONS
+==================================== */
+
+.page{
+    width:min(1400px, 96vw);
+    min-height:auto;
+    padding:24px 0;
+    margin:20px auto;
+}
+
+.glass-card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    backdrop-filter:blur(16px);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    transition:all .3s ease;
+}
+
+.glass-card:hover{
+    border-color:rgba(34,211,238,.25);
+    box-shadow:var(--shadow-hover);
+}
+
+.section{
+    padding:36px;
+    margin-bottom:28px;
+}
+
+/* ====================================
+TYPOGRAPHY
+==================================== */
+
+.kicker{
+    color:var(--cyan);
+    text-transform:uppercase;
+    font-size:12px;
+    letter-spacing:2px;
+    font-weight:700;
+    margin-bottom:12px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+}
+
+h1{
+    font-size:48px;
+    line-height:1.1;
+    font-weight:800;
+    margin-bottom:20px;
+    letter-spacing:-0.5px;
+}
+
+h2{
+    font-size:34px;
+    margin-bottom:18px;
+    letter-spacing:-0.5px;
+}
+
+h3{
+    font-size:22px;
+    margin-bottom:12px;
+}
+
+p{
+    color:var(--muted);
+    font-size:16px;
+}
+
+.highlight{
+    color:white;
+    font-weight:700;
+}
+
+.highlight-green{
+    color:#4ade80;
+    font-weight:700;
+}
+
+.highlight-cyan{
+    color:#22d3ee;
+    font-weight:700;
+}
+
+.highlight-amber{
+    color:#fbbf24;
+    font-weight:700;
+}
+
+/* ====================================
+BADGE & CHIPS
+==================================== */
+
+.badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(34,211,238,.08);
+    border:1px solid rgba(34,211,238,.18);
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    color:#dbeafe;
+}
+
+.badge-green{
+    background:rgba(34,197,94,.08);
+    border-color:rgba(34,197,94,.2);
+    color:#86efac;
+}
+
+.badge-amber{
+    background:rgba(245,158,11,.08);
+    border-color:rgba(245,158,11,.2);
+    color:#fde047;
+}
+
+.badge-purple{
+    background:rgba(168,85,247,.08);
+    border-color:rgba(168,85,247,.2);
+    color:#e9d5ff;
+}
+
+/* ====================================
+HERO COVER
+==================================== */
+
+.hero{
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    gap:35px;
+}
+
+.hero-content{
+    flex:1;
+    min-width:0;
+}
+
+.hero-right{
+    width:360px;
+    flex-shrink:0;
+}
+
+.logo-box{
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:32px;
+    padding:36px 28px;
+    text-align:center;
+}
+
+.brand-avatar{
+    width:90px;
+    height:90px;
+    margin:0 auto 20px auto;
+    border-radius:24px;
+    background:linear-gradient(135deg, rgba(245,158,11,.2), rgba(34,211,238,.15));
+    border:1px solid rgba(245,158,11,.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:42px;
+    box-shadow:0 0 25px rgba(245,158,11,.15);
+}
+
+.tech-signature{
+    margin-top:35px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    color:var(--muted);
+    font-size:14px;
+}
+
+.tech-dot{
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:linear-gradient(135deg, #22d3ee, #22c55e);
+    box-shadow:0 0 20px rgba(34,211,238,.5);
+}
+
+/* ====================================
+GRIDS
+==================================== */
+
+.grid-2{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:24px;
+}
+
+.grid-3{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:24px;
+}
+
+.grid-4{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:20px;
+}
+
+/* ====================================
+FEATURE CARDS & LISTS
+==================================== */
+
+.feature{
+    padding:24px;
+    border-radius:20px;
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.05);
+    transition:transform .2s ease, border-color .2s ease;
+}
+
+.feature:hover{
+    transform:translateY(-2px);
+    border-color:rgba(255,255,255,.12);
+}
+
+.feature h4{
+    font-size:17px;
+    margin-bottom:8px;
+    color:#f8fafc;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.feature-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.feature-item{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:14px 18px;
+    border-radius:16px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.1);
+    font-size:15px;
+    backdrop-filter:blur(10px);
+    transition:all .25s ease;
+}
+
+.feature-item:hover{
+    border-color:rgba(34,211,238,.3);
+    background:rgba(255,255,255,.05);
+    transform:translateX(4px);
+}
+
+.feature-item-icon{
+    font-size:18px;
+    flex-shrink:0;
+    line-height:1;
+    margin-top:2px;
+}
+
+/* ====================================
+PHASE CARDS & PRICING
+==================================== */
+
+.phase-card{
+    padding:32px;
+    border-radius:24px;
+    position:relative;
+    overflow:hidden;
+}
+
+.phase-card-1{
+    background:linear-gradient(135deg, rgba(34,211,238,.05), rgba(59,130,246,.02));
+    border:1px solid rgba(34,211,238,.18);
+}
+
+.phase-card-2{
+    background:linear-gradient(135deg, rgba(245,158,11,.05), rgba(234,179,8,.02));
+    border:1px solid rgba(245,158,11,.18);
+}
+
+.phase-card-3{
+    background:linear-gradient(135deg, rgba(34,197,94,.06), rgba(34,211,238,.02));
+    border:1px solid rgba(34,197,94,.18);
+}
+
+.price-box{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin:16px 0;
+}
+
+.price-val{
+    font-size:38px;
+    font-weight:800;
+    letter-spacing:-1px;
+}
+
+/* ====================================
+TABLE STYLES
+==================================== */
+
+.custom-table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    margin-top:20px;
+    border-radius:20px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.08);
+}
+
+.custom-table th{
+    background:rgba(30,41,59,.8);
+    padding:18px 24px;
+    text-align:left;
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--cyan);
+    border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.custom-table td{
+    padding:20px 24px;
+    background:rgba(15,23,42,.6);
+    border-bottom:1px solid rgba(255,255,255,.04);
+    font-size:16px;
+}
+
+.custom-table tr:last-child td{
+    border-bottom:none;
+}
+
+.custom-table tr.total-row td{
+    background:rgba(34,197,94,.08);
+    font-weight:800;
+    font-size:20px;
+    color:#4ade80;
+}
+
+/* ====================================
+PRINT STYLES
+==================================== */
+
+@page{
+    size:A4;
+    margin:0;
+}
+
+/* ====================================
+RESPONSIVIDADE E IMPRESSÃO (PDF)
+==================================== */
+
+@page {
+    size: A4 portrait;
+    margin: 8mm;
+}
+
+@media print {
+    html, body {
+        width: 100% !important;
+        height: auto !important;
+        background: #020617 !important;
+        color: #e2e8f0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-size: 13px !important;
+    }
+
+    body::before {
+        display: none !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .page {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 0 16px 0 !important;
+        padding: 0 !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+        page-break-after: auto !important;
+    }
+
+    .glass-card {
+        background: #0f172a !important;
+        border: 1px solid rgba(255,255,255,.18) !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border-radius: 16px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .section {
+        padding: 24px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .hero {
+        flex-direction: row !important;
+        gap: 24px !important;
+    }
+
+    .hero-right {
+        width: 320px !important;
+    }
+
+    h1 { font-size: 34px !important; }
+    h2 { font-size: 24px !important; }
+    h3 { font-size: 18px !important; }
+    p  { font-size: 13px !important; }
+
+    .price-val { font-size: 28px !important; }
+
+    .grid-2 { grid-template-columns: repeat(2, 1fr) !important; gap: 14px !important; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr) !important; gap: 14px !important; }
+    .grid-4 { grid-template-columns: repeat(4, 1fr) !important; gap: 12px !important; }
+
+    .feature-item, .feature {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .custom-table th, .custom-table td {
+        padding: 10px 14px !important;
+        font-size: 13px !important;
+    }
+}
+
+@media(max-width: 1024px){
+    .grid-4{
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .page{
+        width: min(100%, 96vw);
+        padding: 16px 0;
+    }
+}
+
+@media(max-width: 768px){
+    .page{
+        width: 100%;
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    .section{
+        padding: 22px 16px;
+        border-radius: 20px;
+    }
+
+    .hero{
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .hero-right{
+        width: 100%;
+    }
+
+    h1{
+        font-size: 30px !important;
+        line-height: 1.2;
+    }
+
+    h2{
+        font-size: 22px !important;
+        line-height: 1.3;
+    }
+
+    h3{
+        font-size: 19px !important;
+    }
+
+    p{
+        font-size: 14px !important;
+    }
+
+    .price-val{
+        font-size: 30px !important;
+    }
+
+    .grid-2, .grid-3, .grid-4{
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    .custom-table-container{
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 16px;
+    }
+
+    .custom-table{
+        min-width: 580px;
+    }
+
+    .custom-table th, .custom-table td{
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+
+    .tech-signature{
+        flex-wrap: wrap;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- BOTÃO IMPRIMIR / PDF (NÃO APARECE NO PDF GERADO) -->
+<div class="no-print" style="position:fixed; bottom:20px; right:20px; z-index:99999;">
+    <button onclick="window.print()" style="background:linear-gradient(135deg, #22d3ee, #3b82f6); color:#020617; border:none; padding:12px 22px; border-radius:999px; font-weight:700; font-family:'Inter',sans-serif; font-size:14px; cursor:pointer; box-shadow:0 0 25px rgba(34,211,238,.4); display:flex; align-items:center; gap:8px; transition:transform .2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        🖨️ Salvar em PDF / Imprimir
+    </button>
+</div>
+
+
+<!-- ==========================================
+PÁGINA 1 — CAPA
+========================================== -->
+
+<section class="page">
+    <div class="container">
+        <div class="glass-card section">
+            <div class="hero">
+
+                <!-- LEFT CONTENT -->
+                <div class="hero-content">
+                    <div class="badge badge-amber">
+                        💡 Materiais Elétricos &amp; Tecnologia de Alta Performance
+                    </div>
+
+                    <div style="height:24px;"></div>
+
+                    <span class="kicker">
+                        ⚡ PROPOSTA DE IMPLANTAÇÃO MODULAR
+                    </span>
+
+                    <h1>
+                        MINAS LUZ
+                    </h1>
+
+                    <p style="font-size:21px; line-height:1.6; max-width:720px; color:#cbd5e1;">
+                        Transformação Digital Estruturada: 
+                        <span class="highlight">Business Intelligence</span>, 
+                        <span class="highlight">Gestão Inteligente de Estoque</span> e 
+                        <span class="highlight">Agente Comercial de IA via WhatsApp</span>.
+                    </p>
+
+                    <p style="font-size:16px; margin-top:14px; max-width:680px;">
+                        Uma arquitetura modular desenhada sob medida para alavancar a eficiência operacional, eliminar perdas de capital e multiplicar as conversões de vendas no setor imobiliário e de materiais elétricos.
+                    </p>
+
+                    <div style="height:32px;"></div>
+
+                    <!-- FASES HIGHLIGHT -->
+                    <div class="grid-3">
+                        <div class="feature">
+                            <h4>📦 FASE 1 — Estoque</h4>
+                            <p style="font-size:14px;">Prevenção de ruptura, capital parado, giro de estoque e compras assertivas.</p>
+                        </div>
+
+                        <div class="feature">
+                            <h4>📊 FASE 2 — BI</h4>
+                            <p style="font-size:14px;">Dashboards estratégicos de Vendas, Financeiro, Estoque e Compras integrados ao ERP.</p>
+                        </div>
+
+                        <div class="feature">
+                            <h4>🤖 FASE 3 — Agente IA</h4>
+                            <p style="font-size:14px;">Atendimento 24/7 no WhatsApp, cotações, fotos de produtos e orçamentos automáticos.</p>
+                        </div>
+                    </div>
+
+                    <div class="tech-signature">
+                        <div class="tech-dot"></div>
+                        <span>
+                            Desenvolvido com excelência por 
+                            <strong style="color:white">8April Tech</strong>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDE / META BOX -->
+                <div class="hero-right">
+                    <div class="logo-box">
+                        <img src="https://i.ibb.co/b5Q2kdSn/logo.png" alt="Minas Luz Logo" style="width:240px; max-width:100%; height:auto; object-fit:contain; margin-bottom:18px; filter:drop-shadow(0 0 15px rgba(245,158,11,.25));">
+
+                        <h2 style="font-size:26px; margin-bottom:4px; color:white;">
+                            Minas Luz
+                        </h2>
+                        <p style="font-size:14px; color:var(--muted); margin-bottom:18px;">
+                            Loja de Materiais Elétricos
+                        </p>
+
+                        <div class="badge" style="margin-bottom:20px;">
+                            📄 Proposta Comercial
+                        </div>
+
+                        <div style="margin:24px 0; height:1px; background:rgba(255,255,255,.08);"></div>
+
+                        <div style="text-align:left; display:flex; flex-direction:column; gap:16px; font-size:14px;">
+                            <div>
+                                <strong style="color:white; display:block; margin-bottom:2px;">Cliente:</strong>
+                                <p style="font-size:14px; margin:0;">Minas Luz — Materiais Elétricos</p>
+                            </div>
+
+                            <div>
+                                <strong style="color:white; display:block; margin-bottom:2px;">Proponente:</strong>
+                                <p style="font-size:14px; margin:0;">8April Tech</p>
+                            </div>
+
+                            <div>
+                                <strong style="color:white; display:block; margin-bottom:2px;">Modelo de Contratação:</strong>
+                                <p style="font-size:14px; margin:0;">Modular (Gradual ou Integrado)</p>
+                            </div>
+
+                            <div>
+                                <strong style="color:white; display:block; margin-bottom:2px;">Foco Estratégico:</strong>
+                                <p style="font-size:14px; margin:0;">ROI, Eficiência de Capital &amp; Escala de Vendas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+PÁGINA 2 — VISÃO GERAL & ABORDAGEM MODULAR
+========================================== -->
+
+<section class="page">
+    <div class="container">
+        <div class="glass-card section">
+
+            <span class="kicker">
+                🎯 ARQUITETURA DE VALOR E EVOLUÇÃO GRADUAL
+            </span>
+
+            <h2>
+                Por que adotar um Modelo Modular?
+            </h2>
+
+            <p style="max-width:920px; font-size:18px;">
+                No segmento de materiais elétricos, onde a variedade de SKUs é expressiva e a agilidade nas cotações define a vitória sobre a concorrência, a tecnologia precisa trazer <span class="highlight">retorno financeiro rápido e baixo risco de implantação</span>.
+            </p>
+
+            <div style="height:32px;"></div>
+
+            <div class="grid-3">
+                <div class="feature" style="padding:28px;">
+                    <div style="font-size:32px; margin-bottom:12px;">🛡️</div>
+                    <h4 style="font-size:19px; margin-bottom:10px;">Autonomia &amp; Flexibilidade</h4>
+                    <p style="font-size:15px;">A Minas Luz tem a liberdade de contratar cada fase de forma individual ou em conjunto, conforme seu ritmo operacional e orçamento.</p>
+                </div>
+
+                <div class="feature" style="padding:28px;">
+                    <div style="font-size:32px; margin-bottom:12px;">🚀</div>
+                    <h4 style="font-size:19px; margin-bottom:10px;">ROI de Curto Prazo</h4>
+                    <p style="font-size:15px;">Cada módulo entrega valor imediato perceptível: visibilidade de margem no BI, caixa liberado na gestão de estoque e novos pedidos na IA.</p>
+                </div>
+
+                <div class="feature" style="padding:28px;">
+                    <div style="font-size:32px; margin-bottom:12px;">📈</div>
+                    <h4 style="font-size:19px; margin-bottom:10px;">Maturidade Digital</h4>
+                    <p style="font-size:15px;">Permite que a equipe adapte seus processos internos gradualmente, migrando da intuição para uma gestão baseada em dados e Inteligência Artificial.</p>
+                </div>
+            </div>
+
+            <div style="height:40px;"></div>
+
+            <!-- QUADRO DE RESUMO DAS FASES -->
+            <div class="glass-card" style="padding:32px; background:linear-gradient(135deg, rgba(34,211,238,.04), rgba(59,130,246,.03)); border:1px solid rgba(34,211,238,.12);">
+                <h3 style="margin-bottom:16px; color:white;">
+                    🗺️ Trilha de Transformação Minas Luz
+                </h3>
+
+                <div class="grid-3" style="margin-top:20px;">
+                    <div style="padding:18px; border-radius:16px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);">
+                        <span class="badge badge-amber" style="margin-bottom:10px;">Etapa 01</span>
+                        <h4 style="color:white; font-size:18px; margin:8px 0;">Gestão de Estoque</h4>
+                        <p style="font-size:14px; color:var(--muted);">Eliminação de capital parado e prevenção de falta de itens críticos (disjuntores, cabos, iluminação).</p>
+                    </div>
+
+                    <div style="padding:18px; border-radius:16px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);">
+                        <span class="badge" style="margin-bottom:10px;">Etapa 02</span>
+                        <h4 style="color:white; font-size:18px; margin:8px 0;">Business Intelligence</h4>
+                        <p style="font-size:14px; color:var(--muted);">Diagnóstico e clareza total dos números de Vendas, Caixa, Estoque e Compras em tempo real.</p>
+                    </div>
+
+                    <div style="padding:18px; border-radius:16px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05);">
+                        <span class="badge badge-green" style="margin-bottom:10px;">Etapa 03</span>
+                        <h4 style="color:white; font-size:18px; margin:8px 0;">Agente IA de Vendas</h4>
+                        <p style="font-size:14px; color:var(--muted);">Vendedor virtual de WhatsApp atendendo eletricistas, construtores e clientes finais 24 horas por dia.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+PÁGINA 3 — FASE 1: GESTÃO INTELIGENTE DE ESTOQUE
+========================================== -->
+
+<section class="page">
+    <div class="container">
+        <div class="glass-card section">
+
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <span class="kicker" style="color:var(--amber);">
+                        📦 FASE 1 — EFICIÊNCIA OPERACIONAL E CAPITAL
+                    </span>
+                    <h2>Gestão Inteligente de Estoque</h2>
+                </div>
+                <div style="text-align:right;">
+                    <span class="badge badge-amber">Valor da Fase</span>
+                    <div style="font-size:36px; font-weight:800; color:#fbbf24; margin-top:4px;">
+                        R$ 8.000,00
+                    </div>
+                </div>
+            </div>
+
+            <p style="max-width:920px; font-size:18px; margin-bottom:28px;">
+                <strong style="color:white;">Objetivo:</strong> Reduzir perdas por falta de mercadoria (ruptura) e evitar dinheiro imobilizado em excesso de estoque, otimizando o fluxo de caixa da Minas Luz através de indicadores preditivos.
+            </p>
+
+            <div class="grid-3">
+                <div class="glass-card" style="padding:24px; background:rgba(245,158,11,.04); border:1px solid rgba(245,158,11,.35); box-shadow:0 0 20px rgba(245,158,11,.06);">
+                    <div style="font-size:28px; margin-bottom:10px;">🚨</div>
+                    <h4 style="font-size:17px; color:white; margin-bottom:6px;">Alertas Automáticos de Ruptura</h4>
+                    <p style="font-size:14px; color:var(--muted); margin:0;">Notificações proativas antes que cabos, disjuntores ou lâmpadas essenciais se esgotem nas prateleiras.</p>
+                </div>
+
+                <div class="glass-card" style="padding:24px; background:rgba(245,158,11,.04); border:1px solid rgba(245,158,11,.35); box-shadow:0 0 20px rgba(245,158,11,.06);">
+                    <div style="font-size:28px; margin-bottom:10px;">⏸️</div>
+                    <h4 style="font-size:17px; color:white; margin-bottom:6px;">Produtos Sem Giro</h4>
+                    <p style="font-size:14px; color:var(--muted); margin:0;">Relatórios específicos de itens parados há mais de 30/60/90 dias para ações promocionais de desmobilização.</p>
+                </div>
+
+                <div class="glass-card" style="padding:24px; background:rgba(245,158,11,.04); border:1px solid rgba(245,158,11,.35); box-shadow:0 0 20px rgba(245,158,11,.06);">
+                    <div style="font-size:28px; margin-bottom:10px;">🔄</div>
+                    <h4 style="font-size:17px; color:white; margin-bottom:6px;">Análise de Giro &amp; Cobertura</h4>
+                    <p style="font-size:14px; color:var(--muted); margin:0;">Cálculo exato de quantos dias a loja consegue operar com o estoque atual de cada SKU sem precisar reabastecer.</p>
+                </div>
+
+                <div class="glass-card" style="padding:24px; background:rgba(245,158,11,.04); border:1px solid rgba(245,158,11,.35); box-shadow:0 0 20px rgba(245,158,11,.06);">
+                    <div style="font-size:28px; margin-bottom:10px;">🧠</div>
+                    <h4 style="font-size:17px; color:white; margin-bottom:6px;">Sugestão Inteligente de Compras</h4>
+                    <p style="font-size:14px; color:var(--muted); margin:0;">Algoritmo de cálculo de lote ideal de compra considerando velocidade de venda e prazo de entrega dos fornecedores.</p>
+                </div>
+
+                <div class="glass-card" style="padding:24px; background:rgba(245,158,11,.04); border:1px solid rgba(245,158,11,.35); box-shadow:0 0 20px rgba(245,158,11,.06);">
+                    <div style="font-size:28px; margin-bottom:10px;">💵</div>
+                    <h4 style="font-size:17px; color:white; margin-bottom:6px;">Capital Parado &amp; Excesso</h4>
+                    <p style="font-size:14px; color:var(--muted); margin:0;">Diagnóstico preciso de quanto dinheiro está retido em itens com estoque desproporcional à demanda.</p>
+                </div>
+
+                <div class="glass-card" style="padding:24px; background:rgba(245,158,11,.04); border:1px solid rgba(245,158,11,.35); box-shadow:0 0 20px rgba(245,158,11,.06);">
+                    <div style="font-size:28px; margin-bottom:10px;">⚡</div>
+                    <h4 style="font-size:17px; color:white; margin-bottom:6px;">Indicadores de Tomada de Decisão</h4>
+                    <p style="font-size:14px; color:var(--muted); margin:0;">Painel gerencial para compras mais assertivas com margem de negociação aprimorada junto a fabricantes.</p>
+                </div>
+            </div>
+
+            <div style="height:36px;"></div>
+
+            <!-- COMPARATIVO ANTES X DEPOIS ESTOQUE -->
+            <div class="grid-2">
+                <div class="glass-card" style="padding:28px; border:1px solid rgba(239,68,68,.25); background:rgba(239,68,68,.03);">
+                    <span class="badge" style="background:rgba(239,68,68,.1); border-color:rgba(239,68,68,.25); color:#fca5a5; margin-bottom:12px;">⚠️ Modelo Convencional</span>
+                    <h3 style="margin-top:8px; margin-bottom:16px;">Compras por Intuição</h3>
+                    <div class="feature-list">
+                        <div class="feature-item" style="border-color:rgba(239,68,68,.2); background:rgba(239,68,68,.04);">
+                            <span class="feature-item-icon" style="color:#f87171;">❌</span> Falta de itens de alta demanda no momento da venda.
+                        </div>
+                        <div class="feature-item" style="border-color:rgba(239,68,68,.2); background:rgba(239,68,68,.04);">
+                            <span class="feature-item-icon" style="color:#f87171;">❌</span> Dinheiro preso em estoque com baixo giro.
+                        </div>
+                        <div class="feature-item" style="border-color:rgba(239,68,68,.2); background:rgba(239,68,68,.04);">
+                            <span class="feature-item-icon" style="color:#f87171;">❌</span> Compras efetuadas às pressas com menor margem de lucro.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="padding:28px; border:1px solid rgba(245,158,11,.3); background:rgba(245,158,11,.04);">
+                    <span class="badge badge-amber" style="margin-bottom:12px;">🚀 Com Gestão Inteligente Minas Luz</span>
+                    <h3 style="margin-top:8px; margin-bottom:16px;">Compras Baseadas em Previsibilidade</h3>
+                    <div class="feature-list">
+                        <div class="feature-item" style="border-color:rgba(245,158,11,.25); background:rgba(245,158,11,.05);">
+                            <span class="feature-item-icon" style="color:#fbbf24;">✅</span> <div><strong style="color:#fbbf24;">Menor capital parado:</strong> Liquidez imediata no caixa da empresa.</div>
+                        </div>
+                        <div class="feature-item" style="border-color:rgba(245,158,11,.25); background:rgba(245,158,11,.05);">
+                            <span class="feature-item-icon" style="color:#fbbf24;">✅</span> <div><strong style="color:#fbbf24;">Redução drástica de rupturas:</strong> Cliente sempre encontra o que busca.</div>
+                        </div>
+                        <div class="feature-item" style="border-color:rgba(245,158,11,.25); background:rgba(245,158,11,.05);">
+                            <span class="feature-item-icon" style="color:#fbbf24;">✅</span> <div><strong style="color:#fbbf24;">Maior rentabilidade:</strong> Otimização do capital de giro aplicado no estoque.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+PÁGINA 4 — FASE 2: BUSINESS INTELLIGENCE
+========================================== -->
+
+<section class="page">
+    <div class="container">
+        <div class="glass-card section">
+
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <span class="kicker">
+                        📊 FASE 2 — INTELIGÊNCIA DE DADOS
+                    </span>
+                    <h2>Business Intelligence (BI)</h2>
+                </div>
+                <div style="text-align:right;">
+                    <span class="badge">Valor da Fase</span>
+                    <div style="font-size:36px; font-weight:800; color:#22d3ee; margin-top:4px;">
+                        R$ 7.000,00
+                    </div>
+                </div>
+            </div>
+
+            <p style="max-width:900px; font-size:18px; margin-bottom:30px;">
+                <strong style="color:white;">Objetivo:</strong> Transformar a base de dados do ERP da Minas Luz em um ecossistema visual, dinâmico e estratégico de tomada de decisão rápida.
+            </p>
+
+            <div class="grid-2">
+
+                <!-- DASHBOARD COMERCIAL -->
+                <div class="glass-card" style="padding:28px; background:rgba(255,255,255,.02);">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:24px; padding:10px; border-radius:14px; background:rgba(34,211,238,.1); color:#22d3ee;">📈</div>
+                        <h3 style="margin:0;">Dashboard Comercial</h3>
+                    </div>
+                    <div class="feature-list">
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Faturamento detalhado em tempo real</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Evolução de vendas por período e sazonalidade</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Ticket médio por canal e atendente</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Ranking de produtos mais vendidos</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Perfil e frequência de compra dos clientes</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Curva ABC de Vendas (80/20 do faturamento)</div>
+                    </div>
+                </div>
+
+                <!-- DASHBOARD FINANCEIRO -->
+                <div class="glass-card" style="padding:28px; background:rgba(255,255,255,.02);">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:24px; padding:10px; border-radius:14px; background:rgba(34,197,94,.1); color:#4ade80;">💰</div>
+                        <h3 style="margin:0;">Dashboard Financeiro</h3>
+                    </div>
+                    <div class="feature-list">
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Visão consolidada de Receita Operacional</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Gestão visual de Despesas Fixas e Variáveis</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Fluxo de Caixa previsto vs. realizado</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Margem de Contribuição por linha de produto</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Apuração transparente do Lucro Líquido</div>
+                    </div>
+                </div>
+
+                <!-- DASHBOARD DE ESTOQUE -->
+                <div class="glass-card" style="padding:28px; background:rgba(255,255,255,.02);">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:24px; padding:10px; border-radius:14px; background:rgba(245,158,11,.1); color:#fbbf24;">📦</div>
+                        <h3 style="margin:0;">Dashboard de Estoque</h3>
+                    </div>
+                    <div class="feature-list">
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Valor total investido no estoque</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Giro de estoque por categoria de material</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Dias de cobertura de estoque</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Mapeamento de produtos parados (sem giro)</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Curva ABC física e financeira do estoque</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Ranking de itens de maior valor unitário</div>
+                    </div>
+                </div>
+
+                <!-- DASHBOARD DE COMPRAS -->
+                <div class="glass-card" style="padding:28px; background:rgba(255,255,255,.02);">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                        <div style="font-size:24px; padding:10px; border-radius:14px; background:rgba(168,85,247,.1); color:#c084fc;">🛍️</div>
+                        <h3 style="margin:0;">Dashboard de Compras</h3>
+                    </div>
+                    <div class="feature-list">
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Sugestão automática de reposição</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Alertas de produtos em nível crítico</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Projeção de dias até a ruptura do estoque</div>
+                        <div class="feature-item"><span class="feature-item-icon">🔹</span> Histórico de preço de fornecedores</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="height:32px;"></div>
+
+            <!-- BENEFÍCIOS FASE 2 -->
+            <div class="glass-card" style="padding:24px 30px; background:rgba(34,211,238,.03); border:1px solid rgba(34,211,238,.12);">
+                <strong style="color:#22d3ee; font-size:16px; text-transform:uppercase; letter-spacing:1px;">💡 Principais Benefícios da Fase 2:</strong>
+                <div class="grid-4" style="margin-top:14px;">
+                    <div><span class="highlight">Visão 360° do Negócio</span> em uma tela única.</div>
+                    <div><span class="highlight">Fim do "Achismo"</span>: decisões 100% pautadas em dados reais.</div>
+                    <div><span class="highlight">Oportunidades Ocultas</span> identificadas em margens e produtos.</div>
+                    <div><span class="highlight">Controle Total</span> sob a operação da loja.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+PÁGINA 5 — FASE 3: AGENTE IA DE VENDAS
+========================================== -->
+
+<section class="page">
+    <div class="container">
+        <div class="glass-card section">
+
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <span class="kicker" style="color:var(--green);">
+                        🤖 FASE 3 — AUTOMAÇÃO E ESCALABILIDADE COMERCIAL
+                    </span>
+                    <h2>Agente IA de Vendas (WhatsApp 24/7)</h2>
+                </div>
+                <div style="text-align:right;">
+                    <span class="badge badge-green">Valor da Fase</span>
+                    <div style="font-size:36px; font-weight:800; color:#4ade80; margin-top:4px;">
+                        R$ 10.000,00
+                    </div>
+                </div>
+            </div>
+
+            <p style="max-width:920px; font-size:18px; margin-bottom:28px;">
+                <strong style="color:white;">Objetivo:</strong> Criar um assistente virtual ultra-inteligente no WhatsApp da Minas Luz, capaz de compreender fotos de produtos, consultar catálogo e estoque em tempo real, gerar orçamentos e agilizar o trabalho da equipe de vendas.
+            </p>
+
+            <div class="grid-3">
+
+                <div class="feature">
+                    <div style="font-size:28px; margin-bottom:10px;">⏰</div>
+                    <h4>Atendimento 24h por Dia</h4>
+                    <p style="font-size:14px;">A Minas Luz passa a responder clientes, eletricistas e empreiteiros a qualquer hora do dia ou da noite, inclusive fins de semana.</p>
+                </div>
+
+                <div class="feature">
+                    <div style="font-size:28px; margin-bottom:10px;">🔎</div>
+                    <h4>Consulta de Preços &amp; Estoque</h4>
+                    <p style="font-size:14px;">Integração em tempo real para verificar instantaneamente a disponibilidade e valor de cada material sem esperar o balcão.</p>
+                </div>
+
+                <div class="feature">
+                    <div style="font-size:28px; margin-bottom:10px;">📸</div>
+                    <h4>Visão Computacional de Fotos</h4>
+                    <p style="font-size:14px;">O cliente envia a foto de uma peça, lâmpada ou disjuntor antigo e a IA identifica o modelo e sugere o produto correto.</p>
+                </div>
+
+                <div class="feature">
+                    <div style="font-size:28px; margin-bottom:10px;">💬</div>
+                    <h4>Dúvidas Técnicas Frequentes</h4>
+                    <p style="font-size:14px;">Respostas precisas em linguagem natural sobre especificações, amparagem, voltagem e aplicações dos produtos.</p>
+                </div>
+
+                <div class="feature">
+                    <div style="font-size:28px; margin-bottom:10px;">📑</div>
+                    <h4>Geração de Orçamentos</h4>
+                    <p style="font-size:14px;">Montagem ágil da lista de materiais solicitada pelo cliente com somatório e formatação pronta para fechamento.</p>
+                </div>
+
+                <div class="feature">
+                    <div style="font-size:28px; margin-bottom:10px;">👨‍💻</div>
+                    <h4>Transbordo Inteligente</h4>
+                    <p style="font-size:14px;">Encaminhamento automático dos leads prontos ou negociações complexas diretamente para o vendedor responsável.</p>
+                </div>
+
+            </div>
+
+            <div style="height:36px;"></div>
+
+            <!-- SIMULAÇÃO DE CHAT VIA WHATSAPP -->
+            <div class="glass-card" style="padding:32px; background:rgba(255,255,255,.02); border:1px solid rgba(34,197,94,.15);">
+                <h3 style="margin-bottom:20px; color:white; display:flex; align-items:center; gap:10px;">
+                    📱 Demonstração do Fluxo de Atendimento no WhatsApp
+                </h3>
+
+                <div class="grid-2">
+                    <div style="padding:20px; border-radius:18px; background:rgba(15,23,42,.8); border:1px solid rgba(255,255,255,.06);">
+                        <strong style="color:var(--muted); font-size:13px; text-transform:uppercase;">Solicitação do Cliente:</strong>
+                        <p style="color:white; margin-top:8px; font-size:15px; font-style:italic;">
+                            "Olá, preciso de 15 disjuntores DIN 20A da Tramontina e 2 rolos de cabo flexível 2.5mm azul. Vocês têm pronta entrega e qual o valor?"
+                        </p>
+                    </div>
+
+                    <div style="padding:20px; border-radius:18px; background:rgba(34,197,94,.06); border:1px solid rgba(34,197,94,.2);">
+                        <strong style="color:#4ade80; font-size:13px; text-transform:uppercase;">Resposta da IA Minas Luz (Imediata):</strong>
+                        <p style="color:white; margin-top:8px; font-size:15px;">
+                            "Olá! Temos sim em estoque pronta entrega na loja! ⚡<br>
+                            • 15x Disjuntor DIN 20A Tramontina: R$ 225,00<br>
+                            • 02x Rolo Cabo Flex 2.5mm Azul (100m): R$ 340,00<br>
+                            <strong>Total: R$ 565,00</strong>. Posso gerar o link de pagamento ou transferir para nosso consultor finalizar a entrega?"
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height:30px;"></div>
+
+            <div class="glass-card" style="padding:24px 30px; background:rgba(34,197,94,.03); border:1px solid rgba(34,197,94,.12);">
+                <strong style="color:#4ade80; font-size:16px; text-transform:uppercase; letter-spacing:1px;">🚀 Benefícios de Vendas com IA:</strong>
+                <div class="grid-4" style="margin-top:14px;">
+                    <div><span class="highlight">Zero Espera:</span> Atendimento instantâneo em segundos.</div>
+                    <div><span class="highlight">+ Conversão:</span> Clientes respondidos rápido compram mais.</div>
+                    <div><span class="highlight">Escala Sem Aumento de Custo:</span> Atenda 10 ou 1000 clientes ao mesmo tempo.</div>
+                    <div><span class="highlight">Vendedores Focados:</span> Equipe livre de tarefas repetitivas para focar no fechamento.</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================
+PÁGINA 6 — INVESTIMENTO TOTAL & PRÓXIMOS PASSOS
+========================================== -->
+
+<section class="page">
+    <div class="container">
+        <div class="glass-card section">
+
+            <span class="kicker">
+                💰 QUADRO DE INVESTIMENTO E CONTRATAÇÃO
+            </span>
+
+            <h2>
+                Resumo Financeiro do Projeto
+            </h2>
+
+            <p style="max-width:900px; font-size:18px;">
+                A Minas Luz pode optar pela implantação individual de cada fase ou pela contratação da solução completa de forma integrada.
+            </p>
+
+            <!-- TABELA DE INVESTIMENTO RESPONSIVA -->
+            <div class="custom-table-container">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Fase do Projeto</th>
+                            <th>Escopo Resumido</th>
+                            <th style="text-align:right;">Investimento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong style="color:white; font-size:17px;">FASE 1 — Gestão Inteligente de Estoque</strong>
+                                <br><span style="font-size:14px; color:var(--muted);">Alertas de ruptura, giro, cobertura e capital parado</span>
+                            </td>
+                            <td>Indicadores inteligentes para compras assertivas e redução de perdas</td>
+                            <td style="text-align:right; font-weight:700; color:#fbbf24; font-size:18px;">R$ 8.000,00</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong style="color:white; font-size:17px;">FASE 2 — Business Intelligence</strong>
+                                <br><span style="font-size:14px; color:var(--muted);">Dashboards Comercial, Financeiro, Estoque e Compras</span>
+                            </td>
+                            <td>Transformação dos dados do ERP em dashboards estratégicos</td>
+                            <td style="text-align:right; font-weight:700; color:#22d3ee; font-size:18px;">R$ 7.000,00</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong style="color:white; font-size:17px;">FASE 3 — Agente IA de Vendas</strong>
+                                <br><span style="font-size:14px; color:var(--muted);">Atendimento 24/7 no WhatsApp com interpretação de fotos</span>
+                            </td>
+                            <td>Automação comercial e geração proativa de orçamentos via IA</td>
+                            <td style="text-align:right; font-weight:700; color:#4ade80; font-size:18px;">R$ 10.000,00</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>INVESTIMENTO TOTAL (ECOSSISTEMA COMPLETO)</td>
+                            <td>Fases 1, 2 e 3 integradas com garantia e suporte</td>
+                            <td style="text-align:right;">R$ 25.000,00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="height:45px;"></div>
+
+            <h2>
+                Cronograma Estimado de Implantação
+            </h2>
+
+            <div style="height:20px;"></div>
+
+            <div class="grid-3">
+                <div class="glass-card" style="padding:28px; background:rgba(255,255,255,.02);">
+                    <div class="badge">Passo 01</div>
+                    <h3 style="margin-top:14px; font-size:20px;">Mapeamento &amp; Conexão ERP</h3>
+                    <p style="font-size:14px;">Entendimento das tabelas do banco de dados da Minas Luz, validação de regras de negócio e alinhamento do catálogo.</p>
+                </div>
+
+                <div class="glass-card" style="padding:28px; background:rgba(255,255,255,.02);">
+                    <div class="badge badge-amber">Passo 02</div>
+                    <h3 style="margin-top:14px; font-size:20px;">Desenvolvimento &amp; Treinamento</h3>
+                    <p style="font-size:14px;">Construção dos painéis de BI, parametrização dos modelos de estoque e treinamento da IA de Vendas com catálogo e preços.</p>
+                </div>
+
+                <div class="glass-card" style="padding:28px; background:rgba(255,255,255,.02);">
+                    <div class="badge badge-green">Passo 03</div>
+                    <h3 style="margin-top:14px; font-size:20px;">Homologação &amp; Go-Live</h3>
+                    <p style="font-size:14px;">Testes com a equipe da Minas Luz, ajustes finos de sensibilidade da IA e entrada oficial em operação comercial.</p>
+                </div>
+            </div>
+
+            <div style="height:45px;"></div>
+
+            <!-- PLANO DE SUPORTE E EVOLUÇÃO CONTÍNUA -->
+            <div style="height:45px;"></div>
+
+            <span class="kicker">
+                🛠️ SUSTENTAÇÃO &amp; EVOLUÇÃO
+            </span>
+
+            <h2>
+                Plano de Suporte e Evolução Contínua
+            </h2>
+
+            <p style="max-width:920px; font-size:18px; margin-bottom:30px;">
+                Após a implantação, a <strong style="color:white;">8April Tech</strong> disponibiliza planos de suporte para garantir a estabilidade, evolução e o funcionamento contínuo da solução na Minas Luz.
+            </p>
+
+            <div class="grid-2">
+
+                <!-- PLANO BUSINESS -->
+                <div class="glass-card" style="padding:34px; background:linear-gradient(135deg, rgba(34,211,238,.05), rgba(59,130,246,.02)); border:1px solid rgba(34,211,238,.2);">
+                    <div class="badge">
+                        💼 PLANO BUSINESS
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <h3 style="font-size:24px; margin-bottom:6px; color:white;">
+                        Suporte &amp; Estabilidade
+                    </h3>
+
+                    <p style="font-size:14px; color:var(--muted);">
+                        Focado na manutenção da infraestrutura, correções técnicas e monitoramento ativo.
+                    </p>
+
+                    <div class="price-box" style="margin:20px 0;">
+                        <span class="price-val" style="color:#22d3ee;">R$ 697,00</span>
+                        <span style="color:var(--muted); font-size:16px;">/mês</span>
+                    </div>
+
+                    <div style="height:1px; background:rgba(255,255,255,.08); margin-bottom:20px;"></div>
+
+                    <div class="feature-list">
+                        <div class="feature-item"><span class="feature-item-icon">✅</span> Suporte técnico especializado</div>
+                        <div class="feature-item"><span class="feature-item-icon">✅</span> Monitoramento ativo das integrações</div>
+                        <div class="feature-item"><span class="feature-item-icon">✅</span> Correções de falhas operacionais</div>
+                        <div class="feature-item"><span class="feature-item-icon">✅</span> Atualizações contínuas da solução</div>
+                        <div class="feature-item"><span class="feature-item-icon">✅</span> Ajustes em dashboards e automações (pequenas evoluções)</div>
+                        <div class="feature-item"><span class="feature-item-icon">✅</span> Monitoramento contínuo do Agente IA</div>
+                        <div class="feature-item"><span class="feature-item-icon">✅</span> Backup e acompanhamento da operação</div>
+                    </div>
+                </div>
+
+                <!-- PLANO PREMIUM -->
+                <div class="glass-card" style="padding:34px; background:linear-gradient(135deg, rgba(34,197,94,.06), rgba(34,211,238,.03)); border:1px solid rgba(34,197,94,.25); position:relative; overflow:hidden;">
+                    
+                    <div style="position:absolute; top:18px; right:-50px; background:linear-gradient(135deg, #22c55e, #16a34a); padding:6px 50px; transform:rotate(35deg); font-size:10px; font-weight:800; letter-spacing:1px; color:white;">
+                        MAIS COMPLETO
+                    </div>
+
+                    <div class="badge badge-green">
+                        ⭐ PLANO PREMIUM
+                    </div>
+
+                    <div style="height:16px;"></div>
+
+                    <h3 style="font-size:24px; margin-bottom:6px; color:white;">
+                        Evolução Contínua &amp; Estratégia
+                    </h3>
+
+                    <p style="font-size:14px; color:var(--muted);">
+                        Inclusão de novidades, reuniões de acompanhamento estratégico e suporte prioritário.
+                    </p>
+
+                    <div class="price-box" style="margin:20px 0;">
+                        <span class="price-val" style="color:#4ade80;">R$ 997,00</span>
+                        <span style="color:var(--muted); font-size:16px;">/mês</span>
+                    </div>
+
+                    <div style="height:1px; background:rgba(255,255,255,.08); margin-bottom:20px;"></div>
+
+                    <div class="feature-list">
+                        <div class="feature-item" style="background:rgba(34,197,94,.08); border-color:rgba(34,197,94,.2);">
+                            <span class="feature-item-icon">⭐</span> <strong style="color:white;">Tudo do Plano Business incluso, mais:</strong>
+                        </div>
+                        <div class="feature-item"><span class="feature-item-icon">🚀</span> Evoluções contínuas da solução</div>
+                        <div class="feature-item"><span class="feature-item-icon">🚀</span> Desenvolvimento de novos dashboards</div>
+                        <div class="feature-item"><span class="feature-item-icon">🚀</span> Criação de novas automações</div>
+                        <div class="feature-item"><span class="feature-item-icon">🚀</span> Ajustes e otimizações do Agente IA</div>
+                        <div class="feature-item"><span class="feature-item-icon">🚀</span> Reunião mensal de acompanhamento e planejamento</div>
+                        <div class="feature-item"><span class="feature-item-icon">🚀</span> Atendimento prioritário dedicado</div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="height:45px;"></div>
+
+            <!-- CTA FINAL -->
+            <div class="glass-card" style="padding:42px; text-align:center; background:linear-gradient(135deg, rgba(34,211,238,.08), rgba(34,197,94,.05)); border:1px solid rgba(34,211,238,.2);">
+                <span class="kicker">8APRIL TECH — PARCEIRO ESTRATÉGICO DE TECNOLOGIA</span>
+                <h2 style="margin-bottom:16px;">Pronto para transformar a gestão e as vendas da Minas Luz?</h2>
+                <p style="max-width:800px; margin:auto; font-size:18px;">
+                    Estamos à disposição para alinhar os detalhes da contratação e dar início à implantação do ecossistema de inteligência na Minas Luz.
+                </p>
+
+                <div style="height:32px;"></div>
+
+                <div class="badge badge-green" style="font-size:15px; padding:12px 24px;">
+                    🚀 Inovação, Eficiência e Escala Comercial
+                </div>
+
+                <div style="margin-top:30px; color:var(--muted); font-size:14px;">
+                    Proposta comercial elaborada por <strong style="color:white;">8April Tech</strong>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
+

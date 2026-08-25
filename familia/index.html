@@ -81,6 +81,13 @@
 
         min-height:100vh;
 
+        transition: opacity 0.2s ease;
+
+    }
+
+    body.auth-pending {
+        opacity: 0;
+        pointer-events: none;
     }
 
     body::before{
@@ -770,7 +777,7 @@
 
 </head>
 
-<body>
+<body class="auth-pending">
 
 <div class="container">
 
@@ -790,13 +797,24 @@
 
     </div>
 
-    <button
-        class="btn"
-        id="btnNovaMovimentacao">
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <button
+            class="btn"
+            id="btnNovaMovimentacao">
 
-        ➕ Nova Movimentação
+            ➕ Nova Movimentação
 
-    </button>
+        </button>
+
+        <button
+            class="btn"
+            onclick="fazerLogout()"
+            style="background: linear-gradient(135deg, #EF4444, #DC2626);">
+
+            🚪 Sair
+
+        </button>
+    </div>
 
 </div>
 
@@ -1205,6 +1223,46 @@ const client = supabase.createClient(
 
 
 //====================================
+// AUTENTICAÇÃO E SESSÃO
+//====================================
+
+async function verificarSessao() {
+    if (!client) {
+        window.location.href = "https://app.8april.com.br/login.html";
+        return false;
+    }
+
+    try {
+        const { data: { session } } = await client.auth.getSession();
+
+        if (!session) {
+            window.location.href = "https://app.8april.com.br/login.html";
+            return false;
+        }
+
+        client.auth.onAuthStateChange((event, currentSession) => {
+            if (event === 'SIGNED_OUT' || !currentSession) {
+                window.location.href = "https://app.8april.com.br/login.html";
+            }
+        });
+
+        return true;
+    } catch (e) {
+        console.error("Erro ao verificar sessão", e);
+        window.location.href = "https://app.8april.com.br/login.html";
+        return false;
+    }
+}
+
+async function fazerLogout() {
+    if (client) {
+        await client.auth.signOut();
+    }
+    window.location.href = "https://app.8april.com.br/login.html";
+}
+
+
+//====================================
 // VARIÁVEIS
 //====================================
 
@@ -1222,6 +1280,11 @@ let idParaExcluir = null;
 //====================================
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+    const authed = await verificarSessao();
+    if (!authed) return;
+
+    document.body.classList.remove('auth-pending');
 
     atualizarTituloCompetencia();
 
@@ -1400,15 +1463,16 @@ async function carregarMovimentacoes(){
 
     atualizarGraficoFluxo(data);
 
+    atualizarGraficoCategorias(data);
+
 }
 
 function definirDataHoje(){
-
     const hoje = new Date();
-
-    document.getElementById("data").value =
-        hoje.toISOString().split("T")[0];
-
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    document.getElementById("data").value = `${ano}-${mes}-${dia}`;
 }
 
 document
@@ -2036,6 +2100,143 @@ function atualizarGraficoFluxo(movimentacoes){
 
 }
 
+let graficoCategorias;
+
+function atualizarGraficoCategorias(movimentacoes){
+
+    const categoriasValores = {};
+
+    movimentacoes.forEach(item => {
+
+        if(!item.categorias) return;
+
+        if(item.categorias.tipo === "despesa"){
+
+            const nomeCat = item.categorias.nome;
+
+            const valor = Number(item.valor) || 0;
+
+            if(!categoriasValores[nomeCat]){
+
+                categoriasValores[nomeCat] = 0;
+
+            }
+
+            categoriasValores[nomeCat] += valor;
+
+        }
+
+    });
+
+    const labels = Object.keys(categoriasValores);
+
+    const data = Object.values(categoriasValores);
+
+    const cores = [
+
+        "#EF4444",
+        "#F59E0B",
+        "#3B82F6",
+        "#9333EA",
+        "#06B6D4",
+        "#10B981",
+        "#EC4899",
+        "#8B5CF6",
+        "#F97316",
+        "#14B8A6"
+
+    ];
+
+    const ctx = document.getElementById("graficoCategorias");
+
+    if(graficoCategorias){
+
+        graficoCategorias.destroy();
+
+    }
+
+    graficoCategorias = new Chart(ctx, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: labels,
+
+            datasets: [
+
+                {
+
+                    data: data,
+
+                    backgroundColor: cores.slice(0, labels.length),
+
+                    borderColor: "rgba(15,23,42,0.8)",
+
+                    borderWidth: 2
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+
+                    position: "bottom",
+
+                    labels: {
+
+                        color: "#FFFFFF",
+
+                        padding: 15,
+
+                        font: {
+
+                            family: "'Inter', sans-serif",
+
+                            size: 12
+
+                        }
+
+                    }
+
+                },
+
+                tooltip: {
+
+                    callbacks: {
+
+                        label: function(context) {
+
+                            const label = context.label || "";
+
+                            const value = context.raw || 0;
+
+                            return " " + label + ": " + formatarMoeda(value);
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
 //====================================
 // UTILITÁRIOS
 //====================================
@@ -2057,11 +2258,9 @@ function limparFormulario(){
 }
 
 function formatarData(data){
-
-    return new Date(data)
-
-        .toLocaleDateString("pt-BR");
-
+    if(!data) return "";
+    const [ano, mes, dia] = data.split("-");
+    return `${dia}/${mes}/${ano}`;
 }
 
 function formatarMoeda(valor){
@@ -2085,14 +2284,11 @@ function formatarMoeda(valor){
 }
 
 function obterCompetencia(){
-
-    return competenciaAtual
-
-        .toISOString()
-
-        .substring(0,10);
-
+    const ano = competenciaAtual.getFullYear();
+    const mes = String(competenciaAtual.getMonth() + 1).padStart(2, '0');
+    return `${ano}-${mes}-01`;
 }
+
 
 function atualizarTituloCompetencia(){
 

@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>8April Tech — Contraproposta de Parceria Estratégica</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      /* Brand Colors */
+      --primary: #1E88E5;
+      --primary-dark: #1565C0;
+      --primary-light: #E3F2FD;
+      --primary-hover: #1976D2;
+      --accent: #0284C7;
+      
+      /* Neutral Colors */
+      --bg-main: #FFFFFF;
+      --bg-secondary: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --border-color: #E2E8F0;
+      --border-hover: #CBD5E1;
+      
+      /* Typography Colors */
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --text-light: #64748B;
+      
+      /* Utility Effects */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+      --shadow-glow: 0 0 20px rgba(30, 136, 229, 0.15);
+      
+      /* Radii */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+
+      /* Font Families */
+      --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: var(--font-body);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      touch-action: pan-x pan-y;
+    }
+
+    /* ==========================================================================
+       TOP CONTROL HEADER & PROGRESS BAR
+       ========================================================================== */
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      background: transparent;
+      padding: 0;
+      box-shadow: none;
+    }
+
+    .brand-logo-img {
+      height: 54px;
+      max-height: 60px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+      transition: opacity 0.2s ease;
+    }
+
+    .brand-logo-img:hover {
+      opacity: 0.85;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .slide-counter {
+      font-family: var(--font-heading);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      background: var(--bg-secondary);
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-bar-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: rgba(226, 232, 240, 0.5);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 10%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-secondary);
+      color: var(--primary);
+      border-color: var(--primary-light);
+    }
+
+    /* ==========================================================================
+       HORIZONTAL SLIDES CONTAINER
+       ========================================================================== */
+    .slides-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
+      scrollbar-width: none; /* Firefox */
+    }
+
+    .slides-container::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+
+    .slide {
+      flex: 0 0 100vw;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 5.5rem 3rem 4.5rem 3rem;
+      position: relative;
+      background-color: var(--bg-main);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .slide:nth-child(even) {
+      background-color: var(--bg-secondary);
+    }
+
+    .slide-wrapper {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Slide Header Components */
+    .slide-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.9rem;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      width: fit-content;
+    }
+
+    .slide-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .slide-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .slide-subtitle {
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      color: var(--text-muted);
+      font-weight: 400;
+      max-width: 750px;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       NAVIGATION OVERLAYS & CONTROLS
+       ========================================================================== */
+    .nav-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 90;
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s ease;
+    }
+
+    .nav-arrow:hover:not(:disabled) {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .nav-arrow:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .nav-arrow.prev { left: 1.5rem; }
+    .nav-arrow.next { right: 1.5rem; }
+
+    .bottom-bar {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-md);
+      z-index: 90;
+    }
+
+    .pagination-dots {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background: var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dot.active {
+      width: 24px;
+      background: var(--primary);
+    }
+
+    .key-hints {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      padding-left: 0.75rem;
+      border-left: 1px solid var(--border-color);
+    }
+
+    .kbd {
+      padding: 0.15rem 0.4rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       ANIMATIONS (INTERSECTION OBSERVER)
+       ========================================================================== */
+    .animate-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active .animate-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger delays */
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.2s; }
+    .delay-3 { transition-delay: 0.3s; }
+    .delay-4 { transition-delay: 0.4s; }
+
+    /* ==========================================================================
+       SLIDE 1: COVER
+       ========================================================================== */
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .hero-quote-box {
+      margin-top: 1.5rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    .hero-illustration {
+      width: 100%;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(30, 136, 229, 0.08) 0%, transparent 70%);
+      border-radius: var(--radius-lg);
+    }
+
+    /* ==========================================================================
+       SLIDE 2: VISION
+       ========================================================================== */
+    .vision-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .vision-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .vision-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .icon-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .vision-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .vision-card-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .statement-banner {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #FFFFFF;
+      padding: 1.5rem 2rem;
+      border-radius: var(--radius-md);
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.5;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* ==========================================================================
+       SLIDE 3: RECOGNITION (RESPONSIBILITIES)
+       ========================================================================== */
+    .responsibilities-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .resp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .resp-card:hover {
+      border-color: var(--primary);
+      background: #FFFFFF;
+      transform: scale(1.02);
+    }
+
+    .resp-check {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: var(--primary);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .resp-title {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .conclusion-callout {
+      text-align: center;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+      font-weight: 600;
+      background: var(--primary-light);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(30, 136, 229, 0.2);
+    }
+
+    /* ==========================================================================
+       SLIDE 4: CURRENT MOMENT (2 CARDS)
+       ========================================================================== */
+    .moment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem;
+    }
+
+    .moment-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .moment-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary);
+    }
+
+    .moment-card.tech::before {
+      background: linear-gradient(90deg, #1E88E5, #0284C7);
+    }
+
+    .moment-card.business::before {
+      background: linear-gradient(90deg, #64748B, #94A3B8);
+    }
+
+    .moment-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .moment-card-title {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .tag {
+      padding: 0.4rem 0.85rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tag-icon {
+      color: var(--primary);
+    }
+
+    .moment-obs {
+      background: rgba(30, 136, 229, 0.05);
+      border: 1px solid rgba(30, 136, 229, 0.15);
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       SLIDE 5: INITIAL PROPOSAL & FLOW
+       ========================================================================== */
+    .proposal-hero {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #FFFFFF;
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .proposal-role {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1rem;
+    }
+
+    .role-title {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .role-badge {
+      background: var(--primary);
+      color: #FFFFFF;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .metric-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .metric-value {
+      font-family: var(--font-heading);
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #38BDF8;
+    }
+
+    .metric-desc {
+      font-size: 0.875rem;
+      color: #94A3B8;
+      line-height: 1.4;
+    }
+
+    /* Process Flowchart */
+    .flow-chart {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .flow-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      text-align: center;
+    }
+
+    .flow-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .flow-label {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .flow-arrow {
+      color: var(--text-light);
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       SLIDE 6: WHY START THIS WAY? (4 CARDS)
+       ========================================================================== */
+    .reasons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .reason-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      display: flex;
+      gap: 1.25rem;
+      align-items: flex-start;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .reason-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .reason-number {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      opacity: 0.8;
+    }
+
+    .reason-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .reason-title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .reason-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* ==========================================================================
+       SLIDE 7: EVOLUTION TIMELINE
+       ========================================================================== */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      position: relative;
+      margin-top: 1rem;
+    }
+
+    .timeline-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    .timeline-card.active-phase {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      width: fit-content;
+    }
+
+    .p1 { background: #E2E8F0; color: #475569; }
+    .p2 { background: var(--primary-light); color: var(--primary-dark); }
+    .p3 { background: #0F172A; color: #FFFFFF; }
+
+    .phase-title {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .phase-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .phase-list li {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .phase-list li::before {
+      content: '•';
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    /* ==========================================================================
+       SLIDE 8: WHEN TO DISCUSS EQUITY?
+       ========================================================================== */
+    .triggers-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .trigger-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .trigger-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: rgba(30, 136, 229, 0.1);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .trigger-text {
+      font-family: var(--font-heading);
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .equity-footer-banner {
+      background: var(--primary-light);
+      border: 1px dashed var(--primary);
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--primary-dark);
+    }
+
+    /* ==========================================================================
+       SLIDE 9: PARTNERSHIP MODEL COMPARISON
+       ========================================================================== */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .comp-block {
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .comp-block.today {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+    }
+
+    .comp-block.future {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .comp-tag {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .today .comp-tag { color: var(--text-light); }
+    .future .comp-tag { color: #38BDF8; }
+
+    .comp-title {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 800;
+    }
+
+    .today .comp-title { color: var(--text-main); }
+    .future .comp-title { color: #FFFFFF; }
+
+    .comp-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .comp-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .today .comp-item { color: var(--text-muted); }
+    .future .comp-item { color: #CBD5E1; }
+
+    /* ==========================================================================
+       SLIDE 10: CLOSING & BRAND SIGNATURE
+       ========================================================================== */
+    .closing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .closing-quotes {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 800px;
+    }
+
+    .closing-quote-main {
+      font-family: var(--font-heading);
+      font-size: clamp(1.25rem, 2vw, 1.65rem);
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .closing-quote-secondary {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .brand-signature {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.5rem;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .brand-name {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-tagline {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-light);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE DESIGN (TABLETS & MOBILE)
+       ========================================================================== */
+    @media (max-width: 900px) {
+      .app-header { padding: 0 1rem; height: 68px; }
+      .brand-logo-img { height: 42px; max-height: 46px; }
+      .slide { padding: 4.75rem 1.25rem 4.5rem 1.25rem; }
+      .hero-layout, .moment-grid, .proposal-hero, .metrics-grid, .reasons-grid, .timeline, .triggers-grid, .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+      .vision-grid, .responsibilities-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .flow-chart {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+      .nav-arrow {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        z-index: 95;
+      }
+      .nav-arrow.prev { left: 0.5rem; }
+      .nav-arrow.next { right: 0.5rem; }
+      .key-hints { display: none; }
+    }
+
+    @media (max-width: 600px) {
+      .vision-grid, .responsibilities-grid {
+        grid-template-columns: 1fr;
+      }
+      .slide-title { font-size: 1.75rem; }
+      .closing-card { padding: 1.75rem; }
+      .bottom-bar { bottom: 0.75rem; padding: 0.4rem 0.8rem; }
+      .dot { width: 8px; height: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="app-header">
+    <a href="#" class="brand-logo">
+      <img src="https://i.ibb.co/1tWcrw3Z/b9eceaee-fd2a-4ebb-bf9e-413a75306c8f.png" alt="8April Tech Logo" class="brand-logo-img">
+    </a>
+    
+    <div class="header-center">
+      <div class="slide-counter" id="slideCounter">01 / 10</div>
+    </div>
+
+    <div class="header-controls">
+      <button class="btn-icon" id="fullscreenBtn" title="Alternar Tela Cheia">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      </button>
+    </div>
+
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+  </header>
+
+  <!-- SIDE NAVIGATION ARROWS -->
+  <button class="nav-arrow prev" id="prevBtn" title="Slide Anterior" disabled>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <button class="nav-arrow next" id="nextBtn" title="Próximo Slide">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+
+  <!-- MAIN SLIDES CONTAINER -->
+  <main class="slides-container" id="slidesContainer">
+
+    <!-- ================= SLIDE 1 ================= -->
+    <section class="slide active" id="slide-1">
+      <div class="slide-wrapper">
+        <div class="hero-layout">
+          <div class="slide-header">
+            <span class="slide-tag animate-in">Parceria Estratégica</span>
+            <h1 class="slide-title animate-in delay-1">Contraproposta de Parceria Estratégica</h1>
+            <p class="slide-subtitle animate-in delay-2">Construindo uma empresa sólida, escalável e justa para ambos.</p>
+            
+            <div class="hero-quote-box animate-in delay-3">
+              "A proposta apresentada demonstra uma visão alinhada ao crescimento da empresa. Considerando o estágio atual da 8April Tech, propomos um modelo de parceria baseado em geração de valor, evolução gradual e construção de longo prazo."
+            </div>
+          </div>
+
+          <div class="hero-illustration animate-in delay-2">
+            <!-- Modern Handshake / Partnership SVG -->
+            <svg width="280" height="280" viewBox="0 0 24 24" fill="none" stroke="#1E88E5" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 15h2a2 2 0 0 0 2-2v-2c0-1.1-.9-2-2-2h-2v6z" fill="rgba(30, 136, 229, 0.08)"/>
+              <path d="M18 11h-3a2 2 0 0 0-2 2v2"/>
+              <path d="M7 11h2a2 2 0 0 1 2 2v2"/>
+              <path d="M14 9V7a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-4"/>
+              <circle cx="12" cy="12" r="9" stroke="rgba(30, 136, 229, 0.2)" stroke-dasharray="4 4"/>
+              <path d="M16 16l4 4M20 16l-4 4" stroke="#0284C7"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 2 ================= -->
+    <section class="slide" id="slide-2">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Visão & Fundamentos</span>
+          <h2 class="slide-title animate-in delay-1">Nossa Visão</h2>
+          <p class="slide-subtitle animate-in delay-2">A 8April Tech nasceu para construir produtos escaláveis.</p>
+        </div>
+
+        <div class="vision-grid">
+          <div class="vision-card animate-in delay-1">
+            <div class="icon-badge">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            </div>
+            <h3 class="vision-card-title">Tecnologia Própria</h3>
+            <p class="vision-card-desc">Desenvolvimento contínuo de soluções proprietárias escaláveis que criam valor real de mercado.</p>
+          </div>
+
+          <div class="vision-card animate-in delay-2">
+            <div class="icon-badge">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>
+            </div>
+            <h3 class="vision-card-title">Receita Recorrente</h3>
+            <p class="vision-card-desc">Mais do que prestar serviços pontuais, foco total na construção de SaaS sustentável e crescimento de longo prazo.</p>
+          </div>
+
+          <div class="vision-card animate-in delay-3">
+            <div class="icon-badge">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3 class="vision-card-title">Proteção & Estímulo</h3>
+            <p class="vision-card-desc">Uma sociedade forte precisa proteger o patrimônio construído e incentivar que ambos cresçam juntos.</p>
+          </div>
+        </div>
+
+        <div class="statement-banner animate-in delay-4">
+          "Mais do que prestar serviços, queremos desenvolver uma empresa sustentável, baseada em tecnologia própria, recorrência e crescimento de longo prazo."
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 3 ================= -->
+    <section class="slide" id="slide-3">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Valorização Mútua</span>
+          <h2 class="slide-title animate-in delay-1">Reconhecimento da Sua Importância</h2>
+          <p class="slide-subtitle animate-in delay-2">Você terá um papel fundamental e estratégico na aceleração do nosso negócio.</p>
+        </div>
+
+        <div class="responsibilities-grid">
+          <div class="resp-card animate-in delay-1">
+            <div class="resp-check">✓</div>
+            <span class="resp-title">Comercial</span>
+          </div>
+          <div class="resp-card animate-in delay-1">
+            <div class="resp-check">✓</div>
+            <span class="resp-title">Operações</span>
+          </div>
+          <div class="resp-card animate-in delay-2">
+            <div class="resp-check">✓</div>
+            <span class="resp-title">Relacionamento</span>
+          </div>
+          <div class="resp-card animate-in delay-2">
+            <div class="resp-check">✓</div>
+            <span class="resp-title">Parcerias</span>
+          </div>
+          <div class="resp-card animate-in delay-3">
+            <div class="resp-check">✓</div>
+            <span class="resp-title">Marketing</span>
+          </div>
+          <div class="resp-card animate-in delay-3">
+            <div class="resp-check">✓</div>
+            <span class="resp-title">Crescimento</span>
+          </div>
+        </div>
+
+        <div class="conclusion-callout animate-in delay-4">
+          Acreditamos que essas funções são essenciais para transformar tecnologia em crescimento.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 4 ================= -->
+    <section class="slide" id="slide-4">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Diagnóstico Atual</span>
+          <h2 class="slide-title animate-in delay-1">Momento Atual da Empresa</h2>
+          <p class="slide-subtitle animate-in delay-2">Uma análise clara entre a base tecnológica consolidada e o avanço comercial.</p>
+        </div>
+
+        <div class="moment-grid">
+          <!-- Card 1: Tecnologia -->
+          <div class="moment-card tech animate-in delay-1">
+            <div class="moment-card-header">
+              <h3 class="moment-card-title" style="color: var(--primary-dark);">Tecnologia</h3>
+              <span class="tag" style="background: var(--primary-light); color: var(--primary-dark);">Consolidado</span>
+            </div>
+            <div class="tech-tags">
+              <span class="tag"><span class="tag-icon">✓</span> CRM</span>
+              <span class="tag"><span class="tag-icon">✓</span> Financeiro</span>
+              <span class="tag"><span class="tag-icon">✓</span> OS</span>
+              <span class="tag"><span class="tag-icon">✓</span> BI</span>
+              <span class="tag"><span class="tag-icon">✓</span> Inteligência Artificial</span>
+              <span class="tag"><span class="tag-icon">✓</span> Integrador WhatsApp</span>
+              <span class="tag"><span class="tag-icon">✓</span> Infraestrutura</span>
+              <span class="tag"><span class="tag-icon">✓</span> Produtos Próprios</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Empresa -->
+          <div class="moment-card business animate-in delay-2">
+            <div class="moment-card-header">
+              <h3 class="moment-card-title" style="color: var(--text-main);">Empresa</h3>
+              <span class="tag" style="background: #F1F5F9; color: var(--text-muted);">Em Expansão</span>
+            </div>
+            <div class="tech-tags">
+              <span class="tag"><span class="tag-icon" style="color: #64748B;">⚡</span> Receita recorrente inicial</span>
+              <span class="tag"><span class="tag-icon" style="color: #64748B;">⚡</span> Clientes em crescimento</span>
+              <span class="tag"><span class="tag-icon" style="color: #64748B;">⚡</span> Dependência técnica do fundador</span>
+              <span class="tag"><span class="tag-icon" style="color: #64748B;">⚡</span> Processos ainda em estruturação</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="moment-obs animate-in delay-3">
+          💡 <strong>Observação:</strong> O patrimônio tecnológico já está consolidado, porém o crescimento comercial ainda está em fase de expansão.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 5 ================= -->
+    <section class="slide" id="slide-5">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Modelo Inicial</span>
+          <h2 class="slide-title animate-in delay-1">Nossa Proposta Inicial</h2>
+          <p class="slide-subtitle animate-in delay-2">Alinhamento direto entre dedicação, resultados e ganho financeiro.</p>
+        </div>
+
+        <div class="proposal-hero animate-in delay-2">
+          <div class="proposal-role">
+            <span class="role-title">Diretor Comercial & Operações</span>
+            <span class="role-badge">Remuneração Baseada em Performance</span>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <span class="metric-value">20%</span>
+              <span class="metric-desc">sobre implantações fechadas diretamente por ele.</span>
+            </div>
+
+            <div class="metric-box">
+              <span class="metric-value">10%</span>
+              <span class="metric-desc">sobre as mensalidades dos clientes originados enquanto ativos (ou percentual negociável por prazo determinado).</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Infográfico simples de fluxo -->
+        <div class="flow-chart animate-in delay-3">
+          <div class="flow-step">
+            <div class="flow-icon">🎯</div>
+            <span class="flow-label">Prospecção</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <div class="flow-icon">🤝</div>
+            <span class="flow-label">Venda</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <div class="flow-icon">⚙️</div>
+            <span class="flow-label">Implantação</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <div class="flow-icon">📈</div>
+            <span class="flow-label">Receita Recorrente</span>
+          </div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-step">
+            <div class="flow-icon" style="background: #DCFCE7; color: #166534;">💰</div>
+            <span class="flow-label" style="color: #166534;">Comissão</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 6 ================= -->
+    <section class="slide" id="slide-6">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Fundamentação</span>
+          <h2 class="slide-title animate-in delay-1">Por que começar assim?</h2>
+          <p class="slide-subtitle animate-in delay-2">Pilares que sustentam uma parceria saudável e duradoura.</p>
+        </div>
+
+        <div class="reasons-grid">
+          <div class="reason-card animate-in delay-1">
+            <span class="reason-number">01</span>
+            <div class="reason-content">
+              <h3 class="reason-title">Validação da Parceria</h3>
+              <p class="reason-text">Testar na prática a sintonia de trabalho, rotina e alinhamento de expectativas no dia a dia.</p>
+            </div>
+          </div>
+
+          <div class="reason-card animate-in delay-2">
+            <span class="reason-number">02</span>
+            <div class="reason-content">
+              <h3 class="reason-title">Construção de Confiança</h3>
+              <p class="reason-text">Estabelecer transparência, compromisso mútuo e previsibilidade de entregas.</p>
+            </div>
+          </div>
+
+          <div class="reason-card animate-in delay-3">
+            <span class="reason-number">03</span>
+            <div class="reason-content">
+              <h3 class="reason-title">Remuneração Proporcional</h3>
+              <p class="reason-text">Garantir retorno financeiro direto e atrativo proporcional aos resultados gerados.</p>
+            </div>
+          </div>
+
+          <div class="reason-card animate-in delay-4">
+            <span class="reason-number">04</span>
+            <div class="reason-content">
+              <h3 class="reason-title">Proteção do Patrimônio</h3>
+              <p class="reason-text">Valorizar e preservar o ativo tecnológico construído antes do ciclo de expansão.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-quote-box animate-in delay-4" style="text-align: center; font-style: normal; font-weight: 500;">
+          "Acreditamos que uma sociedade sólida nasce da execução consistente e da confiança construída ao longo do tempo."
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 7 ================= -->
+    <section class="slide" id="slide-7">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Roadmap da Sociedade</span>
+          <h2 class="slide-title animate-in delay-1">Plano de Evolução</h2>
+          <p class="slide-subtitle animate-in delay-2">Uma jornada clara por fases com marcos de desenvolvimento bem definidos.</p>
+        </div>
+
+        <div class="timeline">
+          <!-- Fase 1 -->
+          <div class="timeline-card animate-in delay-1">
+            <span class="phase-badge p1">Fase 1</span>
+            <h3 class="phase-title">Parceria Comercial</h3>
+            <ul class="phase-list">
+              <li>Atuação Focada</li>
+              <li>Comissionamento atrativo</li>
+              <li>Alinhamento operacional</li>
+            </ul>
+          </div>
+
+          <!-- Fase 2 -->
+          <div class="timeline-card animate-in delay-2 active-phase">
+            <span class="phase-badge p2">Fase 2</span>
+            <h3 class="phase-title">Resultados Consistentes</h3>
+            <ul class="phase-list">
+              <li>Crescimento de Clientes</li>
+              <li>Aumento de MRR</li>
+              <li>Processos validados</li>
+            </ul>
+          </div>
+
+          <!-- Fase 3 -->
+          <div class="timeline-card animate-in delay-3">
+            <span class="phase-badge p3">Fase 3</span>
+            <h3 class="phase-title">Sociedade & Vesting</h3>
+            <ul class="phase-list">
+              <li>Discussão de Equity</li>
+              <li>Possibilidade de Vesting</li>
+              <li>Participação minoritária</li>
+              <li>Revisão Anual</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 8 ================= -->
+    <section class="slide" id="slide-8">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Gatilhos de Transição</span>
+          <h2 class="slide-title animate-in delay-1">Quando discutir participação?</h2>
+          <p class="slide-subtitle animate-in delay-2">Marcos objetivos que validam o momento exato de entrada na sociedade.</p>
+        </div>
+
+        <div class="triggers-grid">
+          <div class="trigger-item animate-in delay-1">
+            <div class="trigger-icon">📈</div>
+            <span class="trigger-text">Aumento consistente do MRR</span>
+          </div>
+
+          <div class="trigger-item animate-in delay-1">
+            <div class="trigger-icon">🎯</div>
+            <span class="trigger-text">Processo comercial validado</span>
+          </div>
+
+          <div class="trigger-item animate-in delay-2">
+            <div class="trigger-icon">👥</div>
+            <span class="trigger-text">Base de clientes consolidada</span>
+          </div>
+
+          <div class="trigger-item animate-in delay-2">
+            <div class="trigger-icon">🤝</div>
+            <span class="trigger-text">Comprometimento de longo prazo</span>
+          </div>
+
+          <div class="trigger-item animate-in delay-3">
+            <div class="trigger-icon">⭐</div>
+            <span class="trigger-text">Resultados comprovados</span>
+          </div>
+
+          <div class="trigger-item animate-in delay-3">
+            <div class="trigger-icon">🚀</div>
+            <span class="trigger-text">Contribuição estratégica para o crescimento</span>
+          </div>
+        </div>
+
+        <div class="equity-footer-banner animate-in delay-4">
+          "Participação societária deve refletir valor entregue ao negócio."
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 9 ================= -->
+    <section class="slide" id="slide-9">
+      <div class="slide-wrapper">
+        <div class="slide-header">
+          <span class="slide-tag animate-in">Arquitetura da Parceria</span>
+          <h2 class="slide-title animate-in delay-1">Modelo de Sociedade que Acreditamos</h2>
+          <p class="slide-subtitle animate-in delay-2">Transição gradual baseada em entregas reais e valor acumulado.</p>
+        </div>
+
+        <div class="comparison-grid">
+          <!-- HOJE -->
+          <div class="comp-block today animate-in delay-1">
+            <span class="comp-tag">Estágio Inicial</span>
+            <h3 class="comp-title">HOJE</h3>
+            <div class="comp-items">
+              <div class="comp-item"><span>•</span> Parceria Comercial</div>
+              <div class="comp-item"><span>•</span> Comissão por Performance</div>
+              <div class="comp-item"><span>•</span> Construção de Confiança</div>
+              <div class="comp-item"><span>•</span> Validação Prática de Mercado</div>
+            </div>
+          </div>
+
+          <!-- FUTURO -->
+          <div class="comp-block future animate-in delay-2">
+            <span class="comp-tag">Objetivo Final</span>
+            <h3 class="comp-title">FUTURO</h3>
+            <div class="comp-items">
+              <div class="comp-item"><span>•</span> Sócio da Empresa</div>
+              <div class="comp-item"><span>•</span> Contrato de Vesting</div>
+              <div class="comp-item"><span>•</span> Participação Baseada em Resultados</div>
+              <div class="comp-item"><span>•</span> Governança Compartilhada</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 10 ================= -->
+    <section class="slide" id="slide-10">
+      <div class="slide-wrapper">
+        <div class="closing-card animate-in delay-1">
+          <span class="slide-tag" style="background: var(--primary-light); color: var(--primary-dark);">Compromisso de Futuro</span>
+          
+          <div class="slide-header" style="align-items: center; text-align: center;">
+            <h2 class="slide-title" style="font-size: clamp(2.25rem, 4vw, 3.5rem);">Vamos construir isso juntos.</h2>
+          </div>
+
+          <div class="closing-quotes animate-in delay-2">
+            <p class="closing-quote-main">Nosso objetivo não é adiar uma sociedade.<br>Nosso objetivo é criar uma sociedade duradoura.</p>
+            <p class="closing-quote-secondary">Queremos que ambos tenham orgulho da empresa que construiremos e que a participação de cada um represente o impacto real gerado ao longo dessa jornada.</p>
+          </div>
+
+          <div class="brand-signature animate-in delay-3">
+            <span class="brand-name">8April Tech</span>
+            <span class="brand-tagline">Building the Future.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM CONTROL BAR -->
+  <div class="bottom-bar">
+    <div class="pagination-dots" id="paginationDots"></div>
+    <div class="key-hints">
+      <span>Navegue com</span>
+      <span class="kbd">←</span>
+      <span class="kbd">→</span>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+     JAVASCRIPT LOGIC
+     ========================================================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const slidesContainer = document.getElementById('slidesContainer');
+      const slides = document.querySelectorAll('.slide');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const slideCounter = document.getElementById('slideCounter');
+      const progressBar = document.getElementById('progressBar');
+      const paginationDots = document.getElementById('paginationDots');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+      const totalSlides = slides.length;
+      let currentIndex = 0;
+
+      // 1. Create Pagination Dots
+      slides.forEach((_, idx) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (idx === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => scrollToSlide(idx));
+        paginationDots.appendChild(dot);
+      });
+
+      const dots = document.querySelectorAll('.dot');
+
+      // 2. Scroll to specific slide index
+      function scrollToSlide(index) {
+        if (index < 0 || index >= totalSlides) return;
+        currentIndex = index;
+        slidesContainer.scrollTo({
+          left: slidesContainer.clientWidth * index,
+          behavior: 'smooth'
+        });
+        updateControls(index);
+      }
+
+      // 3. Update active states, counter, progress bar
+      function updateControls(index) {
+        currentIndex = index;
+
+        // Counter
+        const formattedCurrent = String(index + 1).padStart(2, '0');
+        const formattedTotal = String(totalSlides).padStart(2, '0');
+        slideCounter.textContent = `${formattedCurrent} / ${formattedTotal}`;
+
+        // Progress bar width
+        const progressPercent = ((index + 1) / totalSlides) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+
+        // Prev/Next button disabled state
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === totalSlides - 1;
+
+        // Dots active state
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle('active', idx === index);
+        });
+
+        // Slide active class for CSS animations
+        slides.forEach((slide, idx) => {
+          slide.classList.toggle('active', idx === index);
+        });
+      }
+
+      // 4. Navigation Button Listeners
+      prevBtn.addEventListener('click', () => scrollToSlide(currentIndex - 1));
+      nextBtn.addEventListener('click', () => scrollToSlide(currentIndex + 1));
+
+      // 5. Keyboard Navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'PageDown') {
+          e.preventDefault();
+          scrollToSlide(currentIndex + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          scrollToSlide(currentIndex - 1);
+        }
+      });
+
+      // 6. Touch Swipe Navigation for Mobile / iOS
+      let touchStartX = 0;
+      let touchStartY = 0;
+
+      slidesContainer.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches.length > 0) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      slidesContainer.addEventListener('touchend', (e) => {
+        if (!touchStartX || !touchStartY) return;
+        
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        
+        const diffX = touchStartX - touchEndX;
+        const diffY = touchStartY - touchEndY;
+
+        // Ensure horizontal swipe threshold is reached
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
+          if (diffX > 0) {
+            // Swipe Left -> Next Slide
+            scrollToSlide(currentIndex + 1);
+          } else {
+            // Swipe Right -> Prev Slide
+            scrollToSlide(currentIndex - 1);
+          }
+        }
+        
+        touchStartX = 0;
+        touchStartY = 0;
+      }, { passive: true });
+
+      // 7. Intersection Observer & Scroll Calculation for Mobile
+      let isScrolling = false;
+      slidesContainer.addEventListener('scroll', () => {
+        if (isScrolling) return;
+        isScrolling = true;
+        requestAnimationFrame(() => {
+          const width = slidesContainer.clientWidth;
+          if (width > 0) {
+            const calculatedIndex = Math.round(slidesContainer.scrollLeft / width);
+            if (calculatedIndex !== currentIndex && calculatedIndex >= 0 && calculatedIndex < totalSlides) {
+              updateControls(calculatedIndex);
+            }
+          }
+          isScrolling = false;
+        });
+      }, { passive: true });
+
+      // 7. Fullscreen Toggle
+      fullscreenBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Erro ao ativar tela cheia: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      });
+
+      // Initial Call
+      updateControls(0);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8April - Módulo Financeiro & Comercial (Supabase Direct)</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase JS Client SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-body: #080B11;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --bg-card-hover: rgba(30, 41, 59, 0.8);
+            --bg-sidebar: #0B0F19;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(59, 130, 246, 0.4);
+            
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            
+            --success: #10B981;
+            --success-glow: rgba(16, 185, 129, 0.2);
+            --warning: #F59E0B;
+            --warning-glow: rgba(245, 158, 11, 0.2);
+            --danger: #EF4444;
+            --danger-glow: rgba(239, 68, 68, 0.2);
+            --purple: #8B5CF6;
+            --cyan: #06B6D4;
+            
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --text-dark: #64748B;
+            
+            --radius-lg: 16px;
+            --radius-md: 10px;
+            --radius-sm: 6px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: 
+                linear-gradient(
+                    rgba(8, 11, 17, 0.92),
+                    rgba(8, 11, 17, 0.96)
+                ),
+                url("https://i.ibb.co/Xk81gvBg/fundo-8-April.png");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        body.auth-pending main,
+        body.auth-pending aside {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Sidebar Styles */
+        aside {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: opacity 0.2s ease;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 0.5rem 1.5rem 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .brand-logo-img {
+            height: 38px;
+            object-fit: contain;
+        }
+
+        .brand-text h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #94A3B8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text span {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-section {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dark);
+            font-weight: 700;
+            margin: 1rem 0.5rem 0.5rem 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-item a:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-item.active a {
+            color: #fff;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.03));
+            border-left: 3px solid var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .user-profile {
+            margin-top: auto;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .user-info {
+            line-height: 1.2;
+        }
+
+        .user-info .name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .user-info .role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Main Content Layout */
+        main {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem;
+            max-width: 1600px;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Top Header Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 14px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #F87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #fff;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Metrics / Indicator Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .metric-title {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .metric-icon.blue { background: rgba(59, 130, 246, 0.15); color: var(--primary); }
+        .metric-icon.green { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .metric-icon.amber { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .metric-icon.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .metric-icon.purple { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-sub {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        /* Dashboard Charts & Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        /* Status Badge Styling */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-negociacao { background: rgba(148, 163, 184, 0.15); color: #CBD5E1; border: 1px solid rgba(148, 163, 184, 0.3); }
+        .badge-aguardando { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-ativo { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-execucao { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-finalizado { background: rgba(139, 92, 246, 0.15); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .badge-cancelado { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .badge-pendente { background: rgba(245, 158, 11, 0.15); color: #FBBF24; }
+        .badge-pago { background: rgba(16, 185, 129, 0.15); color: #34D399; }
+        .badge-vencido { background: rgba(239, 68, 68, 0.15); color: #F87171; }
+        .badge-parcial { background: rgba(6, 182, 212, 0.15); color: #22D3EE; }
+
+        /* Datatables */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tbody tr {
+            transition: var(--transition);
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .empty-state-row td {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 3px;
+        }
+
+        /* Filter Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 0.875rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .input-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .select-control {
+            padding: 10px 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 0.875rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Views management */
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Contract Detail View Specifics */
+        .detail-header-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .detail-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .summary-box .label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-box .val {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Timeline Items */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 5px;
+            bottom: 5px;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -24px;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--bg-sidebar);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+        }
+
+        .timeline-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .timeline-date {
+            font-size: 0.75rem;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        /* Modals */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-container {
+            background: #0F172A;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 650px;
+            padding: 1.75rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transform: scale(0.95);
+            transition: var(--transition);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .form-group.full {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 0.875rem;
+            outline: none;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Banner for Supabase Status */
+        .arch-banner {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), rgba(16, 185, 129, 0.15));
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Special Recurrence Box */
+        .recurrence-box {
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px dashed rgba(139, 92, 246, 0.4);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            grid-column: span 2;
+        }
+
+        .setup-recalculate-box {
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px dashed rgba(6, 182, 212, 0.4);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            grid-column: span 2;
+        }
+
+        /* Mobile Specific Navigation Styles */
+        .mobile-header {
+            display: none;
+            background: var(--bg-sidebar);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.85rem 1rem;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 150;
+            width: 100%;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 195;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            aside {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 200;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            aside.mobile-open {
+                transform: translateX(0);
+            }
+
+            .sidebar-backdrop.active {
+                display: block;
+            }
+
+            main {
+                margin-left: 0;
+                padding: 1rem;
+                width: 100%;
+            }
+
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .header-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.85rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .form-group.full,
+            .recurrence-box,
+            .setup-recalculate-box {
+                grid-column: span 1 !important;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box, .select-control {
+                width: 100%;
+            }
+
+            .tabs-header {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+            }
+
+            .arch-banner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .arch-banner > div:last-child {
+                width: 100%;
+            }
+
+            .arch-banner .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            table {
+                min-width: 680px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-container {
+                width: 96%;
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body class="auth-pending">
+
+    <!-- Mobile Top Header Bar -->
+    <div class="mobile-header">
+        <button class="btn btn-secondary btn-sm" onclick="toggleMobileSidebar()"><i class="fa-solid fa-bars"></i> Menu</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <img src="https://i.ibb.co/KxJ2ZZpX/fef4f49f-0e55-4c3c-aba0-d877979a0167.png" alt="8April Logo" style="height:28px;">
+            <strong style="font-size:0.95rem;">8April Financeiro</strong>
+        </div>
+    </div>
+
+    <!-- Mobile Backdrop -->
+    <div class="sidebar-backdrop" onclick="toggleMobileSidebar()"></div>
+
+    <!-- Sidebar Menu -->
+    <aside>
+        <div class="brand">
+            <img src="https://i.ibb.co/KxJ2ZZpX/fef4f49f-0e55-4c3c-aba0-d877979a0167.png" alt="8April Logo" class="brand-logo-img">
+            <div class="brand-text">
+                <h2>8April Comercial</h2>
+                <span>Módulo Financeiro</span>
+            </div>
+        </div>
+
+        <div class="nav-section">Módulo Comercial</div>
+        <ul class="nav-menu">
+            <li class="nav-item active" onclick="switchView('dashboard', this)">
+                <a href="#dashboard"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            </li>
+            <li class="nav-item" onclick="switchView('contratos', this)">
+                <a href="#contratos"><i class="fa-solid fa-file-contract"></i> Contratos</a>
+            </li>
+            <li class="nav-item" onclick="switchView('parcelas', this)">
+                <a href="#parcelas"><i class="fa-solid fa-file-invoice-dollar"></i> Parcelas & Cobranças</a>
+            </li>
+            <li class="nav-item" onclick="switchView('recebimentos', this)">
+                <a href="#recebimentos"><i class="fa-solid fa-hand-holding-dollar"></i> Recebimentos</a>
+            </li>
+        </ul>
+
+        <div class="nav-section">Integrações & Configuração</div>
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="openModal('modal-config-supabase')">
+                <a href="#supabase"><i class="fa-solid fa-database" style="color: var(--success);"></i> Conexão Supabase</a>
+            </li>
+            <li class="nav-item" onclick="openArchModal()">
+                <a href="#gateways"><i class="fa-solid fa-plug-circle-bolt"></i> Gateways & APIs</a>
+            </li>
+            <li class="nav-item" onclick="fazerLogout()">
+                <a href="#logout" style="color: var(--danger);"><i class="fa-solid fa-right-from-bracket"></i> Sair do Sistema</a>
+            </li>
+        </ul>
+
+        <div class="user-profile">
+            <div class="avatar">8A</div>
+            <div class="user-info">
+                <div class="name">8April Admin</div>
+                <div class="role" id="sidebar-conn-status">Supabase Produção</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+        
+        <!-- Status Banner -->
+        <div class="arch-banner">
+            <div>
+                <strong style="font-size: 0.9rem;" id="banner-title"><i class="fa-solid fa-database"></i> Conexão Oficial Supabase</strong>
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;" id="banner-sub">Sincronizado diretamente com seu banco de dados PostgreSQL no Supabase.</p>
+            </div>
+            <div>
+                <button class="btn btn-secondary btn-sm" onclick="openModal('modal-config-supabase')" id="btn-supabase-status">
+                    <i class="fa-solid fa-database" style="color:var(--success)"></i> Supabase Ativo
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW: DASHBOARD -->
+        <section id="view-dashboard" class="view-section active">
+            <div class="top-bar">
+                <div class="page-header">
+                    <h1>Visão Geral Comercial</h1>
+                    <p>Métricas e performance financeira em tempo real</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="exportData()"><i class="fa-solid fa-download"></i> Exportar</button>
+                    <button class="btn btn-primary" onclick="openModal('modal-novo-contrato')"><i class="fa-solid fa-plus"></i> Novo Contrato</button>
+                </div>
+            </div>
+
+            <!-- Indicator Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Valor Contratado</span>
+                        <div class="metric-icon blue"><i class="fa-solid fa-file-signature"></i></div>
+                    </div>
+                    <div class="metric-value" id="kpi-contratado">R$ 0,00</div>
+                    <div class="metric-sub">Total de contratos vigentes</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Valor Recebido</span>
+                        <div class="metric-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                    <div class="metric-value" id="kpi-recebido">R$ 0,00</div>
+                    <div class="metric-sub"><span style="color: var(--success); font-weight:700;" id="kpi-pct-recebido">0.0%</span> do total contratado</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Valor em Aberto</span>
+                        <div class="metric-icon amber"><i class="fa-solid fa-clock"></i></div>
+                    </div>
+                    <div class="metric-value" id="kpi-aberto">R$ 0,00</div>
+                    <div class="metric-sub">Parcelas a vencer</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Valor Vencido</span>
+                        <div class="metric-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    </div>
+                    <div class="metric-value" id="kpi-vencido">R$ 0,00</div>
+                    <div class="metric-sub"><span class="trend-down">Requer cobrança</span></div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">Contratos Ativos</span>
+                        <div class="metric-icon purple"><i class="fa-solid fa-building-user"></i></div>
+                    </div>
+                    <div class="metric-value" id="kpi-qtd-ativos">0 / 0</div>
+                    <div class="metric-sub">Em execução contínua</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-chart-column" style="color: var(--primary);"></i> Evolução de Recebimentos</div>
+                        <select class="select-control">
+                            <option>2026</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartRecebimentos"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-chart-pie" style="color: var(--purple);"></i> Contratos por Status</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartStatus"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Próximos Vencimentos & Recentes -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fa-solid fa-calendar-day" style="color: var(--warning);"></i> Próximos Vencimentos de Parcelas</div>
+                    <button class="btn btn-secondary btn-sm" onclick="switchView('parcelas')">Ver Todas</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Contrato / Cliente</th>
+                                <th>Parcela / Descrição</th>
+                                <th>Vencimento</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-proximos-vencimentos">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: LISTA DE CONTRATOS -->
+        <section id="view-contratos" class="view-section">
+            <div class="top-bar">
+                <div class="page-header">
+                    <h1>Gestão de Contratos</h1>
+                    <p>Controle de ciclos, tipos de faturamento e vigências</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openModal('modal-novo-contrato')"><i class="fa-solid fa-plus"></i> Criar Contrato</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="toolbar">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="filter-search-contrato" class="input-control" placeholder="Buscar por contrato, cliente ou responsável..." onkeyup="filterContratos()">
+                    </div>
+                    <select id="filter-status-contrato" class="select-control" onchange="filterContratos()">
+                        <option value="">Todos os Status</option>
+                        <option value="Em negociação">Em negociação</option>
+                        <option value="Aguardando assinatura">Aguardando assinatura</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Em execução">Em execução</option>
+                        <option value="Finalizado">Finalizado</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Contrato & Cliente</th>
+                                <th>Tipo</th>
+                                <th>Valor Total</th>
+                                <th>Impl. Quitado (%)</th>
+                                <th>Responsável</th>
+                                <th>Vigência</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-contratos-body">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: DETALHES DO CONTRATO -->
+        <section id="view-detalhe-contrato" class="view-section">
+            <div class="top-bar">
+                <div class="page-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn btn-secondary btn-sm" onclick="switchView('contratos')"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                        <h1 id="detalhe-nome-contrato">Selecione um Contrato</h1>
+                    </div>
+                    <p id="detalhe-sub-contrato">Cliente: - • Responsável: -</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="openEditarContratoModal(activeContractId)"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="excluirContratoConfirm(activeContractId)"><i class="fa-solid fa-trash"></i> Excluir Contrato</button>
+                    <button class="btn btn-primary" onclick="openModal('modal-novo-recebimento')"><i class="fa-solid fa-dollar-sign"></i> Novo Recebimento</button>
+                    <span class="badge badge-execucao" id="detalhe-badge-status">Status</span>
+                </div>
+            </div>
+
+            <!-- Resumo Financeiro do Contrato -->
+            <div class="detail-header-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Descrição do Escopo</span>
+                        <p style="margin-top: 4px; font-size: 0.95rem; color: #E2E8F0;" id="detalhe-desc">-</p>
+                    </div>
+                </div>
+
+                <div class="detail-summary-grid">
+                    <div class="summary-box">
+                        <div class="label">Valor Contratado Total</div>
+                        <div class="val" style="color: var(--primary);" id="detalhe-val-total">R$ 0,00</div>
+                    </div>
+                    <div class="summary-box">
+                        <div class="label">Total Recebido</div>
+                        <div class="val" style="color: var(--success);" id="detalhe-val-recebido">R$ 0,00</div>
+                    </div>
+                    <div class="summary-box">
+                        <div class="label">Saldo Restante</div>
+                        <div class="val" style="color: var(--warning);" id="detalhe-val-saldo">R$ 0,00</div>
+                    </div>
+                    <div class="summary-box">
+                        <div class="label">Impl. Quitada (%)</div>
+                        <div class="val" id="detalhe-pct-texto">0.0%</div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="detalhe-pct-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs de Conteúdo do Contrato -->
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchContractTab('tab-parcelas', this)"><i class="fa-solid fa-list-check"></i> Parcelas & Mensalidades</button>
+                <button class="tab-btn" onclick="switchContractTab('tab-historico-recebimentos', this)"><i class="fa-solid fa-receipt"></i> Histórico de Recebimentos</button>
+                <button class="tab-btn" onclick="switchContractTab('tab-timeline', this)"><i class="fa-solid fa-timeline"></i> Timeline & Auditoria</button>
+            </div>
+
+            <!-- Tab: Parcelas -->
+            <div id="tab-parcelas" class="tab-content active card">
+                <div class="card-header">
+                    <div class="card-title">Cronograma de Parcelas & Recorrência</div>
+                    <button class="btn btn-secondary btn-sm" onclick="openAdicionarParcelaModal()"><i class="fa-solid fa-plus"></i> + Adicionar Parcela / Mensalidade</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th># ID</th>
+                                <th>Descrição / Etapa</th>
+                                <th>Vencimento</th>
+                                <th>Valor Parcela</th>
+                                <th>Valor Pago</th>
+                                <th>Forma Pagto</th>
+                                <th>Status</th>
+                                <th>Ações / Gateway</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-detalhe-parcelas">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Histórico de Recebimentos -->
+            <div id="tab-historico-recebimentos" class="tab-content card">
+                <div class="card-header">
+                    <div class="card-title">Registros Financeiros de Recebimento</div>
+                    <button class="btn btn-primary btn-sm" onclick="openModal('modal-novo-recebimento')"><i class="fa-solid fa-dollar-sign"></i> Registrar Recebimento</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID Recebimento</th>
+                                <th>Parcela Referência</th>
+                                <th>Data Pagamento</th>
+                                <th>Valor Recebido</th>
+                                <th>Forma</th>
+                                <th>Registrado Por</th>
+                                <th>Comprovante</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-detalhe-recebimentos">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Timeline / Auditoria -->
+            <div id="tab-timeline" class="tab-content card">
+                <div class="card-header">
+                    <div class="card-title">Histórico Auditável de Eventos</div>
+                </div>
+                <div class="timeline" id="timeline-events">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: PARCELAS GERAIS -->
+        <section id="view-parcelas" class="view-section">
+            <div class="top-bar">
+                <div class="page-header">
+                    <h1>Central de Cobranças e Parcelas</h1>
+                    <p>Visão global de vencimentos e régua de cobrança</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Contrato</th>
+                                <th>Parcela</th>
+                                <th>Vencimento</th>
+                                <th>Valor Total</th>
+                                <th>Valor Pago</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-todas-parcelas">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: RECEBIMENTOS GERAIS -->
+        <section id="view-recebimentos" class="view-section">
+            <div class="top-bar">
+                <div class="page-header">
+                    <h1>Histórico Geral de Recebimentos</h1>
+                    <p>Entradas de caixa registradas</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Contrato</th>
+                                <th>Parcela</th>
+                                <th>Valor Recebido</th>
+                                <th>Forma de Pagamento</th>
+                                <th>Usuário</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-todos-recebimentos">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: CONFIGURAÇÃO SUPABASE -->
+    <div class="modal-overlay" id="modal-config-supabase">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-database" style="color: var(--success);"></i> Configurar Conexão Supabase</h2>
+                <button class="modal-close" onclick="closeModal('modal-config-supabase')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="salvarConfigSupabase(event)">
+                <div class="form-group full">
+                    <label class="form-label">Supabase Project URL</label>
+                    <input type="url" class="form-input" id="cfg-supabase-url" placeholder="https://xyzcompany.supabase.co" required>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Supabase Anon Key (Chave Pública)</label>
+                    <input type="text" class="form-input" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." required>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:1rem;">
+                    💡 Cole sua URL e Anon Key do painel do Supabase (Project Settings ➔ API). As credenciais ficarão salvas no código e no seu navegador.
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-config-supabase')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--success);"><i class="fa-solid fa-plug"></i> Salvar e Conectar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NOVO CONTRATO -->
+    <div class="modal-overlay" id="modal-novo-contrato">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-file-contract" style="color: var(--primary);"></i> Cadastrar Novo Contrato</h2>
+                <button class="modal-close" onclick="closeModal('modal-novo-contrato')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-contrato" onsubmit="salvarNovoContrato(event)">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Cliente / Razão Social</label>
+                        <input type="text" class="form-input" id="inp-cliente" placeholder="Ex: Innova Revendas" required>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Nome do Contrato / Projeto</label>
+                        <input type="text" class="form-input" id="inp-nome" placeholder="Ex: Inna - Assistente de IA" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Contrato</label>
+                        <select class="form-select" id="inp-tipo">
+                            <option value="parcelado">Parcelado (Setup / Implementação)</option>
+                            <option value="recorrente">Recorrente (Apenas Mensalidades)</option>
+                            <option value="valor_unico">Valor Único (À Vista)</option>
+                            <option value="por_etapas">Por Etapas / Milestones</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Valor do Setup / Implementação (R$)</label>
+                        <input type="number" step="0.01" class="form-input" id="inp-valor" placeholder="3000.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Divisão em Parcelas do Setup</label>
+                        <input type="number" min="1" max="60" class="form-input" id="inp-qtd-parcelas" value="2" placeholder="Ex: 2x" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data Início</label>
+                        <input type="date" class="form-input" id="inp-data-inicio" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Previsão Término do Setup</label>
+                        <input type="date" class="form-input" id="inp-data-fim" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Responsável Comercial</label>
+                        <input type="text" class="form-input" id="inp-responsavel" placeholder="Ex: Rudge" required>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Status Inicial</label>
+                        <select class="form-select" id="inp-status">
+                            <option value="Em negociação">Em negociação</option>
+                            <option value="Aguardando assinatura">Aguardando assinatura</option>
+                            <option value="Ativo" selected>Ativo</option>
+                            <option value="Em execução">Em execução</option>
+                        </select>
+                    </div>
+
+                    <!-- BOX: RECORRÊNCIA DE MANUTENÇÃO (MENSALIDADE) -->
+                    <div class="recurrence-box">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 0.5rem;">
+                            <strong style="font-size:0.88rem; color:var(--purple);"><i class="fa-solid fa-arrows-rotate"></i> Incluir Mensalidades de Manutenção / Suporte</strong>
+                            <label style="font-size:0.78rem; cursor:pointer;"><input type="checkbox" id="chk-tem-mensalidade" onchange="toggleMensalidadeFields('new')"> Ativar Recorrência</label>
+                        </div>
+                        <div id="box-fields-mensalidade" style="display:none; margin-top: 0.75rem;">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Valor da Mensalidade (R$)</label>
+                                    <input type="number" step="0.01" class="form-input" id="inp-valor-mensalidade" placeholder="Ex: 500.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Qtd Meses de Recorrência</label>
+                                    <input type="number" min="1" max="48" class="form-input" id="inp-qtd-mensalidades" value="12">
+                                </div>
+                            </div>
+                            <span style="font-size:0.73rem; color:var(--text-muted);">As mensalidades serão geradas automaticamente no cronograma após as parcelas do Setup.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label">Descrição / Cláusulas de Cobrança</label>
+                        <textarea class="form-textarea" id="inp-desc" rows="3" placeholder="Detalhes do escopo de implementação e manutenção..."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-novo-contrato')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Contrato e Gerar Cronograma</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: EDITAR CONTRATO (COM ATUALIZAÇÃO AUTOMÁTICA DO CRONOGRAMA DE SETUP) -->
+    <div class="modal-overlay" id="modal-editar-contrato">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-pen-to-square" style="color: var(--primary);"></i> Editar Contrato</h2>
+                <button class="modal-close" onclick="closeModal('modal-editar-contrato')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-editar-contrato" onsubmit="salvarEdicaoContrato(event)">
+                <input type="hidden" id="edit-contrato-id">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Cliente / Razão Social</label>
+                        <input type="text" class="form-input" id="edit-cliente" required>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Nome do Contrato / Projeto</label>
+                        <input type="text" class="form-input" id="edit-nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Contrato</label>
+                        <select class="form-select" id="edit-tipo">
+                            <option value="parcelado">Parcelado (Setup / Implementação)</option>
+                            <option value="recorrente">Recorrente (Mensalidades)</option>
+                            <option value="valor_unico">Valor Único (À Vista)</option>
+                            <option value="por_etapas">Por Etapas / Milestones</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Valor Total do Setup / Implementação (R$)</label>
+                        <input type="number" step="0.01" class="form-input" id="edit-valor-setup" placeholder="Ex: 8000.00" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Divisão em Parcelas do Setup</label>
+                        <input type="number" min="1" max="60" class="form-input" id="edit-inp-qtd-parcelas" value="2" placeholder="Ex: 5" required>
+                    </div>
+
+                    <!-- RECALCULAR SETUP CHECKBOX -->
+                    <div class="setup-recalculate-box">
+                        <label style="font-size:0.83rem; color:var(--cyan); font-weight:600; cursor:pointer; display:flex; align-items:center; gap:8px;">
+                            <input type="checkbox" id="edit-chk-regerar-setup" checked>
+                            <span>⚡ Recalcular & Atualizar Parcelas do Setup no Cronograma</span>
+                        </label>
+                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">
+                            Ao marcar esta opção, o cronograma do Setup será recalculado com o novo valor e divisão informados acima.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Data Início</label>
+                        <input type="date" class="form-input" id="edit-data-inicio" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Previsão Término do Setup</label>
+                        <input type="date" class="form-input" id="edit-data-fim" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Responsável Comercial</label>
+                        <input type="text" class="form-input" id="edit-responsavel" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status do Contrato</label>
+                        <select class="form-select" id="edit-status">
+                            <option value="Em negociação">Em negociação</option>
+                            <option value="Aguardando assinatura">Aguardando assinatura</option>
+                            <option value="Ativo">Ativo</option>
+                            <option value="Em execução">Em execução</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+
+                    <!-- BOX: RECORRÊNCIA NA EDIÇÃO -->
+                    <div class="recurrence-box">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 0.5rem;">
+                            <strong style="font-size:0.88rem; color:var(--purple);"><i class="fa-solid fa-arrows-rotate"></i> Gerar Novas Mensalidades de Manutenção</strong>
+                            <label style="font-size:0.78rem; cursor:pointer;"><input type="checkbox" id="edit-chk-tem-mensalidade" onchange="toggleMensalidadeFields('edit')"> Adicionar Recorrência</label>
+                        </div>
+                        <div id="edit-box-fields-mensalidade" style="display:none; margin-top: 0.75rem;">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Valor da Mensalidade (R$)</label>
+                                    <input type="number" step="0.01" class="form-input" id="edit-inp-valor-mensalidade" placeholder="Ex: 500.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Qtd Novas Mensalidades</label>
+                                    <input type="number" min="1" max="48" class="form-input" id="edit-inp-qtd-mensalidades" value="12">
+                                </div>
+                            </div>
+                            <span style="font-size:0.73rem; color:var(--text-muted);">As novas mensalidades serão acrescentadas ao cronograma atual deste contrato.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group full">
+                        <label class="form-label">Descrição / Cláusulas de Cobrança</label>
+                        <textarea class="form-textarea" id="edit-desc" rows="3"></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-editar-contrato')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações e Recalcular</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: ADICIONAR PARCELA / MENSALIDADE AVULSA -->
+    <div class="modal-overlay" id="modal-add-parcela">
+        <div class="modal-container" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 style="font-size: 1.15rem;"><i class="fa-solid fa-plus-circle" style="color: var(--purple);"></i> Adicionar Parcela / Mensalidade</h2>
+                <button class="modal-close" onclick="closeModal('modal-add-parcela')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="salvarAdicaoParcela(event)">
+                <div class="form-group full">
+                    <label class="form-label">Descrição da Parcela / Mensalidade</label>
+                    <input type="text" class="form-input" id="add-parc-desc" placeholder="Ex: Mensalidade Julho/2026 - Manutenção" required>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Valor (R$)</label>
+                    <input type="number" step="0.01" class="form-input" id="add-parc-valor" placeholder="500.00" required>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Data de Vencimento</label>
+                    <input type="date" class="form-input" id="add-parc-venc" required>
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Forma de Pagamento Prevista</label>
+                    <select class="form-select" id="add-parc-forma">
+                        <option value="pix">Pix (Instantâneo)</option>
+                        <option value="boleto">Boleto Bancário</option>
+                        <option value="cartao_credito">Cartão de Crédito</option>
+                        <option value="transferencia">Transferência</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-parcela')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--purple);"><i class="fa-solid fa-plus"></i> Adicionar ao Cronograma</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: REGISTRAR RECEBIMENTO -->
+    <div class="modal-overlay" id="modal-novo-recebimento">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 style="font-size: 1.2rem;"><i class="fa-solid fa-hand-holding-dollar" style="color: var(--success);"></i> Registrar Recebimento Financeiro</h2>
+                <button class="modal-close" onclick="closeModal('modal-novo-recebimento')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-recebimento" onsubmit="salvarRecebimento(event)">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Selecionar Parcela do Contrato</label>
+                        <select class="form-select" id="inp-rec-parcela" required>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Valor do Recebimento (R$)</label>
+                        <input type="number" step="0.01" class="form-input" id="inp-rec-valor" placeholder="Ex: 3000.00" required>
+                        <span style="font-size: 0.72rem; color: var(--cyan);">*Suporta baixas parciais</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data do Recebimento</label>
+                        <input type="date" class="form-input" id="inp-rec-data" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Forma de Pagamento</label>
+                        <select class="form-select" id="inp-rec-forma">
+                            <option value="pix">Pix (Instantâneo)</option>
+                            <option value="boleto">Boleto Bancário</option>
+                            <option value="cartao_credito">Cartão de Crédito</option>
+                            <option value="transferencia">Transferência (TED/DOC)</option>
+                            <option value="dinheiro">Dinheiro Espécie</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Usuário Responsável</label>
+                        <input type="text" class="form-input" id="inp-rec-usuario" value="Rudge Santana">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Observações / ID do Comprovante</label>
+                        <input type="text" class="form-input" id="inp-rec-obs" placeholder="Ex: Comprovante Itaú #98421">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-novo-recebimento')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background: var(--success);"><i class="fa-solid fa-check"></i> Confirmar Baixa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: COBRANÇA PIX / BOLETO -->
+    <div class="modal-overlay" id="modal-gateway-pay">
+        <div class="modal-container" style="text-align: center; max-width: 480px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-qrcode" style="color:var(--success);"></i> Cobrança Digital (PIX)</h3>
+                <button class="modal-close" onclick="closeModal('modal-gateway-pay')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;" id="gateway-pay-desc">Chave PIX Oficial 8April Tech (CNPJ)</p>
+            <div style="background: #fff; padding: 1rem; border-radius: 12px; display: inline-block; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                <img id="gateway-pay-qr" src="" alt="PIX QR Code" style="width: 180px; height: 180px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pix Copia e Cola (Payload Banco Central)</label>
+                <input type="text" id="gateway-pay-key" class="form-input" style="font-family: monospace; font-size: 0.75rem; text-align: center; color: var(--cyan);" value="" readonly>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary btn-sm" style="background:var(--success);" onclick="copiarPixPayload()"><i class="fa-solid fa-copy"></i> Copiar Pix Copia e Cola</button>
+                <button class="btn btn-secondary btn-sm" onclick="copiarChavePixApenas()"><i class="fa-solid fa-hashtag"></i> Copiar Apenas CNPJ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC & SUPABASE INTEGRATION ENGINE -->
+    <script>
+        // ==============================================================================
+        // CONFIGURAÇÕES DE CONEXÃO DIRETA COM O SUPABASE
+        // ==============================================================================
+        const DEFAULT_SUPABASE_URL = "https://exrvjejlhtdjdhcuzwth.supabase.co";
+        const DEFAULT_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cnZqZWpsaHRkamRoY3V6d3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA0MTk2NDQsImV4cCI6MjA4NTk5NTY0NH0.Jd_gn8bvcDyw5RjiXIL5FePT6mTg6B1tDbBKw-hRakc";
+        const DEFAULT_TENANT_ID = "00000000-0000-0000-0000-000000000001"; // ID padrão da organização
+
+        const STORAGE_KEY = '8april_financeiro_prod_state';
+        const SUPABASE_CFG_KEY = '8april_supabase_config';
+
+        let supabaseClient = null;
+        let isSupabaseConnected = false;
+
+        let state = {
+            contratos: [],
+            parcelas: [],
+            recebimentos: [],
+            timeline: []
+        };
+
+        function generateUUID() {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function toggleMensalidadeFields(mode = 'new') {
+            if (mode === 'new') {
+                const chk = document.getElementById('chk-tem-mensalidade');
+                const box = document.getElementById('box-fields-mensalidade');
+                box.style.display = chk.checked ? 'block' : 'none';
+            } else {
+                const chk = document.getElementById('edit-chk-tem-mensalidade');
+                const box = document.getElementById('edit-box-fields-mensalidade');
+                box.style.display = chk.checked ? 'block' : 'none';
+            }
+        }
+
+        // Initialize App & Supabase
+        document.addEventListener("DOMContentLoaded", async () => {
+            initSupabaseFromConfig();
+            
+            const authed = await verificarSessao();
+            if (!authed) return;
+
+            document.body.classList.remove('auth-pending');
+
+            await loadData();
+            
+            initCharts();
+            renderDashboard();
+            renderContratosTable();
+            renderTodasParcelas();
+            renderTodosRecebimentos();
+            populateRecebimentoModalDropdown();
+
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inp-rec-data').value = today;
+            document.getElementById('inp-data-inicio').value = today;
+            document.getElementById('inp-data-fim').value = today;
+        });
+
+        // Verificação de Sessão do Supabase (Barreira de Autenticação)
+        async function verificarSessao() {
+            if (!isSupabaseConnected || !supabaseClient) {
+                window.location.href = "https://app.8april.com.br/login.html";
+                return false;
+            }
+
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+
+                if (!session) {
+                    window.location.href = "https://app.8april.com.br/login.html";
+                    return false;
+                }
+
+                // Ouve mudanças de estado (logout em outra aba/janela)
+                supabaseClient.auth.onAuthStateChange((event, currentSession) => {
+                    if (event === 'SIGNED_OUT' || !currentSession) {
+                        window.location.href = "https://app.8april.com.br/login.html";
+                    }
+                });
+
+                return true;
+            } catch(e) {
+                console.error("Erro na verificação de sessão", e);
+                window.location.href = "https://app.8april.com.br/login.html";
+                return false;
+            }
+        }
+
+        async function fazerLogout() {
+            if (supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
+            window.location.href = "https://app.8april.com.br/login.html";
+        }
+
+        // Supabase Connection Handler
+        function initSupabaseFromConfig() {
+            let url = DEFAULT_SUPABASE_URL;
+            let key = DEFAULT_SUPABASE_KEY;
+
+            const savedCfg = localStorage.getItem(SUPABASE_CFG_KEY);
+            if (savedCfg) {
+                try {
+                    const cfg = JSON.parse(savedCfg);
+                    if (cfg.url && cfg.key && cfg.url !== "SUA_URL_DO_SUPABASE_AQUI") {
+                        url = cfg.url;
+                        key = cfg.key;
+                    }
+                } catch(e) {}
+            }
+
+            if (url && key && url !== "SUA_URL_DO_SUPABASE_AQUI" && window.supabase) {
+                try {
+                    supabaseClient = window.supabase.createClient(url, key);
+                    isSupabaseConnected = true;
+                    document.getElementById('cfg-supabase-url').value = url;
+                    document.getElementById('cfg-supabase-key').value = key;
+                    
+                    updateConnectionUI(true, url);
+                    return;
+                } catch(e) {
+                    console.error("Erro ao iniciar cliente do Supabase", e);
+                }
+            }
+            updateConnectionUI(false);
+        }
+
+        function updateConnectionUI(connected, url = '') {
+            const bannerTitle = document.getElementById('banner-title');
+            const bannerSub = document.getElementById('banner-sub');
+            const btnStatus = document.getElementById('btn-supabase-status');
+            const sidebarStatus = document.getElementById('sidebar-conn-status');
+
+            if (connected) {
+                bannerTitle.innerHTML = `<i class="fa-solid fa-circle-check" style="color: var(--success);"></i> Supabase Conectado!`;
+                bannerSub.innerText = `Sincronizado diretamente com seu PostgreSQL em ${url}`;
+                btnStatus.innerHTML = `<i class="fa-solid fa-database" style="color:var(--success)"></i> Supabase Ativo`;
+                sidebarStatus.innerHTML = `<span style="color:var(--success)">🟢 Supabase Conectado</span>`;
+            } else {
+                bannerTitle.innerHTML = `<i class="fa-solid fa-database" style="color: var(--warning);"></i> Supabase Pendente de Chaves`;
+                bannerSub.innerText = `Substitua 'SUA_URL_DO_SUPABASE_AQUI' no index.html ou clique no botão ao lado.`;
+                btnStatus.innerHTML = `<i class="fa-solid fa-gear"></i> Inserir URL e Key`;
+                sidebarStatus.innerText = `Supabase Não Configurado`;
+            }
+        }
+
+        function salvarConfigSupabase(e) {
+            e.preventDefault();
+            const url = document.getElementById('cfg-supabase-url').value.trim();
+            const key = document.getElementById('cfg-supabase-key').value.trim();
+
+            if (!url || !key) {
+                alert("Por favor informe a URL e a Anon Key.");
+                return;
+            }
+
+            localStorage.setItem(SUPABASE_CFG_KEY, JSON.stringify({ url, key }));
+            closeModal('modal-config-supabase');
+            alert("Configuração do Supabase salva! Recarregando os dados...");
+            location.reload();
+        }
+
+        // Data Loader
+        async function loadData() {
+            if (isSupabaseConnected && supabaseClient) {
+                try {
+                    const { data: clientes, error: errCli } = await supabaseClient.from('clientes').select('*');
+                    const { data: contratos, error: errC } = await supabaseClient.from('contratos').select('*');
+                    const { data: parcelas, error: errP } = await supabaseClient.from('parcelas').select('*');
+                    const { data: recebimentos, error: errR } = await supabaseClient.from('recebimentos').select('*');
+                    const { data: timeline, error: errT } = await supabaseClient.from('historico_auditoria').select('*');
+
+                    if (!errC && contratos) {
+                        state.contratos = contratos.map(c => {
+                            const cli = clientes ? clientes.find(x => x.id === c.cliente_id) : null;
+                            return {
+                                ...c,
+                                cliente: cli ? cli.nome : (c.cliente || c.cliente_nome || 'Cliente'),
+                                responsavel: c.responsavel_nome || c.responsavel || 'Admin'
+                            };
+                        });
+                    }
+                    if (!errP && parcelas) state.parcelas = parcelas;
+                    if (!errR && recebimentos) state.recebimentos = recebimentos;
+                    if (!errT && timeline) state.timeline = timeline;
+
+                    console.log("⚡ Dados carregados com sucesso do Supabase!");
+                    return;
+                } catch(e) {
+                    console.error("Falha ao buscar do Supabase", e);
+                }
+            }
+
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch(e) {}
+            }
+        }
+
+        async function syncState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('aside');
+            const backdrop = document.querySelector('.sidebar-backdrop');
+            if (sidebar) sidebar.classList.toggle('mobile-open');
+            if (backdrop) backdrop.classList.toggle('active');
+        }
+
+        let activeContractId = null;
+
+        function switchView(viewName, element) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const targetView = document.getElementById(`view-${viewName}`);
+            if (targetView) targetView.classList.add('active');
+
+            if (element) {
+                element.classList.add('active');
+            }
+
+            if (window.innerWidth <= 900) {
+                const sidebar = document.querySelector('aside');
+                const backdrop = document.querySelector('.sidebar-backdrop');
+                if (sidebar) sidebar.classList.remove('mobile-open');
+                if (backdrop) backdrop.classList.remove('active');
+            }
+
+            if (viewName === 'detalhe-contrato' && activeContractId) {
+                renderContractDetails(activeContractId);
+            }
+        }
+
+        // Calculation Helpers - PROGRESSO BASEADO APENAS NO SETUP / IMPLEMENTAÇÃO
+        function getContractFinancials(contratoId) {
+            const contractParcelas = state.parcelas.filter(p => String(p.contrato_id) === String(contratoId));
+            const parcelasIds = contractParcelas.map(p => String(p.id));
+            
+            const recebimentos = state.recebimentos.filter(r => parcelasIds.includes(String(r.parcela_id)));
+            const totalRecebido = recebimentos.reduce((sum, r) => sum + parseFloat(r.valor || 0), 0);
+
+            const valorTotalCalculado = contractParcelas.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+            const contrato = state.contratos.find(c => String(c.id) === String(contratoId));
+            const valorTotal = valorTotalCalculado > 0 ? valorTotalCalculado : (contrato ? parseFloat(contrato.valor_total || 0) : 0);
+
+            const saldo = Math.max(0, valorTotal - totalRecebido);
+
+            // Filtra parcelas exclusivas do Setup/Implementação
+            const setupParcelas = contractParcelas.filter(p => {
+                const desc = (p.descricao || '').toLowerCase();
+                return desc.includes('setup') || desc.includes('implementação') || desc.includes('implementacao') || !desc.includes('mensalidade');
+            });
+
+            let pct = 0;
+            if (setupParcelas.length > 0) {
+                const valorSetupTotal = setupParcelas.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+                const setupParcelasIds = setupParcelas.map(p => String(p.id));
+                const recebidoSetup = state.recebimentos
+                    .filter(r => setupParcelasIds.includes(String(r.parcela_id)))
+                    .reduce((sum, r) => sum + parseFloat(r.valor || 0), 0);
+
+                pct = valorSetupTotal > 0 ? Math.min(100, ((recebidoSetup / valorSetupTotal) * 100)).toFixed(1) : 0;
+            } else {
+                pct = valorTotal > 0 ? Math.min(100, ((totalRecebido / valorTotal) * 100)).toFixed(1) : 0;
+            }
+
+            return { totalRecebido, saldo, pct, valorTotal };
+        }
+
+        function getParcelaPagoAmount(parcelaId) {
+            return state.recebimentos
+                .filter(r => String(r.parcela_id) === String(parcelaId))
+                .reduce((sum, r) => sum + parseFloat(r.valor || 0), 0);
+        }
+
+        function updateParcelaStatusAutomatic(parcelaId) {
+            const parcela = state.parcelas.find(p => String(p.id) === String(parcelaId));
+            if (!parcela) return;
+
+            const pagoAmount = getParcelaPagoAmount(parcelaId);
+            parcela.valor_pago = pagoAmount;
+
+            if (pagoAmount >= parcela.valor) {
+                parcela.status = "Pago";
+            } else if (pagoAmount > 0) {
+                parcela.status = "Parcial";
+            }
+        }
+
+        // Render Dashboard KPIs & Update Charts dynamically
+        function renderDashboard() {
+            let totalContratado = 0;
+            let totalRecebidoGlobal = 0;
+            let totalVencido = 0;
+            let totalAberto = 0;
+
+            state.contratos.forEach(c => {
+                const fin = getContractFinancials(c.id);
+                totalContratado += fin.valorTotal;
+            });
+
+            state.recebimentos.forEach(r => {
+                totalRecebidoGlobal += parseFloat(r.valor || 0);
+            });
+
+            state.parcelas.forEach(p => {
+                const pago = getParcelaPagoAmount(p.id);
+                const aPagar = Math.max(0, p.valor - pago);
+
+                if (p.status === 'Vencido') {
+                    totalVencido += aPagar;
+                } else if (p.status === 'Pendente' || p.status === 'Parcial') {
+                    totalAberto += aPagar;
+                }
+            });
+
+            const pctGlobal = totalContratado > 0 ? ((totalRecebidoGlobal / totalContratado) * 100).toFixed(1) : 0;
+            const ativos = state.contratos.filter(c => c.status === 'Ativo' || c.status === 'Em execução').length;
+
+            document.getElementById('kpi-contratado').innerText = formatCurrency(totalContratado);
+            document.getElementById('kpi-recebido').innerText = formatCurrency(totalRecebidoGlobal);
+            document.getElementById('kpi-pct-recebido').innerText = `${pctGlobal}%`;
+            document.getElementById('kpi-aberto').innerText = formatCurrency(totalAberto);
+            document.getElementById('kpi-vencido').innerText = formatCurrency(totalVencido);
+            document.getElementById('kpi-qtd-ativos').innerText = `${ativos} / ${state.contratos.length}`;
+
+            // Render Próximos Vencimentos
+            const tbodyVenc = document.getElementById('tbl-proximos-vencimentos');
+            tbodyVenc.innerHTML = '';
+
+            const parcelasPendentes = state.parcelas
+                .filter(p => p.status === 'Pendente' || p.status === 'Vencido' || p.status === 'Parcial')
+                .slice(0, 5);
+
+            if (parcelasPendentes.length === 0) {
+                tbodyVenc.innerHTML = '<tr class="empty-state-row"><td colspan="6">Nenhum vencimento pendente. Clique em "+ Novo Contrato" para adicionar.</td></tr>';
+            } else {
+                parcelasPendentes.forEach(p => {
+                    const contrato = state.contratos.find(c => String(c.id) === String(p.contrato_id));
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${contrato ? (contrato.cliente || contrato.cliente_nome) : 'N/A'}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${contrato ? contrato.nome : ''}</span></td>
+                        <td>${p.descricao}</td>
+                        <td><span style="font-family: monospace;">${formatDate(p.vencimento)}</span></td>
+                        <td><strong style="color:var(--text-main);">${formatCurrency(p.valor)}</strong></td>
+                        <td><span class="badge badge-${(p.status||'').toLowerCase()}">${p.status}</span></td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="openGatewayModal('${p.id}')"><i class="fa-solid fa-qrcode"></i> Cobrar PIX</button>
+                        </td>
+                    `;
+                    tbodyVenc.appendChild(tr);
+                });
+            }
+
+            updateCharts();
+        }
+
+        // Render Contratos Table
+        function renderContratosTable() {
+            const tbody = document.getElementById('tbl-contratos-body');
+            tbody.innerHTML = '';
+
+            if (state.contratos.length === 0) {
+                tbody.innerHTML = '<tr class="empty-state-row"><td colspan="8">Nenhum contrato cadastrado ainda. Clique em "+ Criar Contrato" para começar.</td></tr>';
+                return;
+            }
+
+            state.contratos.forEach(c => {
+                const fin = getContractFinancials(c.id);
+                const badgeClass = getStatusBadgeClass(c.status);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <strong style="font-size:0.95rem;">${c.nome}</strong><br>
+                        <span style="color:var(--primary); font-weight:600; font-size:0.8rem;">${c.cliente || c.cliente_nome || 'Cliente'}</span>
+                    </td>
+                    <td><span class="arch-tag">${c.tipo}</span></td>
+                    <td><strong>${formatCurrency(fin.valorTotal)}</strong></td>
+                    <td>
+                        <div>${fin.pct}% <span style="font-size:0.75rem; color:var(--text-muted);">(Impl.)</span></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${fin.pct}%;"></div></div>
+                    </td>
+                    <td>${c.responsavel || c.responsavel_nome || 'Admin'}</td>
+                    <td><span style="font-size:0.78rem; color:var(--text-muted);">${formatDate(c.data_inicio)} até ${formatDate(c.previsao_termino)}</span></td>
+                    <td><span class="badge ${badgeClass}">${c.status}</span></td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="openContractDetail('${c.id}')"><i class="fa-solid fa-eye"></i> Detalhes</button>
+                        <button class="btn btn-secondary btn-sm" onclick="openEditarContratoModal('${c.id}')"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="excluirContratoConfirm('${c.id}')"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filter Contratos
+        function filterContratos() {
+            const search = document.getElementById('filter-search-contrato').value.toLowerCase();
+            const status = document.getElementById('filter-status-contrato').value;
+
+            const rows = document.querySelectorAll('#tbl-contratos-body tr');
+            rows.forEach((row, index) => {
+                const contrato = state.contratos[index];
+                if (!contrato) return;
+
+                const clienteStr = (contrato.cliente || contrato.cliente_nome || '').toLowerCase();
+                const respStr = (contrato.responsavel || contrato.responsavel_nome || '').toLowerCase();
+                const matchSearch = contrato.nome.toLowerCase().includes(search) || 
+                                    clienteStr.includes(search) || 
+                                    respStr.includes(search);
+                const matchStatus = status === "" || contrato.status === status;
+
+                if (matchSearch && matchStatus) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        // Open Contract Detail Page
+        function openContractDetail(id) {
+            activeContractId = id;
+            switchView('detalhe-contrato');
+        }
+
+        function renderContractDetails(id) {
+            const contrato = state.contratos.find(c => String(c.id) === String(id));
+            if (!contrato) return;
+
+            const fin = getContractFinancials(contrato.id);
+
+            document.getElementById('detalhe-nome-contrato').innerText = contrato.nome;
+            document.getElementById('detalhe-sub-contrato').innerText = `Cliente: ${contrato.cliente || contrato.cliente_nome} • Responsável: ${contrato.responsavel || contrato.responsavel_nome}`;
+            document.getElementById('detalhe-desc').innerText = contrato.descricao || 'Sem observações';
+            document.getElementById('detalhe-badge-status').className = `badge ${getStatusBadgeClass(contrato.status)}`;
+            document.getElementById('detalhe-badge-status').innerText = contrato.status;
+
+            document.getElementById('detalhe-val-total').innerText = formatCurrency(fin.valorTotal);
+            document.getElementById('detalhe-val-recebido').innerText = formatCurrency(fin.totalRecebido);
+            document.getElementById('detalhe-val-saldo').innerText = formatCurrency(fin.saldo);
+            document.getElementById('detalhe-pct-texto').innerText = `${fin.pct}%`;
+            document.getElementById('detalhe-pct-bar').style.width = `${fin.pct}%`;
+
+            // Render Parcelas tab table
+            const tbodyParcelas = document.getElementById('tbl-detalhe-parcelas');
+            tbodyParcelas.innerHTML = '';
+            const contractParcelas = state.parcelas.filter(p => String(p.contrato_id) === String(contrato.id));
+
+            if (contractParcelas.length === 0) {
+                tbodyParcelas.innerHTML = '<tr class="empty-state-row"><td colspan="8">Nenhuma parcela ou mensalidade associada a este contrato.</td></tr>';
+            } else {
+                contractParcelas.forEach(p => {
+                    updateParcelaStatusAutomatic(p.id);
+                    const pago = getParcelaPagoAmount(p.id);
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span style="font-family:monospace;">#${p.id}</span></td>
+                        <td><strong>${p.descricao}</strong></td>
+                        <td>${formatDate(p.vencimento)}</td>
+                        <td>${formatCurrency(p.valor)}</td>
+                        <td><span style="color:var(--success); font-weight:600;">${formatCurrency(pago)}</span></td>
+                        <td><i class="fa-solid fa-credit-card" style="color:var(--text-muted); margin-right:4px;"></i> ${p.forma_pagamento || 'Pix'}</td>
+                        <td><span class="badge badge-${(p.status||'').toLowerCase()}">${p.status}</span></td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="openGatewayModal('${p.id}')"><i class="fa-solid fa-qrcode"></i> Cobrar</button>
+                            <button class="btn btn-primary btn-sm" style="background:var(--success);" onclick="quickRecebimentoModal('${p.id}')"><i class="fa-solid fa-check"></i> Dar Baixa</button>
+                        </td>
+                    `;
+                    tbodyParcelas.appendChild(tr);
+                });
+            }
+
+            // Render Recebimentos tab table
+            const tbodyRec = document.getElementById('tbl-detalhe-recebimentos');
+            tbodyRec.innerHTML = '';
+            const parcelasIds = contractParcelas.map(p => String(p.id));
+            const contractRecebimentos = state.recebimentos.filter(r => parcelasIds.includes(String(r.parcela_id)));
+
+            if (contractRecebimentos.length === 0) {
+                tbodyRec.innerHTML = '<tr class="empty-state-row"><td colspan="7">Nenhum recebimento registrado para este contrato ainda.</td></tr>';
+            } else {
+                contractRecebimentos.forEach(r => {
+                    const parcela = state.parcelas.find(p => String(p.id) === String(r.parcela_id));
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span style="font-family:monospace;">REC-${r.id}</span></td>
+                        <td>${parcela ? parcela.descricao : 'N/A'}</td>
+                        <td>${formatDate(r.data)}</td>
+                        <td><strong style="color:var(--success);">${formatCurrency(r.valor)}</strong></td>
+                        <td>${r.forma_pagamento}</td>
+                        <td>${r.usuario || r.usuario_nome || 'Admin'}</td>
+                        <td><span class="arch-tag"><i class="fa-solid fa-paperclip"></i> ${r.observacoes || 'Sem anexo'}</span></td>
+                    `;
+                    tbodyRec.appendChild(tr);
+                });
+            }
+
+            // Render Timeline
+            const timelineBox = document.getElementById('timeline-events');
+            timelineBox.innerHTML = '';
+            const events = state.timeline.filter(t => String(t.contrato_id) === String(contrato.id));
+
+            if (events.length === 0) {
+                timelineBox.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem; padding: 1rem 0;">Nenhum evento auditado ainda.</p>';
+            } else {
+                events.forEach(e => {
+                    const div = document.createElement('div');
+                    div.className = 'timeline-item';
+                    div.innerHTML = `
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">${e.titulo || e.acao}</div>
+                            <div class="timeline-date">${e.data || formatDate(e.created_at)}</div>
+                            <div style="font-size:0.82rem; color:var(--text-muted);">${e.desc || e.descricao}</div>
+                        </div>
+                    `;
+                    timelineBox.appendChild(div);
+                });
+            }
+        }
+
+        // Excluir Contrato com Cascata no Supabase
+        async function excluirContratoConfirm(contratoId) {
+            const contrato = state.contratos.find(c => String(c.id) === String(contratoId));
+            if (!contrato) return;
+
+            if (!confirm(`⚠️ ATENÇÃO: Tem certeza que deseja excluir o contrato '${contrato.nome}'?\n\nTodas as parcelas e recebimentos vinculados a este contrato serão apagados permanentemente!`)) {
+                return;
+            }
+
+            if (isSupabaseConnected && supabaseClient) {
+                try {
+                    const { error: errDel } = await supabaseClient
+                        .from('contratos')
+                        .delete()
+                        .eq('id', contratoId);
+
+                    if (errDel) {
+                        alert("⚠️ Erro ao excluir no Supabase: " + errDel.message);
+                        console.error("Erro Delete Supabase:", errDel);
+                        return;
+                    }
+                } catch(err) {
+                    console.error("Erro comunicacao Supabase delete", err);
+                }
+            }
+
+            const parcelasRemovidas = state.parcelas.filter(p => String(p.contrato_id) === String(contratoId));
+            const parcelasIds = parcelasRemovidas.map(p => String(p.id));
+
+            state.contratos = state.contratos.filter(c => String(c.id) !== String(contratoId));
+            state.parcelas = state.parcelas.filter(p => String(p.contrato_id) !== String(contratoId));
+            state.recebimentos = state.recebimentos.filter(r => !parcelasIds.includes(String(r.parcela_id)));
+            state.timeline = state.timeline.filter(t => String(t.contrato_id) !== String(contratoId));
+
+            syncState();
+            switchView('contratos');
+            renderDashboard();
+            renderContratosTable();
+            renderTodasParcelas();
+            renderTodosRecebimentos();
+            populateRecebimentoModalDropdown();
+            alert("Contrato excluído com sucesso!");
+        }
+
+        // Render Todas Parcelas
+        function renderTodasParcelas() {
+            const tbody = document.getElementById('tbl-todas-parcelas');
+            tbody.innerHTML = '';
+
+            if (state.parcelas.length === 0) {
+                tbody.innerHTML = '<tr class="empty-state-row"><td colspan="7">Nenhuma parcela cadastrada no sistema.</td></tr>';
+                return;
+            }
+
+            state.parcelas.forEach(p => {
+                const contrato = state.contratos.find(c => String(c.id) === String(p.contrato_id));
+                const pago = getParcelaPagoAmount(p.id);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${contrato ? (contrato.cliente || contrato.cliente_nome) : 'N/A'}</strong></td>
+                    <td>${p.descricao}</td>
+                    <td>${formatDate(p.vencimento)}</td>
+                    <td>${formatCurrency(p.valor)}</td>
+                    <td><span style="color:var(--success);">${formatCurrency(pago)}</span></td>
+                    <td><span class="badge badge-${(p.status||'').toLowerCase()}">${p.status}</span></td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="openGatewayModal('${p.id}')"><i class="fa-solid fa-barcode"></i> Cobrança Digital</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Todos Recebimentos
+        function renderTodosRecebimentos() {
+            const tbody = document.getElementById('tbl-todos-recebimentos');
+            tbody.innerHTML = '';
+
+            if (state.recebimentos.length === 0) {
+                tbody.innerHTML = '<tr class="empty-state-row"><td colspan="7">Nenhum recebimento registrado no sistema.</td></tr>';
+                return;
+            }
+
+            state.recebimentos.forEach(r => {
+                const parcela = state.parcelas.find(p => String(p.id) === String(r.parcela_id));
+                const contrato = parcela ? state.contratos.find(c => String(c.id) === String(parcela.contrato_id)) : null;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatDate(r.data)}</td>
+                    <td><strong>${contrato ? (contrato.cliente || contrato.cliente_nome) : 'N/A'}</strong></td>
+                    <td>${parcela ? parcela.descricao : 'N/A'}</td>
+                    <td><strong style="color:var(--success);">${formatCurrency(r.valor)}</strong></td>
+                    <td>${r.forma_pagamento}</td>
+                    <td>${r.usuario || r.usuario_nome || 'Admin'}</td>
+                    <td>${r.observacoes || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Form Actions (Save Hibrid Contract - Setup + Recorrência)
+        async function salvarNovoContrato(e) {
+            e.preventDefault();
+            const newId = generateUUID();
+            const valorSetup = parseFloat(document.getElementById('inp-valor').value) || 0;
+            const numParcelasSetup = parseInt(document.getElementById('inp-qtd-parcelas').value) || 1;
+            const clienteNome = document.getElementById('inp-cliente').value;
+
+            const temMensalidade = document.getElementById('chk-tem-mensalidade').checked;
+            const valorMensalidade = temMensalidade ? parseFloat(document.getElementById('inp-valor-mensalidade').value) || 0 : 0;
+            const qtdMensalidades = temMensalidade ? parseInt(document.getElementById('inp-qtd-mensalidades').value) || 12 : 0;
+
+            const totalContratoHibrido = valorSetup + (valorMensalidade * qtdMensalidades);
+
+            let clienteId = generateUUID();
+
+            const newContrato = {
+                id: newId,
+                tenant_id: DEFAULT_TENANT_ID,
+                cliente: clienteNome,
+                cliente_nome: clienteNome,
+                cliente_id: clienteId,
+                nome: document.getElementById('inp-nome').value,
+                tipo: document.getElementById('inp-tipo').value,
+                valor_total: totalContratoHibrido,
+                status: document.getElementById('inp-status').value,
+                data_inicio: document.getElementById('inp-data-inicio').value,
+                previsao_termino: document.getElementById('inp-data-fim').value,
+                responsavel: document.getElementById('inp-responsavel').value,
+                responsavel_nome: document.getElementById('inp-responsavel').value,
+                descricao: document.getElementById('inp-desc').value
+            };
+
+            const newParcelas = [];
+            const valorParcelaSetup = valorSetup / numParcelasSetup;
+
+            for (let i = 1; i <= numParcelasSetup; i++) {
+                const venc = new Date(newContrato.data_inicio || new Date());
+                venc.setMonth(venc.getMonth() + (i - 1));
+
+                newParcelas.push({
+                    id: generateUUID(),
+                    tenant_id: DEFAULT_TENANT_ID,
+                    contrato_id: newId,
+                    numero_parcela: i,
+                    descricao: `Setup ${i}/${numParcelasSetup} - Implementação`,
+                    valor: valorParcelaSetup,
+                    valor_pago: 0,
+                    vencimento: venc.toISOString().split('T')[0],
+                    status: "Pendente",
+                    forma_pagamento: "pix"
+                });
+            }
+
+            if (temMensalidade && valorMensalidade > 0) {
+                const baseDate = new Date(newContrato.previsao_termino || newContrato.data_inicio);
+                for (let j = 1; j <= qtdMensalidades; j++) {
+                    const vencM = new Date(baseDate);
+                    vencM.setMonth(vencM.getMonth() + j);
+
+                    newParcelas.push({
+                        id: generateUUID(),
+                        tenant_id: DEFAULT_TENANT_ID,
+                        contrato_id: newId,
+                        numero_parcela: numParcelasSetup + j,
+                        descricao: `Mensalidade ${j}/${qtdMensalidades} - Manutenção/Suporte`,
+                        valor: valorMensalidade,
+                        valor_pago: 0,
+                        vencimento: vencM.toISOString().split('T')[0],
+                        status: "Pendente",
+                        forma_pagamento: "pix"
+                    });
+                }
+            }
+
+            if (isSupabaseConnected && supabaseClient) {
+                try {
+                    await supabaseClient.from('clientes').insert([{
+                        id: clienteId,
+                        tenant_id: DEFAULT_TENANT_ID,
+                        nome: clienteNome
+                    }]);
+
+                    const { error: errC } = await supabaseClient.from('contratos').insert([{
+                        id: newContrato.id,
+                        tenant_id: newContrato.tenant_id,
+                        cliente_id: newContrato.cliente_id,
+                        nome: newContrato.nome,
+                        descricao: newContrato.descricao,
+                        tipo: newContrato.tipo,
+                        valor_total: newContrato.valor_total,
+                        status: newContrato.status,
+                        data_inicio: newContrato.data_inicio,
+                        previsao_termino: newContrato.previsao_termino,
+                        responsavel_nome: newContrato.responsavel_nome
+                    }]);
+
+                    if (errC) {
+                        alert("⚠️ Erro ao salvar contrato no Supabase: " + errC.message);
+                    }
+
+                    const { error: errP } = await supabaseClient.from('parcelas').insert(newParcelas.map(p => ({
+                        id: p.id,
+                        tenant_id: p.tenant_id,
+                        contrato_id: p.contrato_id,
+                        numero_parcela: p.numero_parcela,
+                        descricao: p.descricao,
+                        valor: p.valor,
+                        valor_pago: p.valor_pago,
+                        vencimento: p.vencimento,
+                        status: p.status,
+                        forma_pagamento: p.forma_pagamento
+                    })));
+
+                    if (errP) console.error("Erro Parcelas Supabase:", errP);
+                } catch(err) {
+                    console.error("Erro na comunicação com Supabase", err);
+                }
+            }
+
+            state.contratos.push(newContrato);
+            state.parcelas.push(...newParcelas);
+
+            state.timeline.push({
+                contrato_id: newId,
+                data: new Date().toLocaleString('pt-BR'),
+                titulo: "Contrato Híbrido Criado",
+                desc: `Setup: ${formatCurrency(valorSetup)} (${numParcelasSetup}x) | Recorrência: ${qtdMensalidades}x de ${formatCurrency(valorMensalidade)}.`
+            });
+
+            syncState();
+            closeModal('modal-novo-contrato');
+            renderDashboard();
+            renderContratosTable();
+            renderTodasParcelas();
+            populateRecebimentoModalDropdown();
+            alert('Contrato e cronograma gerados com sucesso!');
+        }
+
+        // Open Modal Adicionar Parcela Avulsa
+        function openAdicionarParcelaModal() {
+            if (!activeContractId) return;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('add-parc-venc').value = today;
+            openModal('modal-add-parcela');
+        }
+
+        // Salvar Adição de Parcela / Mensalidade Avulsa
+        async function salvarAdicaoParcela(e) {
+            e.preventDefault();
+            if (!activeContractId) return;
+
+            const desc = document.getElementById('add-parc-desc').value;
+            const valor = parseFloat(document.getElementById('add-parc-valor').value);
+            const venc = document.getElementById('add-parc-venc').value;
+            const forma = document.getElementById('add-parc-forma').value;
+
+            const existingParcelas = state.parcelas.filter(p => String(p.contrato_id) === String(activeContractId));
+
+            const newParcela = {
+                id: generateUUID(),
+                tenant_id: DEFAULT_TENANT_ID,
+                contrato_id: activeContractId,
+                numero_parcela: existingParcelas.length + 1,
+                descricao: desc,
+                valor: valor,
+                valor_pago: 0,
+                vencimento: venc,
+                status: "Pendente",
+                forma_pagamento: forma
+            };
+
+            if (isSupabaseConnected && supabaseClient) {
+                try {
+                    const { error: errP } = await supabaseClient.from('parcelas').insert([{
+                        id: newParcela.id,
+                        tenant_id: newParcela.tenant_id,
+                        contrato_id: newParcela.contrato_id,
+                        numero_parcela: newParcela.numero_parcela,
+                        descricao: newParcela.descricao,
+                        valor: newParcela.valor,
+                        valor_pago: newParcela.valor_pago,
+                        vencimento: newParcela.vencimento,
+                        status: newParcela.status,
+                        forma_pagamento: newParcela.forma_pagamento
+                    }]);
+
+                    if (errP) {
+                        alert("⚠️ Erro ao adicionar parcela no Supabase: " + errP.message);
+                        console.error("Erro Adicionar Parcela:", errP);
+                    }
+                } catch(err) {
+                    console.error("Erro comunicação Supabase", err);
+                }
+            }
+
+            state.parcelas.push(newParcela);
+
+            state.timeline.push({
+                contrato_id: activeContractId,
+                data: new Date().toLocaleString('pt-BR'),
+                titulo: "Nova Parcela / Mensalidade Adicionada",
+                desc: `Adicionado: ${desc} no valor de ${formatCurrency(valor)} com vencimento em ${formatDate(venc)}.`
+            });
+
+            syncState();
+            closeModal('modal-add-parcela');
+            renderDashboard();
+            renderContratosTable();
+            renderTodasParcelas();
+            renderContractDetails(activeContractId);
+            populateRecebimentoModalDropdown();
+            alert('Parcela/Mensalidade adicionada ao cronograma!');
+        }
+
+        // Open Editar Contrato Modal
+        function openEditarContratoModal(contratoId) {
+            const contrato = state.contratos.find(c => String(c.id) === String(contratoId));
+            if (!contrato) return;
+
+            const setupParcelas = state.parcelas.filter(p => {
+                const desc = (p.descricao || '').toLowerCase();
+                return String(p.contrato_id) === String(contratoId) && (desc.includes('setup') || desc.includes('implementação') || !desc.includes('mensalidade'));
+            });
+
+            const valorSetupAtual = setupParcelas.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+
+            document.getElementById('edit-contrato-id').value = contrato.id;
+            document.getElementById('edit-cliente').value = contrato.cliente || contrato.cliente_nome || '';
+            document.getElementById('edit-nome').value = contrato.nome || '';
+            document.getElementById('edit-tipo').value = contrato.tipo || 'parcelado';
+            document.getElementById('edit-valor-setup').value = valorSetupAtual > 0 ? valorSetupAtual : (contrato.valor_total || 0);
+            document.getElementById('edit-inp-qtd-parcelas').value = setupParcelas.length > 0 ? setupParcelas.length : 2;
+            document.getElementById('edit-data-inicio').value = contrato.data_inicio ? contrato.data_inicio.split('T')[0] : '';
+            document.getElementById('edit-data-fim').value = contrato.previsao_termino ? contrato.previsao_termino.split('T')[0] : '';
+            document.getElementById('edit-responsavel').value = contrato.responsavel || contrato.responsavel_nome || '';
+            document.getElementById('edit-status').value = contrato.status || 'Ativo';
+            document.getElementById('edit-desc').value = contrato.descricao || '';
+
+            document.getElementById('edit-chk-regerar-setup').checked = true;
+            document.getElementById('edit-chk-tem-mensalidade').checked = false;
+            document.getElementById('edit-box-fields-mensalidade').style.display = 'none';
+
+            openModal('modal-editar-contrato');
+        }
+
+        // Salvar Edição do Contrato (com Recálculo e Substituição Real das Parcelas do Setup)
+        async function salvarEdicaoContrato(e) {
+            e.preventDefault();
+
+            const contratoId = document.getElementById('edit-contrato-id').value;
+            const contrato = state.contratos.find(c => String(c.id) === String(contratoId));
+            if (!contrato) return;
+
+            const clienteNome = document.getElementById('edit-cliente').value;
+            const nome = document.getElementById('edit-nome').value;
+            const tipo = document.getElementById('edit-tipo').value;
+            const valorSetupNovo = parseFloat(document.getElementById('edit-valor-setup').value) || 0;
+            const qtdParcelasSetupNova = parseInt(document.getElementById('edit-inp-qtd-parcelas').value) || 1;
+            const dataInicio = document.getElementById('edit-data-inicio').value;
+            const previsaoTermino = document.getElementById('edit-data-fim').value;
+            const responsavel = document.getElementById('edit-responsavel').value;
+            const status = document.getElementById('edit-status').value;
+            const descricao = document.getElementById('edit-desc').value;
+            const regerarSetup = document.getElementById('edit-chk-regerar-setup').checked;
+
+            const addMensalidade = document.getElementById('edit-chk-tem-mensalidade').checked;
+            const valMensalidade = addMensalidade ? parseFloat(document.getElementById('edit-inp-valor-mensalidade').value) || 0 : 0;
+            const qtdMensalidades = addMensalidade ? parseInt(document.getElementById('edit-inp-qtd-mensalidades').value) || 12 : 0;
+
+            const existingParcelas = state.parcelas.filter(p => String(p.contrato_id) === String(contratoId));
+            
+            const oldSetupParcelas = existingParcelas.filter(p => {
+                const desc = (p.descricao || '').toLowerCase();
+                return desc.includes('setup') || desc.includes('implementação') || !desc.includes('mensalidade');
+            });
+            const oldMensalidades = existingParcelas.filter(p => (p.descricao || '').toLowerCase().includes('mensalidade'));
+
+            const novasSetupParcelas = [];
+
+            if (regerarSetup && valorSetupNovo > 0 && qtdParcelasSetupNova > 0) {
+                const valorCadaSetup = valorSetupNovo / qtdParcelasSetupNova;
+
+                for (let i = 1; i <= qtdParcelasSetupNova; i++) {
+                    const venc = new Date(dataInicio || new Date());
+                    venc.setMonth(venc.getMonth() + (i - 1));
+
+                    novasSetupParcelas.push({
+                        id: generateUUID(),
+                        tenant_id: DEFAULT_TENANT_ID,
+                        contrato_id: contratoId,
+                        numero_parcela: i,
+                        descricao: `Setup ${i}/${qtdParcelasSetupNova} - Implementação`,
+                        valor: valorCadaSetup,
+                        valor_pago: 0,
+                        vencimento: venc.toISOString().split('T')[0],
+                        status: "Pendente",
+                        forma_pagamento: "pix"
+                    });
+                }
+            }
+
+            const novasMensalidadesEdit = [];
+            if (addMensalidade && valMensalidade > 0 && qtdMensalidades > 0) {
+                const lastCount = (regerarSetup ? novasSetupParcelas.length : oldSetupParcelas.length) + oldMensalidades.length;
+                const baseDate = new Date(previsaoTermino || dataInicio);
+
+                for (let j = 1; j <= qtdMensalidades; j++) {
+                    const vencM = new Date(baseDate);
+                    vencM.setMonth(vencM.getMonth() + j);
+
+                    novasMensalidadesEdit.push({
+                        id: generateUUID(),
+                        tenant_id: DEFAULT_TENANT_ID,
+                        contrato_id: contratoId,
+                        numero_parcela: lastCount + j,
+                        descricao: `Mensalidade ${j}/${qtdMensalidades} - Manutenção/Suporte`,
+                        valor: valMensalidade,
+                        valor_pago: 0,
+                        vencimento: vencM.toISOString().split('T')[0],
+                        status: "Pendente",
+                        forma_pagamento: "pix"
+                    });
+                }
+            }
+
+            const totalMensalidadesExistentes = oldMensalidades.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+            const totalNovasMensalidades = novasMensalidadesEdit.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0);
+            const novoValorTotalContrato = (regerarSetup ? valorSetupNovo : oldSetupParcelas.reduce((sum, p) => sum + parseFloat(p.valor || 0), 0)) + totalMensalidadesExistentes + totalNovasMensalidades;
+
+            if (isSupabaseConnected && supabaseClient) {
+                try {
+                    await supabaseClient
+                        .from('contratos')
+                        .update({
+                            nome: nome,
+                            tipo: tipo,
+                            valor_total: novoValorTotalContrato,
+                            data_inicio: dataInicio,
+                            previsao_termino: previsaoTermino,
+                            responsavel_nome: responsavel,
+                            status: status,
+                            descricao: descricao
+                        })
+                        .eq('id', contratoId);
+
+                    if (contrato.cliente_id) {
+                        await supabaseClient
+                            .from('clientes')
+                            .update({ nome: clienteNome })
+                            .eq('id', contrato.cliente_id);
+                    }
+
+                    if (regerarSetup && oldSetupParcelas.length > 0) {
+                        const idsToDelete = oldSetupParcelas.map(p => p.id);
+                        await supabaseClient
+                            .from('parcelas')
+                            .delete()
+                            .in('id', idsToDelete);
+                    }
+
+                    if (novasSetupParcelas.length > 0) {
+                        await supabaseClient.from('parcelas').insert(novasSetupParcelas.map(p => ({
+                            id: p.id,
+                            tenant_id: p.tenant_id,
+                            contrato_id: p.contrato_id,
+                            numero_parcela: p.numero_parcela,
+                            descricao: p.descricao,
+                            valor: p.valor,
+                            valor_pago: p.valor_pago,
+                            vencimento: p.vencimento,
+                            status: p.status,
+                            forma_pagamento: p.forma_pagamento
+                        })));
+                    }
+
+                    if (novasMensalidadesEdit.length > 0) {
+                        await supabaseClient.from('parcelas').insert(novasMensalidadesEdit.map(p => ({
+                            id: p.id,
+                            tenant_id: p.tenant_id,
+                            contrato_id: p.contrato_id,
+                            numero_parcela: p.numero_parcela,
+                            descricao: p.descricao,
+                            valor: p.valor,
+                            valor_pago: p.valor_pago,
+                            vencimento: p.vencimento,
+                            status: p.status,
+                            forma_pagamento: p.forma_pagamento
+                        })));
+                    }
+
+                } catch(err) {
+                    console.error("Erro ao sincronizar edição com Supabase:", err);
+                }
+            }
+
+            contrato.cliente = clienteNome;
+            contrato.cliente_nome = clienteNome;
+            contrato.nome = nome;
+            contrato.tipo = tipo;
+            contrato.valor_total = novoValorTotalContrato;
+            contrato.data_inicio = dataInicio;
+            contrato.previsao_termino = previsaoTermino;
+            contrato.responsavel = responsavel;
+            contrato.responsavel_nome = responsavel;
+            contrato.status = status;
+            contrato.descricao = descricao;
+
+            if (regerarSetup) {
+                state.parcelas = state.parcelas.filter(p => !(String(p.contrato_id) === String(contratoId) && oldSetupParcelas.some(oldP => String(oldP.id) === String(p.id))));
+                state.parcelas.push(...novasSetupParcelas);
+            }
+
+            if (novasMensalidadesEdit.length > 0) {
+                state.parcelas.push(...novasMensalidadesEdit);
+            }
+
+            state.timeline.push({
+                contrato_id: contratoId,
+                data: new Date().toLocaleString('pt-BR'),
+                titulo: "Cronograma de Setup Recalculado",
+                desc: `Setup alterado para ${qtdParcelasSetupNova}x de ${formatCurrency(valorSetupNovo / qtdParcelasSetupNova)}.`
+            });
+
+            syncState();
+            closeModal('modal-editar-contrato');
+            renderDashboard();
+            renderContratosTable();
+            renderTodasParcelas();
+
+            if (document.getElementById('view-detalhe-contrato').classList.contains('active') && String(activeContractId) === String(contratoId)) {
+                renderContractDetails(contratoId);
+            }
+
+            alert(`✅ Contrato e cronograma recalculados com sucesso! Novo cronograma: ${qtdParcelasSetupNova} parcelas de ${formatCurrency(valorSetupNovo / qtdParcelasSetupNova)}.`);
+        }
+
+        function populateRecebimentoModalDropdown() {
+            const select = document.getElementById('inp-rec-parcela');
+            select.innerHTML = '';
+
+            const parcelasEmAberto = state.parcelas.filter(p => {
+                const pago = getParcelaPagoAmount(p.id);
+                return (p.valor - pago) > 0;
+            });
+
+            if (parcelasEmAberto.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = "";
+                opt.innerText = "Nenhuma parcela pendente para dar baixa";
+                select.appendChild(opt);
+                return;
+            }
+
+            parcelasEmAberto.forEach(p => {
+                const contrato = state.contratos.find(c => String(c.id) === String(p.contrato_id));
+                const pago = getParcelaPagoAmount(p.id);
+                const resta = p.valor - pago;
+
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.innerText = `${contrato ? (contrato.cliente || contrato.cliente_nome) : ''} - ${p.descricao} (Restante: ${formatCurrency(resta)})`;
+                select.appendChild(opt);
+            });
+        }
+
+        function quickRecebimentoModal(parcelaId) {
+            populateRecebimentoModalDropdown();
+            document.getElementById('inp-rec-parcela').value = parcelaId;
+
+            const p = state.parcelas.find(par => String(par.id) === String(parcelaId));
+            if (p) {
+                const resta = p.valor - getParcelaPagoAmount(p.id);
+                document.getElementById('inp-rec-valor').value = resta;
+            }
+
+            openModal('modal-novo-recebimento');
+        }
+
+        async function salvarRecebimento(e) {
+            e.preventDefault();
+
+            const parcelaId = document.getElementById('inp-rec-parcela').value;
+            if (!parcelaId) return;
+
+            const valor = parseFloat(document.getElementById('inp-rec-valor').value);
+            const data = document.getElementById('inp-rec-data').value;
+            const forma = document.getElementById('inp-rec-forma').value;
+            const usuario = document.getElementById('inp-rec-usuario').value;
+            const obs = document.getElementById('inp-rec-obs').value;
+
+            const newRec = {
+                id: generateUUID(),
+                tenant_id: DEFAULT_TENANT_ID,
+                parcela_id: parcelaId,
+                valor: valor,
+                data: data,
+                forma_pagamento: forma,
+                usuario_nome: usuario,
+                observacoes: obs
+            };
+
+            if (isSupabaseConnected && supabaseClient) {
+                try {
+                    const { error: errR } = await supabaseClient.from('recebimentos').insert([{
+                        id: newRec.id,
+                        tenant_id: newRec.tenant_id,
+                        parcela_id: newRec.parcela_id,
+                        valor: newRec.valor,
+                        data: newRec.data,
+                        forma_pagamento: newRec.forma_pagamento,
+                        observacoes: newRec.observacoes,
+                        usuario_nome: newRec.usuario_nome
+                    }]);
+
+                    if (errR) {
+                        alert("⚠️ Erro ao salvar recebimento no Supabase: " + errR.message);
+                    }
+                } catch(err) {
+                    console.error("Erro ao inserir recebimento no Supabase", err);
+                }
+            }
+
+            state.recebimentos.push(newRec);
+
+            updateParcelaStatusAutomatic(parcelaId);
+
+            const parcela = state.parcelas.find(p => String(p.id) === String(parcelaId));
+            if (parcela) {
+                state.timeline.push({
+                    contrato_id: parcela.contrato_id,
+                    data: new Date().toLocaleString('pt-BR'),
+                    titulo: "Recebimento Financeiro Confirmado",
+                    desc: `Recebimento de ${formatCurrency(valor)} registrado na parcela #${parcelaId} via ${forma}`
+                });
+            }
+
+            syncState();
+            closeModal('modal-novo-recebimento');
+            renderDashboard();
+            renderContratosTable();
+            renderTodasParcelas();
+            renderTodosRecebimentos();
+            if (document.getElementById('view-detalhe-contrato').classList.contains('active') && activeContractId) {
+                renderContractDetails(activeContractId);
+            }
+            populateRecebimentoModalDropdown();
+            alert('Recebimento financeiro registrado com sucesso!');
+        }
+
+        // Charts Initialization & Dynamic Updates
+        let chartRecebimentosInstance = null;
+        let chartStatusInstance = null;
+
+        function initCharts() {
+            // Chart Recebimentos
+            const ctx1 = document.getElementById('chartRecebimentos').getContext('2d');
+            chartRecebimentosInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [
+                        {
+                            label: 'Recebido (R$)',
+                            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#94A3B8' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#64748B' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#64748B' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // Chart Status
+            const ctx2 = document.getElementById('chartStatus').getContext('2d');
+            chartStatusInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Em execução', 'Ativo', 'Aguardando Assinatura', 'Finalizado', 'Em Negociação', 'Cancelado'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#64748B', '#EF4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94A3B8', boxWidth: 12 } }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            if (!chartRecebimentosInstance || !chartStatusInstance) return;
+
+            const monthlyTotals = new Array(12).fill(0);
+            state.recebimentos.forEach(r => {
+                if (r.data) {
+                    const d = new Date(r.data.split('T')[0] + 'T00:00:00');
+                    if (!isNaN(d.getTime())) {
+                        const monthIndex = d.getMonth();
+                        if (monthIndex >= 0 && monthIndex < 12) {
+                            monthlyTotals[monthIndex] += parseFloat(r.valor || 0);
+                        }
+                    }
+                }
+            });
+
+            chartRecebimentosInstance.data.datasets[0].data = monthlyTotals;
+            chartRecebimentosInstance.update();
+
+            const statusCounts = {
+                'Em execução': 0,
+                'Ativo': 0,
+                'Aguardando assinatura': 0,
+                'Finalizado': 0,
+                'Em negociação': 0,
+                'Cancelado': 0
+            };
+
+            state.contratos.forEach(c => {
+                const s = c.status || 'Em negociação';
+                if (statusCounts.hasOwnProperty(s)) {
+                    statusCounts[s]++;
+                } else {
+                    statusCounts['Em negociação']++;
+                }
+            });
+
+            chartStatusInstance.data.datasets[0].data = [
+                statusCounts['Em execução'],
+                statusCounts['Ativo'],
+                statusCounts['Aguardando assinatura'],
+                statusCounts['Finalizado'],
+                statusCounts['Em negociação'],
+                statusCounts['Cancelado']
+            ];
+            chartStatusInstance.update();
+        }
+
+        // Tab Switching inside Contract Details
+        function switchContractTab(tabId, element) {
+            document.querySelectorAll('#view-detalhe-contrato .tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('#view-detalhe-contrato .tab-content').forEach(c => c.classList.remove('active'));
+
+            element.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Modal Helpers
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // ==============================================================================
+        // GERADOR OFICIAL DE PIX BR CODE (EMV PAYLOAD & CRC16 DO BANCO CENTRAL)
+        // ==============================================================================
+        function calculateCRC16(str) {
+            let crc = 0xFFFF;
+            for (let i = 0; i < str.length; i++) {
+                crc ^= str.charCodeAt(i) << 8;
+                for (let j = 0; j < 8; j++) {
+                    if ((crc & 0x8000) !== 0) {
+                        crc = (crc << 1) ^ 0x1021;
+                    } else {
+                        crc <<= 1;
+                    }
+                    crc &= 0xFFFF;
+                }
+            }
+            return crc.toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        function generatePixPayload(chavePix, nomeRecebedor, cidadeRecebedor, valor, txId = '***') {
+            const chave = chavePix.replace(/\D/g, ''); // 46005353000185 (CNPJ)
+
+            const gui = "0014BR.GOV.BCB.PIX";
+            const keyTag = "01" + String(chave.length).padStart(2, '0') + chave;
+            const tag26Value = gui + keyTag;
+            const tag26 = "26" + String(tag26Value.length).padStart(2, '0') + tag26Value;
+
+            const tag00 = "000201";
+            const tag52 = "52040000";
+            const tag53 = "5303986";
+            
+            let tag54 = "";
+            if (valor && parseFloat(valor) > 0) {
+                const valorStr = parseFloat(valor).toFixed(2);
+                tag54 = "54" + String(valorStr.length).padStart(2, '0') + valorStr;
+            }
+
+            const tag58 = "5802BR";
+
+            const nomeClean = (nomeRecebedor || "8APRIL TECH").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().substring(0, 25);
+            const tag59 = "59" + String(nomeClean.length).padStart(2, '0') + nomeClean;
+
+            const cidadeClean = (cidadeRecebedor || "SAO PAULO").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().substring(0, 15);
+            const tag60 = "60" + String(cidadeClean.length).padStart(2, '0') + cidadeClean;
+
+            const txIdClean = (txId || "***").replace(/[^a-zA-Z0-9]/g, "").substring(0, 25) || "***";
+            const tag62Value = "05" + String(txIdClean.length).padStart(2, '0') + txIdClean;
+            const tag62 = "62" + String(tag62Value.length).padStart(2, '0') + tag62Value;
+
+            const payloadWithoutCRC = tag00 + tag26 + tag52 + tag53 + tag54 + tag58 + tag59 + tag60 + tag62 + "6304";
+            const crc = calculateCRC16(payloadWithoutCRC);
+
+            return payloadWithoutCRC + crc;
+        }
+
+        function openGatewayModal(parcelaId) {
+            const parcela = state.parcelas.find(p => String(p.id) === String(parcelaId));
+            const descEl = document.getElementById('gateway-pay-desc');
+            const keyInput = document.getElementById('gateway-pay-key');
+            const qrImg = document.getElementById('gateway-pay-qr');
+            
+            let valorPagar = 0;
+            let txId = '8A' + (parcelaId ? String(parcelaId).replace(/\D/g, '').substring(0, 10) : 'PROD');
+
+            if (parcela && descEl) {
+                const contrato = state.contratos.find(c => String(c.id) === String(parcela.contrato_id));
+                const pago = getParcelaPagoAmount(parcela.id);
+                valorPagar = Math.max(0, parcela.valor - pago);
+                descEl.innerHTML = `<strong>${contrato ? (contrato.cliente || contrato.cliente_nome) : 'Cliente'}</strong> • ${parcela.descricao}<br><span style="color:var(--success); font-weight:700;">Valor a Pagar: ${formatCurrency(valorPagar)}</span>`;
+            } else if (descEl) {
+                descEl.innerHTML = `Chave PIX Oficial 8April Tech (CNPJ)`;
+            }
+
+            const emvPayload = generatePixPayload("46005353000185", "8APRIL TECH", "SAO PAULO", valorPagar, txId);
+
+            if (keyInput) {
+                keyInput.value = emvPayload;
+            }
+
+            if (qrImg) {
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(emvPayload)}`;
+            }
+
+            openModal('modal-gateway-pay');
+        }
+
+        function copiarPixPayload() {
+            const keyInput = document.getElementById('gateway-pay-key');
+            if (keyInput && keyInput.value) {
+                navigator.clipboard.writeText(keyInput.value);
+                alert("✅ Código 'Pix Copia e Cola' oficial copiado com sucesso! Abra o app do seu banco e cole na opção Pix Copia e Cola.");
+            }
+        }
+
+        function copiarChavePixApenas() {
+            navigator.clipboard.writeText('46005353000185');
+            alert("✅ Chave CNPJ (46005353000185) copiada!");
+        }
+
+        function openArchModal() {
+            alert('A plataforma 8April contempla endpoints REST, DTOs e Webhooks previstos para Asaas, Efí, Mercado Pago, Stripe e WhatsApp!');
+        }
+
+        // Utility Formatters
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('T')[0].split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateStr;
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'Em negociação': return 'badge-negociacao';
+                case 'Aguardando assinatura': return 'badge-aguardando';
+                case 'Ativo': return 'badge-ativo';
+                case 'Em execução': return 'badge-execucao';
+                case 'Finalizado': return 'badge-finalizado';
+                case 'Cancelado': return 'badge-cancelado';
+                default: return 'badge-negociacao';
+            }
+        }
+
+        function exportData() {
+            alert('Relatório de contratos exportado!');
+        }
+    </script>
+</body>
+</html>

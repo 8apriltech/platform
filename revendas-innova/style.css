@@ -110,12 +110,14 @@ input:focus, textarea:focus {
 .login-wrapper {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 24px;
   background: radial-gradient(circle at 10% 20%, rgb(240, 245, 255) 0%, rgb(228, 237, 255) 100%);
   position: relative;
   overflow-y: auto;
+  gap: 20px;
 }
 
 .login-card {
@@ -1703,5 +1705,149 @@ body.dark-theme .logo-light-only {
 body.dark-theme .logo-dark-only {
   display: block !important;
 }
+
+/* Créditos de Desenvolvimento */
+.login-credits {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  font-weight: 500;
+  animation: fadeInSlideUp var(--transition-slow);
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.login-credits span {
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+
+/* Divisor para login social */
+.login-divider-oauth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  position: relative;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+
+.login-divider-oauth span {
+  background-color: var(--bg-card);
+  padding: 0 10px;
+  z-index: 2;
+}
+
+.login-divider-oauth::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background-color: var(--border-light);
+  z-index: 1;
+}
+
+/* Botão do Google */
+.btn-google {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  color: var(--brand-secondary);
+  padding: 12px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-google:hover {
+  background-color: var(--bg-app);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-google:active {
+  transform: translateY(0);
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Botão de exclusão (Perigo) no painel de detalhes */
+.btn-danger-outline {
+  width: 100%;
+  border: 1px solid hsl(0, 84%, 60%);
+  color: hsl(0, 84%, 60%);
+  background-color: transparent;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition-fast);
+  margin-top: 16px;
+}
+
+.btn-danger-outline:hover {
+  background-color: hsl(0, 100%, 97%);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.08);
+  transform: translateY(-1px);
+}
+
+body.dark-theme .btn-danger-outline:hover {
+  background-color: hsl(0, 45%, 12%);
+  border-color: hsl(0, 85%, 50%);
+  color: hsl(0, 85%, 65%);
+}
+
+.btn-danger-outline:active {
+  transform: translateY(0);
+}
+
+.btn-danger-outline:disabled {
+  border-color: var(--border-light);
+  color: var(--text-muted);
+  background-color: transparent;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-danger-outline i {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Ícone de Carregando Giratório */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+
 
 

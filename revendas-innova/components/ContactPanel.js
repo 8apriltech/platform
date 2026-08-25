@@ -91,8 +91,17 @@ export function renderContactDetails(container, contact) {
         <span class="detail-label">Observações</span>
         <div class="observation-box">${getValueOrFallback(contact.observacoes)}</div>
       </div>
+
+      <div class="detail-actions" style="margin-top: 8px;">
+        <button type="button" class="btn-danger-outline" id="btn-delete-conversation" data-id="${contact.id}">
+          <i data-lucide="trash-2"></i>
+          <span>Excluir Conversa</span>
+        </button>
+      </div>
     </div>
   `;
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 /**
